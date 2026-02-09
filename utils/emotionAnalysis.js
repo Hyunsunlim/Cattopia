@@ -2,9 +2,9 @@
 // const API_URL =
 //   "http://192.168.219.105:8000/analyze";
 
+const API_URL = "lucidnote-api-production.up.railway.app/analyze"
 
-
-const API_URL = "https://satirically-prebendal-lakendra.ngrok-free.dev/analyze";
+// const API_URL = "https://satirically-prebendal-lakendra.ngrok-free.dev/analyze";
 
 export async function analyzeEmotion(text) {
   const response = await fetch(API_URL, {
