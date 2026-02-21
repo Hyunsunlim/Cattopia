@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { ActivityIndicator, View, Text, StyleSheet, Animated } from 'react-native';
+import { useFonts } from 'expo-font';
+import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import TabNavigator from './navigation/TabNavigator';
+import RootNavigator from './navigation/HomeStack';
 import LoginScreen from './screens/LoginScreen';
 import SignupScreen from './screens/SignupScreen';
 import PrivacyOnboardingModal from './components/PrivacyOnboardingModal';
@@ -14,6 +16,9 @@ import {
 } from './utils/notifications';
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    ...Ionicons.font,
+  });
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [authScreen, setAuthScreen] = useState('login');
@@ -116,7 +121,7 @@ export default function App() {
     setShowOnboarding(false);
   }, []);
 
-  if (isLoading || isTransitioning) {
+  if (!fontsLoaded || isLoading || isTransitioning) {
     return (
       <SafeAreaProvider>
         <View style={loadingStyles.container}>
@@ -157,7 +162,7 @@ export default function App() {
         />
         <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
           <NavigationContainer>
-            <TabNavigator onLogout={handleLogout} userName={userName} />
+            <RootNavigator onLogout={handleLogout} />
           </NavigationContainer>
         </Animated.View>
       </SafeAreaProvider>

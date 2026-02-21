@@ -7,33 +7,25 @@ import {
   TouchableOpacity,
   FlatList,
   Modal,
-  ScrollView,
   Alert,
   ActivityIndicator,
-  Switch,
   Animated,
   Platform,
   StatusBar as RNStatusBar,
+  KeyboardAvoidingView,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { Ionicons } from '@expo/vector-icons';
 
 import { analyzeEmotion, emotionToEmoji, emotionToColor } from '../utils/emotionAnalysis';
-import { PRIVACY_POLICY } from '../constants/privacyPolicy';
-import {
-  registerForPushNotificationsAsync,
-  scheduleMultipleNotifications,
-  cancelAllNotifications,
-} from '../utils/notifications';
 
-export default function HomeScreen({ onLogout, serverUserName, route }) {
+export default function HomeScreen({ navigation, route }) {
   const [diaries, setDiaries] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [settingsVisible, setSettingsVisible] = useState(false);
   const [currentDiary, setCurrentDiary] = useState(null);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -47,33 +39,16 @@ export default function HomeScreen({ onLogout, serverUserName, route }) {
   const [endDateFilter, setEndDateFilter] = useState('');
   const [selectedEmotions, setSelectedEmotions] = useState([]);
 
+  const insets = useSafeAreaInsets();
+
   // Animation refs
   const panelHeight = useRef(new Animated.Value(0)).current;
   const tabOpacity = useRef(new Animated.Value(1)).current;
+  const contentInputRef = useRef(null);
 
-  // Settings states
-  const [reminderEnabled, setReminderEnabled] = useState(false);
-  const [reminderTimes, setReminderTimes] = useState(['21:00']);
-  const [notificationPreview, setNotificationPreview] = useState('How was your day?');
-
-  // Profile states
-  const [userName, setUserName] = useState(serverUserName || 'User');
-  const [startDate, setStartDate] = useState('');
-  const [isEditingName, setIsEditingName] = useState(false);
-
-  // Time picker states
-  const [showTimePicker, setShowTimePicker] = useState(false);
-  const [pickerHour, setPickerHour] = useState(12);
-  const [pickerMinute, setPickerMinute] = useState(0);
-  const pickerAnim = useRef(new Animated.Value(0)).current;
-
-  // Privacy states
-  const [useAIAnalysis, setUseAIAnalysis] = useState(false);
-  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
 
   useEffect(() => {
     loadDiaries();
-    loadSettings();
   }, []);
 
   // Listen for center tab button press to open new note modal
@@ -101,167 +76,6 @@ export default function HomeScreen({ onLogout, serverUserName, route }) {
     } catch (error) {
       console.error('Failed to save diaries:', error);
     }
-  };
-
-  const loadSettings = async () => {
-    try {
-      const settings = await AsyncStorage.getItem('settings');
-      if (settings) {
-        const parsed = JSON.parse(settings);
-        setReminderEnabled(parsed.reminderEnabled === true);
-        if (Array.isArray(parsed.reminderTimes)) {
-          setReminderTimes(parsed.reminderTimes);
-        } else if (parsed.reminderTime) {
-          setReminderTimes([String(parsed.reminderTime)]);
-        }
-        setNotificationPreview(String(parsed.notificationPreview ?? 'How was your day?'));
-        setUserName(serverUserName || String(parsed.userName ?? 'User'));
-        setStartDate(String(parsed.startDate ?? ''));
-      } else {
-        // First time user - save start date
-        const today = new Date().toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric'
-        });
-        setStartDate(today);
-        saveSettings({ startDate: today });
-      }
-
-      // Always read AI setting (stored separately from settings)
-      const aiSetting = await AsyncStorage.getItem('useAIAnalysis');
-      setUseAIAnalysis(aiSetting === 'true');
-    } catch (error) {
-      console.error('Failed to load settings:', error);
-    }
-  };
-
-  const saveSettings = async (newSettings) => {
-    try {
-      const settings = {
-        reminderEnabled,
-        reminderTimes,
-        notificationPreview,
-        userName,
-        startDate,
-        ...newSettings,
-      };
-      await AsyncStorage.setItem('settings', JSON.stringify(settings));
-    } catch (error) {
-      console.error('Failed to save settings:', error);
-    }
-  };
-
-  const handleReminderToggle = async (value) => {
-    setReminderEnabled(value);
-    saveSettings({ reminderEnabled: value });
-    if (value) {
-      await registerForPushNotificationsAsync();
-      await scheduleMultipleNotifications(reminderTimes, notificationPreview);
-    } else {
-      await cancelAllNotifications();
-    }
-  };
-
-  const handlePreviewChange = async (text) => {
-    setNotificationPreview(text);
-    saveSettings({ notificationPreview: text });
-    if (reminderEnabled) {
-      await scheduleMultipleNotifications(reminderTimes, text);
-    }
-  };
-
-  const openTimePicker = () => {
-    setPickerHour(12);
-    setPickerMinute(0);
-    setShowTimePicker(true);
-    Animated.timing(pickerAnim, {
-      toValue: 1,
-      duration: 250,
-      useNativeDriver: false,
-    }).start();
-  };
-
-  const closeTimePicker = () => {
-    Animated.timing(pickerAnim, {
-      toValue: 0,
-      duration: 200,
-      useNativeDriver: false,
-    }).start(() => setShowTimePicker(false));
-  };
-
-  const addReminderTime = async () => {
-    const timeStr = `${String(pickerHour).padStart(2, '0')}:${String(pickerMinute).padStart(2, '0')}`;
-    if (reminderTimes.includes(timeStr)) {
-      Alert.alert('Duplicate', `${timeStr} is already set.`);
-      return;
-    }
-    const newTimes = [...reminderTimes, timeStr].sort();
-    setReminderTimes(newTimes);
-    saveSettings({ reminderTimes: newTimes });
-    closeTimePicker();
-    if (reminderEnabled) {
-      await scheduleMultipleNotifications(newTimes, notificationPreview);
-    }
-  };
-
-  const removeReminderTime = async (time) => {
-    const newTimes = reminderTimes.filter(t => t !== time);
-    setReminderTimes(newTimes);
-    saveSettings({ reminderTimes: newTimes });
-    if (reminderEnabled) {
-      if (newTimes.length === 0) {
-        await cancelAllNotifications();
-      } else {
-        await scheduleMultipleNotifications(newTimes, notificationPreview);
-      }
-    }
-  };
-
-  const hours = Array.from({ length: 24 }, (_, i) => i);
-  const minutes = Array.from({ length: 60 }, (_, i) => i);
-
-  const handleAIToggle = async (value) => {
-    setUseAIAnalysis(value);
-    await AsyncStorage.setItem('useAIAnalysis', value.toString());
-    Alert.alert(
-      value ? 'AI Analysis Enabled' : 'AI Analysis Disabled',
-      value
-        ? 'More accurate emotion detection. Note content will be sent to our analysis server.'
-        : 'Using local keyword analysis. Your data stays on your device. (Accuracy may be lower)'
-    );
-  };
-
-  const handleDeleteAllData = () => {
-    Alert.alert('Delete All Data', 'Are you sure you want to delete all your data?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: () => {
-          Alert.alert('Final Confirmation', 'This cannot be undone! All notes and settings will be permanently deleted.', [
-            { text: 'Cancel', style: 'cancel' },
-            {
-              text: 'Delete Everything',
-              style: 'destructive',
-              onPress: async () => {
-                await AsyncStorage.clear();
-                if (onLogout) onLogout();
-              },
-            },
-          ]);
-        },
-      },
-    ]);
-  };
-
-  const handleNameChange = (name) => {
-    setUserName(name);
-  };
-
-  const handleNameSubmit = () => {
-    setIsEditingName(false);
-    saveSettings({ userName });
   };
 
   const emotions = [
@@ -455,6 +269,7 @@ export default function HomeScreen({ onLogout, serverUserName, route }) {
             const newDiaries = diaries.filter(diary => diary.id !== id);
             setDiaries(newDiaries);
             saveDiaries(newDiaries);
+            closeModal();
             Alert.alert('Deleted', 'Note has been deleted 🗑️');
           },
         },
@@ -555,7 +370,7 @@ export default function HomeScreen({ onLogout, serverUserName, route }) {
             )}
             <TouchableOpacity
               style={styles.headerButton}
-              onPress={() => setSettingsVisible(true)}
+              onPress={() => navigation.navigate('Settings')}
             >
               <Ionicons name="options-outline" size={24} color="#666" />
             </TouchableOpacity>
@@ -719,7 +534,11 @@ export default function HomeScreen({ onLogout, serverUserName, route }) {
   onRequestClose={closeModal}
   statusBarTranslucent={Platform.OS === 'android'}
 >
-  <View style={{ flex: 1, backgroundColor: 'white', paddingTop: Platform.OS === 'android' ? RNStatusBar.currentHeight : 0 }}>
+  <KeyboardAvoidingView
+    style={{ flex: 1, backgroundColor: 'white', paddingTop: Platform.OS === 'android' ? RNStatusBar.currentHeight : 0 }}
+    behavior="padding"
+    keyboardVerticalOffset={insets.top - 20}
+  >
     <SafeAreaView edges={['top']} style={{ backgroundColor: 'white' }} />
     <View style={styles.modalHeader}>
       <TouchableOpacity onPress={closeModal} disabled={isAnalyzing}>
@@ -751,11 +570,7 @@ export default function HomeScreen({ onLogout, serverUserName, route }) {
       </View>
     )}
 
-    <ScrollView
-      style={styles.modalContent}
-      contentContainerStyle={{ flexGrow: 1 }}
-      keyboardShouldPersistTaps="handled"
-    >
+    <View style={styles.modalContent}>
       <TextInput
         style={styles.titleInput}
         placeholder="Enter title"
@@ -763,18 +578,23 @@ export default function HomeScreen({ onLogout, serverUserName, route }) {
         value={title}
         onChangeText={setTitle}
         editable={!isAnalyzing}
+        returnKeyType="next"
+        blurOnSubmit={false}
+        onSubmitEditing={() => contentInputRef.current?.focus()}
       />
       <TextInput
+        ref={contentInputRef}
         style={styles.contentInput}
         placeholder="How was your day? AI will analyze your emotions!"
         placeholderTextColor="#999"
         value={content}
         onChangeText={setContent}
         multiline
+        scrollEnabled={true}
         textAlignVertical="top"
         editable={!isAnalyzing}
       />
-    </ScrollView>
+    </View>
 
     {currentDiary && (
       <SafeAreaView edges={['bottom']} style={styles.deleteContainer}>
@@ -787,261 +607,9 @@ export default function HomeScreen({ onLogout, serverUserName, route }) {
         </TouchableOpacity>
       </SafeAreaView>
     )}
-  </View>
+  </KeyboardAvoidingView>
 </Modal>
 
-{/* Settings Modal */}
-<Modal
-  animationType="slide"
-  visible={settingsVisible}
-  presentationStyle="pageSheet"
-  onRequestClose={() => setSettingsVisible(false)}
-  statusBarTranslucent={Platform.OS === 'android'}
->
-  <View style={{ flex: 1, backgroundColor: '#f9f5f5', paddingTop: Platform.OS === 'android' ? RNStatusBar.currentHeight : 0 }}>
-    <SafeAreaView edges={['top']} style={{ backgroundColor: '#f9f5f5' }} />
-
-    <View style={styles.settingsHeader}>
-      <TouchableOpacity onPress={() => setSettingsVisible(false)}>
-        <Ionicons name="chevron-down" size={28} color="#333" />
-      </TouchableOpacity>
-      <Text style={styles.settingsTitle}>Settings</Text>
-      <View style={{ width: 28 }} />
-    </View>
-
-    <ScrollView style={styles.settingsContent}>
-      {/* Profile Card */}
-      <View style={styles.profileCard}>
-        <View style={styles.profileIcon}>
-          <Ionicons name="person" size={32} color="#6366f1" />
-        </View>
-        <View style={styles.profileInfo}>
-          {isEditingName ? (
-            <TextInput
-              style={styles.profileNameInput}
-              value={userName}
-              onChangeText={handleNameChange}
-              onBlur={handleNameSubmit}
-              onSubmitEditing={handleNameSubmit}
-              autoFocus
-            />
-          ) : (
-            <TouchableOpacity onPress={() => setIsEditingName(true)}>
-              <Text style={styles.profileName}>{userName}</Text>
-            </TouchableOpacity>
-          )}
-          <Text style={styles.profileDate}>Started {startDate}</Text>
-        </View>
-      </View>
-
-      {/* Reminder Toggle */}
-      <View style={styles.settingItem}>
-        <View style={styles.settingInfo}>
-          <Text style={styles.settingLabel}>Daily Reminder</Text>
-          <Text style={styles.settingDescription}>Get notified to write your note</Text>
-        </View>
-        <Switch
-          value={reminderEnabled}
-          onValueChange={handleReminderToggle}
-          trackColor={{ false: '#e0e0e0', true: '#6366f1' }}
-          thumbColor="white"
-        />
-      </View>
-
-      {/* Reminder Times */}
-      <View style={[styles.settingItemColumn, !reminderEnabled && styles.settingDisabled]}>
-        <View style={styles.settingInfo}>
-          <Text style={styles.settingLabel}>Reminder Times</Text>
-          <Text style={styles.settingDescription}>
-            {reminderTimes.length} reminder{reminderTimes.length !== 1 ? 's' : ''} set
-          </Text>
-        </View>
-
-        <View style={styles.timeChipsContainer}>
-          {reminderTimes.map((time) => (
-            <View key={time} style={styles.timeChip}>
-              <Ionicons name="time-outline" size={14} color="#6366f1" />
-              <Text style={styles.timeChipText}>{time}</Text>
-              {reminderEnabled && (
-                <TouchableOpacity
-                  onPress={() => removeReminderTime(time)}
-                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                >
-                  <Ionicons name="close-circle" size={18} color="#ccc" />
-                </TouchableOpacity>
-              )}
-            </View>
-          ))}
-
-          {reminderEnabled && (
-            <TouchableOpacity style={styles.addTimeButton} onPress={openTimePicker}>
-              <Ionicons name="add" size={18} color="#6366f1" />
-              <Text style={styles.addTimeText}>Add</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-
-        {showTimePicker && reminderEnabled && (
-          <Animated.View style={[
-            styles.pickerContainer,
-            {
-              maxHeight: pickerAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0, 250],
-              }),
-              opacity: pickerAnim,
-            },
-          ]}>
-            <Text style={styles.pickerLabel}>Hour</Text>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={styles.pickerScroll}
-              contentContainerStyle={styles.pickerScrollContent}
-            >
-              {hours.map((h) => (
-                <TouchableOpacity
-                  key={h}
-                  style={[styles.pickerChip, pickerHour === h && styles.pickerChipSelected]}
-                  onPress={() => setPickerHour(h)}
-                >
-                  <Text style={[styles.pickerChipText, pickerHour === h && styles.pickerChipTextSelected]}>
-                    {String(h).padStart(2, '0')}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-
-            <Text style={styles.pickerLabel}>Minute</Text>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={styles.pickerScroll}
-              contentContainerStyle={styles.pickerScrollContent}
-            >
-              {minutes.map((m) => (
-                <TouchableOpacity
-                  key={m}
-                  style={[styles.pickerChip, pickerMinute === m && styles.pickerChipSelected]}
-                  onPress={() => setPickerMinute(m)}
-                >
-                  <Text style={[styles.pickerChipText, pickerMinute === m && styles.pickerChipTextSelected]}>
-                    {String(m).padStart(2, '0')}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-
-            <View style={styles.pickerActions}>
-              <Text style={styles.pickerPreview}>
-                {String(pickerHour).padStart(2, '0')}:{String(pickerMinute).padStart(2, '0')}
-              </Text>
-              <View style={styles.pickerButtons}>
-                <TouchableOpacity style={styles.pickerCancelBtn} onPress={closeTimePicker}>
-                  <Text style={styles.pickerCancelText}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.pickerDoneBtn} onPress={addReminderTime}>
-                  <Text style={styles.pickerDoneText}>Add</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </Animated.View>
-        )}
-      </View>
-
-      {/* Notification Preview */}
-      <View style={[styles.settingItem, styles.settingItemColumn, !reminderEnabled && styles.settingDisabled]}>
-        <View style={styles.settingInfo}>
-          <Text style={styles.settingLabel}>Notification Message</Text>
-          <Text style={styles.settingDescription}>Customize your reminder text</Text>
-        </View>
-        <TextInput
-          style={styles.previewInput}
-          value={notificationPreview}
-          onChangeText={handlePreviewChange}
-          placeholder="Enter notification message"
-          placeholderTextColor="#999"
-          editable={reminderEnabled}
-        />
-      </View>
-
-      {/* Privacy & Data Section */}
-      <Text style={styles.sectionHeader}>Privacy & Data</Text>
-
-      {/* AI Analysis Toggle */}
-      <View style={styles.settingItem}>
-        <View style={styles.settingInfo}>
-          <Text style={styles.settingLabel}>AI Emotion Analysis</Text>
-          <Text style={styles.settingDescription}>
-            {useAIAnalysis ? 'Sends text to AI for analysis' : 'Local keyword analysis (on device)'}
-          </Text>
-        </View>
-        <Switch
-          value={useAIAnalysis}
-          onValueChange={handleAIToggle}
-          trackColor={{ false: '#e0e0e0', true: '#6366f1' }}
-          thumbColor="white"
-        />
-      </View>
-
-      {/* Privacy Policy */}
-      <TouchableOpacity
-        style={styles.settingItem}
-        onPress={() => setShowPrivacyPolicy(true)}
-      >
-        <View style={styles.settingInfo}>
-          <Text style={styles.settingLabel}>Privacy Policy</Text>
-        </View>
-        <Ionicons name="chevron-forward" size={20} color="#999" />
-      </TouchableOpacity>
-
-      {/* Delete All Data */}
-      <TouchableOpacity style={styles.deleteDataButton} onPress={handleDeleteAllData}>
-        <Ionicons name="trash-outline" size={18} color="#ef4444" />
-        <Text style={styles.deleteDataText}>Delete All Data</Text>
-      </TouchableOpacity>
-
-      {/* Logout */}
-      {onLogout && (
-        <TouchableOpacity
-          style={styles.logoutButton}
-          onPress={() => {
-            Alert.alert('Logout', 'Are you sure you want to logout?', [
-              { text: 'Cancel', style: 'cancel' },
-              { text: 'Logout', style: 'destructive', onPress: onLogout },
-            ]);
-          }}
-        >
-          <Ionicons name="log-out-outline" size={20} color="#ef4444" />
-          <Text style={styles.logoutText}>Logout</Text>
-        </TouchableOpacity>
-      )}
-    </ScrollView>
-  </View>
-</Modal>
-
-{/* Privacy Policy Modal */}
-<Modal
-  animationType="slide"
-  visible={showPrivacyPolicy}
-  presentationStyle="pageSheet"
-  onRequestClose={() => setShowPrivacyPolicy(false)}
-  statusBarTranslucent={Platform.OS === 'android'}
->
-  <View style={{ flex: 1, backgroundColor: 'white', paddingTop: Platform.OS === 'android' ? RNStatusBar.currentHeight : 0 }}>
-    <SafeAreaView edges={['top']} style={{ backgroundColor: 'white' }} />
-    <View style={styles.policyHeader}>
-      <TouchableOpacity onPress={() => setShowPrivacyPolicy(false)}>
-        <Text style={styles.policyClose}>Close</Text>
-      </TouchableOpacity>
-      <Text style={styles.policyTitle}>Privacy Policy</Text>
-      <View style={{ width: 50 }} />
-    </View>
-    <ScrollView style={styles.policyContent}>
-      <Text style={styles.policyText}>{PRIVACY_POLICY}</Text>
-    </ScrollView>
-  </View>
-</Modal>
 
     </View>
   );
@@ -1346,8 +914,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   contentInput: {
-    fontSize: 16,
     flex: 1,
+    fontSize: 16,
     padding: 12,
     backgroundColor: '#f9f9f9',
     borderRadius: 8,
@@ -1365,284 +933,5 @@ const styles = StyleSheet.create({
     color: '#ef4444',
     fontSize: 16,
     fontWeight: '500',
-  },
-  // Settings styles
-  settingsHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  settingsTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-  },
-  settingsContent: {
-    padding: 16,
-  },
-  profileCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 20,
-  },
-  profileIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#f0f0ff',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 14,
-  },
-  profileInfo: {
-    flex: 1,
-  },
-  profileName: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 4,
-  },
-  profileNameInput: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 4,
-    padding: 0,
-    borderBottomWidth: 1,
-    borderBottomColor: '#6366f1',
-  },
-  profileDate: {
-    fontSize: 13,
-    color: '#999',
-  },
-  settingItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-  settingItemColumn: {
-    flexDirection: 'column',
-    alignItems: 'stretch',
-    backgroundColor: 'white',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-  settingInfo: {
-    flex: 1,
-  },
-  settingLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 4,
-  },
-  settingDescription: {
-    fontSize: 13,
-    color: '#999',
-  },
-  settingDisabled: {
-    opacity: 0.5,
-  },
-  previewInput: {
-    backgroundColor: '#f9f9f9',
-    padding: 12,
-    borderRadius: 8,
-    fontSize: 15,
-    marginTop: 12,
-    color: '#333',
-  },
-  sectionHeader: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#999',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginTop: 16,
-    marginBottom: 10,
-  },
-  deleteDataButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'white',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 8,
-    gap: 8,
-  },
-  deleteDataText: {
-    color: '#ef4444',
-    fontSize: 15,
-    fontWeight: '500',
-  },
-  logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'white',
-    padding: 16,
-    borderRadius: 12,
-    marginTop: 4,
-    marginBottom: 32,
-    gap: 8,
-  },
-  logoutText: {
-    color: '#ef4444',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  // Time picker styles
-  timeChipsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginTop: 14,
-  },
-  timeChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f0f0ff',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    gap: 6,
-  },
-  timeChipText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#6366f1',
-  },
-  addTimeButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    borderStyle: 'dashed',
-    gap: 4,
-  },
-  addTimeText: {
-    fontSize: 14,
-    color: '#6366f1',
-    fontWeight: '500',
-  },
-  pickerContainer: {
-    marginTop: 14,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 12,
-    padding: 12,
-    overflow: 'hidden',
-  },
-  pickerLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#999',
-    marginBottom: 6,
-    marginTop: 4,
-  },
-  pickerScroll: {
-    marginBottom: 8,
-  },
-  pickerScrollContent: {
-    gap: 6,
-    paddingRight: 12,
-  },
-  pickerChip: {
-    width: 42,
-    height: 36,
-    borderRadius: 10,
-    backgroundColor: '#ececec',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  pickerChipSelected: {
-    backgroundColor: '#6366f1',
-  },
-  pickerChipText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#666',
-  },
-  pickerChipTextSelected: {
-    color: 'white',
-    fontWeight: '700',
-  },
-  pickerActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  pickerPreview: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#6366f1',
-  },
-  pickerButtons: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  pickerCancelBtn: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  pickerCancelText: {
-    fontSize: 14,
-    color: '#999',
-    fontWeight: '500',
-  },
-  pickerDoneBtn: {
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    borderRadius: 8,
-    backgroundColor: '#6366f1',
-  },
-  pickerDoneText: {
-    fontSize: 14,
-    color: 'white',
-    fontWeight: '600',
-  },
-  // Privacy Policy Modal
-  policyHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  policyClose: {
-    fontSize: 16,
-    color: '#6366f1',
-    fontWeight: '600',
-    width: 50,
-  },
-  policyTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-  },
-  policyContent: {
-    padding: 20,
-  },
-  policyText: {
-    fontSize: 15,
-    color: '#444',
-    lineHeight: 24,
   },
 });

@@ -23,7 +23,7 @@ function CenterTabButton({ onPress }) {
   );
 }
 
-export default function TabNavigator({ onLogout, userName }) {
+export default function TabNavigator() {
   const insets = useSafeAreaInsets();
   const tabBarHeight = Platform.OS === 'android' ? 60 + insets.bottom : 88;
 
@@ -60,7 +60,7 @@ export default function TabNavigator({ onLogout, userName }) {
           ),
         }}
       >
-        {(props) => <HomeScreen {...props} onLogout={onLogout} serverUserName={userName} />}
+        {(props) => <HomeScreen {...props} />}
       </Tab.Screen>
 
       <Tab.Screen

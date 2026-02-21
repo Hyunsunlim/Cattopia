@@ -21,7 +21,7 @@ export async function registerForPushNotificationsAsync() {
     await Notifications.setNotificationChannelAsync('daily-reminder', {
       name: 'Daily Reminder',
       importance: Notifications.AndroidImportance.HIGH,
-      sound: 'default',
+      sound: true,
     });
   }
 
@@ -42,11 +42,12 @@ export async function scheduleMultipleNotifications(times, message) {
   const ids = [];
   for (const time of times) {
     const [hours, minutes] = time.split(':').map(Number);
+    const body = typeof message === 'function' ? message(time, hours) : message;
     const id = await Notifications.scheduleNotificationAsync({
       content: {
         title: 'LucidNote',
-        body: message,
-        sound: 'default',
+        body,
+        sound: true,
       },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.DAILY,
