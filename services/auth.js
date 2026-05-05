@@ -2,9 +2,21 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const BASE_URL = 'https://lucidnote-api-production-cbe8.up.railway.app';
 const TOKEN_KEY = 'auth_token';
+const TIMEOUT_MS = 15000; // 15초
+
+function fetchWithTimeout(url, options = {}, timeoutMs = TIMEOUT_MS) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  return fetch(url, { ...options, signal: controller.signal })
+    .catch(err => {
+      if (err.name === 'AbortError') throw new Error('request timed out');
+      throw err;
+    })
+    .finally(() => clearTimeout(timer));
+}
 
 export async function signup(email, password, username) {
-  const response = await fetch(`${BASE_URL}/auth/signup`, {
+  const response = await fetchWithTimeout(`${BASE_URL}/auth/signup`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password, username }),
@@ -25,7 +37,7 @@ export async function login(identifier, password) {
   const body = identifier.includes('@')
     ? { email: identifier, password }
     : { username: identifier, password };
-  const response = await fetch(`${BASE_URL}/auth/login`, {
+  const response = await fetchWithTimeout(`${BASE_URL}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -43,7 +55,7 @@ export async function login(identifier, password) {
 }
 
 export async function googleLogin(idToken) {
-  const response = await fetch(`${BASE_URL}/auth/google`, {
+  const response = await fetchWithTimeout(`${BASE_URL}/auth/google`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ id_token: idToken }),
@@ -61,7 +73,7 @@ export async function googleLogin(idToken) {
 }
 
 export async function getMe(token) {
-  const response = await fetch(`${BASE_URL}/auth/me`, {
+  const response = await fetchWithTimeout(`${BASE_URL}/auth/me`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 
@@ -99,13 +111,9 @@ export async function removeToken() {
   }
 }
 
-export async function authFetch(url, options = {}) {
+export async function authFetch(url, options = {}, timeoutMs = TIMEOUT_MS) {
   const token = await getToken();
-  const headers = {
-    ...options.headers,
-  };
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
-  return fetch(url, { ...options, headers });
+  const headers = { ...options.headers };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return fetchWithTimeout(url, { ...options, headers }, timeoutMs);
 }

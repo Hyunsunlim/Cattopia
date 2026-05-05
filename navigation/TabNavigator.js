@@ -1,121 +1,128 @@
-import { View, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
-import HomeScreen from '../screens/HomeScreen';
-import InsightScreen from '../screens/InsightScreen';
+import HomeTabStack from './HomeTabStack';
+import OurHouseScreen from '../screens/OurHouseScreen';
+import MyLogsScreen from '../screens/MyLogsScreen';
 
 const Tab = createBottomTabNavigator();
 
-// Dummy screen for the center tab (never rendered)
-function DummyScreen() {
-  return null;
-}
+const ORANGE = '#f97316';
+const ORANGE_BG = 'rgba(251,146,60,0.13)';
+const INACTIVE = '#a8a29e';
+const BAR_BG = 'rgba(251,249,248,0.94)';
+const BORDER = 'rgba(251,146,60,0.18)';
 
-function CenterTabButton({ onPress }) {
+const TABS = [
+  { name: 'Home',     label: 'Home',      icon: 'home',     iconOut: 'home-outline' },
+  { name: 'OurHouse', label: 'Our House', icon: 'paw',      iconOut: 'paw-outline' },
+  { name: 'MyLogs',   label: 'My Logs',   icon: 'time',     iconOut: 'time-outline' },
+];
+
+function MeowTabBar({ state, navigation }) {
+  const insets = useSafeAreaInsets();
+
+  // Hide bar when navigated into a sub-screen inside HomeTabStack (e.g. Notes)
+  const homeRoute = state.routes[0];
+  const isDeepInHome = state.index === 0 && (homeRoute?.state?.index ?? 0) > 0;
+  if (isDeepInHome) return null;
+
   return (
-    <TouchableOpacity style={styles.centerButton} onPress={onPress} activeOpacity={0.8}>
-      <View style={styles.centerButtonInner}>
-        <Ionicons name="add" size={32} color="white" />
-      </View>
-    </TouchableOpacity>
+    <View style={[
+      tabS.bar,
+      {
+        paddingBottom: insets.bottom + 6,
+        backgroundColor: BAR_BG,
+      },
+    ]}>
+      {state.routes.map((route, i) => {
+        const active = state.index === i;
+        const tab = TABS[i];
+
+        const onPress = () => {
+          const event = navigation.emit({
+            type: 'tabPress',
+            target: route.key,
+            canPreventDefault: true,
+          });
+          if (!active && !event.defaultPrevented) {
+            navigation.navigate(route.name);
+          }
+        };
+
+        return (
+          <TouchableOpacity
+            key={route.key}
+            style={tabS.item}
+            onPress={onPress}
+            activeOpacity={0.75}
+          >
+            <View style={[tabS.pill, active && tabS.pillActive]}>
+              <Ionicons
+                name={active ? tab.icon : tab.iconOut}
+                size={22}
+                color={active ? ORANGE : INACTIVE}
+              />
+              <Text style={[tabS.label, active && tabS.labelActive]}>
+                {tab.label}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
   );
 }
 
 export default function TabNavigator() {
-  const insets = useSafeAreaInsets();
-  const tabBarHeight = Platform.OS === 'android' ? 60 + insets.bottom : 88;
-
   return (
     <Tab.Navigator
-      detachInactiveScreens={false}
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: '#6366f1',
-        tabBarInactiveTintColor: '#666666',
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '600',
-        },
-        tabBarStyle: {
-          height: tabBarHeight,
-          paddingTop: 8,
-          paddingBottom: Platform.OS === 'android' ? insets.bottom + 8 : 0,
-          borderTopWidth: 0,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.1,
-          shadowRadius: 8,
-          elevation: 10,
-        },
-      }}
+      tabBar={(props) => <MeowTabBar {...props} />}
+      screenOptions={{ headerShown: false }}
     >
-      <Tab.Screen
-        name="Home"
-        options={{
-          tabBarLabel: 'Note',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="book-outline" size={size} color={color} />
-          ),
-        }}
-      >
-        {(props) => <HomeScreen {...props} />}
-      </Tab.Screen>
-
-      <Tab.Screen
-        name="NewNote"
-        component={DummyScreen}
-        options={{
-          tabBarLabel: () => null,
-          tabBarButton: (props) => (
-            <CenterTabButton
-              onPress={() => {
-                // Navigate to Home and trigger new note modal
-                props.onPress && props.onPress();
-              }}
-            />
-          ),
-        }}
-        listeners={({ navigation }) => ({
-          tabPress: (e) => {
-            e.preventDefault();
-            navigation.navigate('Home', { openNewNote: Date.now() });
-          },
-        })}
-      />
-
-      <Tab.Screen
-        name="Insights"
-        component={InsightScreen}
-        options={{
-          tabBarLabel: 'Insights',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="bar-chart-outline" size={size} color={color} />
-          ),
-        }}
-      />
+      <Tab.Screen name="Home"     component={HomeTabStack} />
+      <Tab.Screen name="OurHouse" component={OurHouseScreen} />
+      <Tab.Screen name="MyLogs"   component={MyLogsScreen} />
     </Tab.Navigator>
   );
 }
 
-const styles = StyleSheet.create({
-  centerButton: {
-    top: -20,
-    justifyContent: 'center',
+const tabS = StyleSheet.create({
+  bar: {
+    flexDirection: 'row',
+    paddingTop: 10,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: BORDER,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 12,
+  },
+  item: {
+    flex: 1,
     alignItems: 'center',
   },
-  centerButtonInner: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#6366f1',
-    justifyContent: 'center',
+  pill: {
     alignItems: 'center',
-    shadowColor: '#6366f1',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    justifyContent: 'center',
+    gap: 3,
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 14,
+  },
+  pillActive: {
+    backgroundColor: ORANGE_BG,
+  },
+  label: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: INACTIVE,
+    fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif',
+  },
+  labelActive: {
+    color: ORANGE,
   },
 });

@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Meow — Grow with your cat</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "on-tertiary-fixed-variant": "#474743",
+          "on-surface": "#1b1c1c",
+          "surface-container": "#f0eded",
+          "surface-container-highest": "#e4e2e1",
+          "on-background": "#1b1c1c",
+          "secondary-fixed": "#bfecdc",
+          "surface-variant": "#e4e2e1",
+          "error-container": "#ffdad6",
+          "surface-container-low": "#f6f3f2",
+          "surface": "#fbf9f8",
+          "primary-fixed": "#ffdcc5",
+          "on-secondary": "#ffffff",
+          "on-tertiary-fixed": "#1c1c18",
+          "on-tertiary": "#ffffff",
+          "on-secondary-fixed-variant": "#244e42",
+          "secondary-fixed-dim": "#a3d0c0",
+          "inverse-on-surface": "#f3f0f0",
+          "on-primary-fixed": "#2b1707",
+          "surface-dim": "#dcd9d9",
+          "tertiary": "#5f5e5a",
+          "tertiary-container": "#e2dfd9",
+          "surface-container-lowest": "#ffffff",
+          "on-primary-container": "#795d48",
+          "secondary": "#3d665a",
+          "inverse-primary": "#e4bfa6",
+          "on-primary-fixed-variant": "#5b412e",
+          "surface-container-high": "#eae8e7",
+          "secondary-container": "#bce9d9",
+          "surface-tint": "#755844",
+          "inverse-surface": "#303030",
+          "on-error": "#ffffff",
+          "outline": "#81756d",
+          "background": "#fbf9f8",
+          "outline-variant": "#d3c4bb",
+          "error": "#ba1a1a",
+          "primary-fixed-dim": "#e4bfa6",
+          "tertiary-fixed-dim": "#c9c6c1",
+          "on-primary": "#ffffff",
+          "surface-bright": "#fbf9f8",
+          "on-tertiary-container": "#63625e",
+          "tertiary-fixed": "#e5e2dc",
+          "on-secondary-fixed": "#002019",
+          "on-surface-variant": "#4f453e",
+          "on-secondary-container": "#416b5e",
+          "primary-container": "#ffd8be",
+          "primary": "#755844",
+          "on-error-container": "#93000a"
+        },
+        fontFamily: {
+          "body-lg": ["Plus Jakarta Sans"],
+          "headline-md": ["Newsreader"],
+          "body-md": ["Plus Jakarta Sans"],
+          "label-sm": ["Plus Jakarta Sans"],
+          "display-lg": ["Newsreader"]
+        },
+        fontSize: {
+          "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+          "headline-md": ["28px", {"lineHeight": "1.3", "fontWeight": "500"}],
+          "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+          "label-sm": ["13px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}],
+          "display-lg": ["40px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  .neomorph-raised { box-shadow: 6px 6px 12px rgba(117,88,68,0.1), -6px -6px 12px rgba(255,255,255,0.8); }
+  .neomorph-inset { box-shadow: inset 4px 4px 8px rgba(117,88,68,0.1), inset -4px -4px 8px rgba(255,255,255,0.8); }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+
+  /* Screen switching */
+  .screen { display: none; }
+  .screen.active { display: flex; }
+
+  /* Nav tab indicator */
+  .nav-tab.active { color: #f97316 !important; background: rgba(251,146,60,0.15); border-radius: 1rem; }
+
+  /* Fade in animation */
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .fade-in { animation: fadeIn 0.3s ease forwards; }
+
+  /* Cat bounce */
+  @keyframes catBounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  .cat-bounce { animation: catBounce 3s ease-in-out infinite; }
+
+  /* Eating animation */
+  @keyframes nom { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+  .nom { animation: nom 0.5s ease-in-out 3; }
+</style>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen flex flex-col items-center">
+
+<div class="w-full max-w-sm mx-auto relative min-h-screen flex flex-col" style="min-height:100dvh;">
+
+<!-- ===== SCREEN: ONBOARDING ===== -->
+<div id="screen-onboard" class="screen active flex-col min-h-screen fade-in">
+  <div class="flex-1 flex flex-col items-center justify-center px-6 py-12 gap-8">
+    <!-- Logo -->
+    <div class="text-center">
+      <h1 class="text-4xl font-bold font-serif text-stone-800" style="font-family: Newsreader, serif;">Meow</h1>
+      <p class="text-sm text-stone-400 mt-1 italic">Grow with your cat</p>
+    </div>
+
+    <!-- Cat image -->
+    <div class="relative flex items-center justify-center">
+      <div class="absolute inset-0 bg-primary-container/30 rounded-full blur-3xl opacity-60 scale-75"></div>
+      <div class="relative w-56 h-56 rounded-full bg-surface border-4 border-surface-container-highest neomorph-raised flex items-center justify-center overflow-hidden cat-bounce">
+        <img alt="Cute kitten" class="w-40 h-40 object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCb5ZEhuV-3YynzkC8o3rvjclfmXAlj7pNGG0kG8Ods3HN26egs4mWmtcJnXRdCF88JV3a_GmxAZRBKcsSy3enD7W6_Hwqea2dZG2FOBs9gnlxQjFusDFQVbjeI3G0HDriaJfJWrroC_M4OkCsqwlDU3ekulrMyEo4qIhVZuPridrYIc3jwPbhtSBtPxFx5bQLe-uIJtVY-1NJ1Kd8LjxpFFcN1qJXxa2jKHCD4VO10iEtQf7QoVMEDxvdzbjeFEpQfts_-U-DKR1f7"/>
+      </div>
+    </div>
+
+    <!-- Text -->
+    <div class="text-center space-y-3">
+      <h2 class="text-2xl font-semibold text-stone-800" style="font-family: Newsreader, serif;">Your stories feed your cat.</h2>
+      <p class="text-stone-500 text-sm leading-relaxed">Write every day. Watch your cat grow.<br/>Your words become their food. 🍚</p>
+    </div>
+
+    <!-- Step dots -->
+    <div class="flex gap-2">
+      <div class="w-6 h-2 bg-primary rounded-full"></div>
+      <div class="w-2 h-2 bg-surface-container-highest rounded-full"></div>
+      <div class="w-2 h-2 bg-surface-container-highest rounded-full"></div>
+    </div>
+  </div>
+
+  <div class="px-6 pb-12">
+    <button onclick="showScreen('screen-cat-select')" class="w-full py-5 px-8 rounded-full bg-primary-container text-on-primary-container font-body-lg font-bold flex items-center justify-center gap-3 neomorph-raised active:scale-95 transition-all duration-300">
+      Meet your cat →
+    </button>
+  </div>
+</div>
+
+<!-- ===== SCREEN: CAT SELECT ===== -->
+<div id="screen-cat-select" class="screen flex-col min-h-screen fade-in">
+  <div class="flex-1 flex flex-col px-6 py-10 gap-6">
+    <div class="text-center space-y-2">
+      <span class="inline-block py-1.5 px-4 rounded-full bg-secondary-container text-on-secondary-container font-label-sm">Step 2 of 3</span>
+      <h2 class="text-2xl font-semibold text-stone-800" style="font-family: Newsreader, serif;">Choose your cat</h2>
+      <p class="text-stone-400 text-sm">They'll be waiting for your stories every day</p>
+    </div>
+
+    <!-- Cat options -->
+    <div class="grid grid-cols-2 gap-3">
+      <div onclick="selectCat(this, 'Choco')" class="cat-option border-2 border-surface-container-highest rounded-2xl p-3 cursor-pointer transition-all duration-200 active:scale-95" data-name="Choco">
+        <div class="w-full aspect-square rounded-xl bg-primary-container/30 flex items-center justify-center mb-2 overflow-hidden">
+          <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCb5ZEhuV-3YynzkC8o3rvjclfmXAlj7pNGG0kG8Ods3HN26egs4mWmtcJnXRdCF88JV3a_GmxAZRBKcsSy3enD7W6_Hwqea2dZG2FOBs9gnlxQjFusDFQVbjeI3G0HDriaJfJWrroC_M4OkCsqwlDU3ekulrMyEo4qIhVZuPridrYIc3jwPbhtSBtPxFx5bQLe-uIJtVY-1NJ1Kd8LjxpFFcN1qJXxa2jKHCD4VO10iEtQf7QoVMEDxvdzbjeFEpQfts_-U-DKR1f7" class="w-20 h-20 object-cover" alt="Choco"/>
+        </div>
+        <p class="text-sm font-semibold text-center text-stone-700">치즈냥</p>
+        <p class="text-xs text-center text-stone-400">Warm & cozy</p>
+      </div>
+      <div onclick="selectCat(this, 'Mochi')" class="cat-option border-2 border-surface-container-highest rounded-2xl p-3 cursor-pointer transition-all duration-200 active:scale-95" data-name="Mochi">
+        <div class="w-full aspect-square rounded-xl bg-secondary-container/30 flex items-center justify-center mb-2 overflow-hidden">
+          <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCb5ZEhuV-3YynzkC8o3rvjclfmXAlj7pNGG0kG8Ods3HN26egs4mWmtcJnXRdCF88JV3a_GmxAZRBKcsSy3enD7W6_Hwqea2dZG2FOBs9gnlxQjFusDFQVbjeI3G0HDriaJfJWrroC_M4OkCsqwlDU3ekulrMyEo4qIhVZuPridrYIc3jwPbhtSBtPxFx5bQLe-uIJtVY-1NJ1Kd8LjxpFFcN1qJXxa2jKHCD4VO10iEtQf7QoVMEDxvdzbjeFEpQfts_-U-DKR1f7" class="w-20 h-20 object-cover" alt="Mochi"/>
+        </div>
+        <p class="text-sm font-semibold text-center text-stone-700">고등어냥</p>
+        <p class="text-xs text-center text-stone-400">Cool & curious</p>
+      </div>
+      <div onclick="selectCat(this, 'Bori')" class="cat-option border-2 border-surface-container-highest rounded-2xl p-3 cursor-pointer transition-all duration-200 active:scale-95" data-name="Bori">
+        <div class="w-full aspect-square rounded-xl bg-tertiary-container/30 flex items-center justify-center mb-2 overflow-hidden">
+          <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCb5ZEhuV-3YynzkC8o3rvjclfmXAlj7pNGG0kG8Ods3HN26egs4mWmtcJnXRdCF88JV3a_GmxAZRBKcsSy3enD7W6_Hwqea2dZG2FOBs9gnlxQjFusDFQVbjeI3G0HDriaJfJWrroC_M4OkCsqwlDU3ekulrMyEo4qIhVZuPridrYIc3jwPbhtSBtPxFx5bQLe-uIJtVY-1NJ1Kd8LjxpFFcN1qJXxa2jKHCD4VO10iEtQf7QoVMEDxvdzbjeFEpQfts_-U-DKR1f7" class="w-20 h-20 object-cover" alt="Bori"/>
+        </div>
+        <p class="text-sm font-semibold text-center text-stone-700">흰둥이</p>
+        <p class="text-xs text-center text-stone-400">Pure & gentle</p>
+      </div>
+      <div onclick="selectCat(this, 'Nabi')" class="cat-option border-2 border-surface-container-highest rounded-2xl p-3 cursor-pointer transition-all duration-200 active:scale-95" data-name="Nabi">
+        <div class="w-full aspect-square rounded-xl bg-primary-container/20 flex items-center justify-center mb-2 overflow-hidden">
+          <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCb5ZEhuV-3YynzkC8o3rvjclfmXAlj7pNGG0kG8Ods3HN26egs4mWmtcJnXRdCF88JV3a_GmxAZRBKcsSy3enD7W6_Hwqea2dZG2FOBs9gnlxQjFusDFQVbjeI3G0HDriaJfJWrroC_M4OkCsqwlDU3ekulrMyEo4qIhVZuPridrYIc3jwPbhtSBtPxFx5bQLe-uIJtVY-1NJ1Kd8LjxpFFcN1qJXxa2jKHCD4VO10iEtQf7QoVMEDxvdzbjeFEpQfts_-U-DKR1f7" class="w-20 h-20 object-cover" alt="Nabi"/>
+        </div>
+        <p class="text-sm font-semibold text-center text-stone-700">삼색냥</p>
+        <p class="text-xs text-center text-stone-400">Playful & bright</p>
+      </div>
+    </div>
+
+    <!-- Name input -->
+    <div class="space-y-2">
+      <label class="font-label-sm text-on-surface-variant">이름을 지어줘요</label>
+      <input id="cat-name-input" type="text" value="Choco" placeholder="고양이 이름..." class="w-full px-4 py-3 rounded-2xl bg-surface-container-low border border-outline-variant focus:outline-none focus:border-primary font-body-md text-on-surface"/>
+    </div>
+  </div>
+
+  <div class="px-6 pb-12">
+    <button onclick="showScreen('screen-home')" class="w-full py-5 px-8 rounded-full bg-primary-container text-on-primary-container font-body-lg font-bold flex items-center justify-center gap-3 neomorph-raised active:scale-95 transition-all duration-300">
+      Start our story →
+    </button>
+  </div>
+</div>
+
+<!-- ===== SCREEN: HOME ===== -->
+<div id="screen-home" class="screen flex-col min-h-screen fade-in">
+  <!-- Header -->
+  <header class="flex justify-between items-center w-full px-6 h-16 bg-stone-50 shadow-sm border-b border-orange-100/50 sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full bg-primary-container overflow-hidden">
+        <img alt="Cat icon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4KGoXx9DW3GKmyqe-GTBqkx0sr3mE49f_dsLTt1i3jzv81Lh8p6WHosyp3CLLG9dWD3BPGtqOe-9Qu37aQMInohnK977m721X50cTWoaoIoF9Eo7PQztGsSsX69zDRHF9C11_bErzwcT7YUVS9V2HTY1DVzH4yLecTcHOxQzp233NabmeX5ETQnHw1L2zIzYsVfn9kXvA3bFAztOGSV0lxPg-KwZd1M8n7dkJSYG6zEh2TyzEepstwTIEgnswPc1ZqlMVcPLZRxia" class="w-full h-full object-cover"/>
+      </div>
+      <h1 class="text-xl font-bold text-stone-800" style="font-family: Newsreader, serif;">Meow</h1>
+    </div>
+    <button class="text-stone-400 hover:bg-orange-50 p-2 rounded-full transition-all">
+      <span class="material-symbols-outlined">settings</span>
+    </button>
+  </header>
+
+  <!-- Main -->
+  <main class="flex-1 pb-28 px-6 flex flex-col items-center justify-center gap-6">
+    <!-- Status -->
+    <div class="text-center space-y-2 mt-4">
+      <span class="inline-block py-1.5 px-4 rounded-full bg-secondary-container text-on-secondary-container font-label-sm">Daily Ritual 🍚</span>
+      <h2 class="text-headline-md font-headline-md text-on-surface" style="font-family: Newsreader, serif;">Meow! Choco is waiting<br/>for your story today.</h2>
+    </div>
+
+    <!-- Cat -->
+    <div class="w-full aspect-square relative flex items-center justify-center">
+      <div class="absolute inset-0 bg-primary-container/20 rounded-full blur-3xl opacity-50 scale-75"></div>
+      <div id="home-cat" class="relative w-64 h-64 rounded-full bg-surface border-4 border-surface-container-highest neomorph-raised flex items-center justify-center overflow-hidden cat-bounce">
+        <img alt="Choco the kitten" class="w-44 h-44 object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCb5ZEhuV-3YynzkC8o3rvjclfmXAlj7pNGG0kG8Ods3HN26egs4mWmtcJnXRdCF88JV3a_GmxAZRBKcsSy3enD7W6_Hwqea2dZG2FOBs9gnlxQjFusDFQVbjeI3G0HDriaJfJWrroC_M4OkCsqwlDU3ekulrMyEo4qIhVZuPridrYIc3jwPbhtSBtPxFx5bQLe-uIJtVY-1NJ1Kd8LjxpFFcN1qJXxa2jKHCD4VO10iEtQf7QoVMEDxvdzbjeFEpQfts_-U-DKR1f7"/>
+      </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="w-full space-y-3">
+      <div class="flex justify-between items-end">
+        <div>
+          <p class="font-label-sm text-on-surface-variant">Cat Name</p>
+          <h3 class="text-2xl font-semibold text-primary" style="font-family: Newsreader, serif;">Choco</h3>
+        </div>
+        <p class="font-label-sm text-secondary">24 stories until adulthood</p>
+      </div>
+      <div class="h-6 w-full bg-surface-container-low rounded-full neomorph-inset relative overflow-hidden p-1">
+        <div class="h-full w-[64%] bg-secondary-fixed-dim rounded-full transition-all duration-1000 flex items-center justify-end pr-1">
+          <div class="w-4 h-4 bg-on-secondary-container rounded-full flex items-center justify-center">
+            <span class="material-symbols-outlined text-[10px] text-white" style="font-variation-settings: 'FILL' 1;">pets</span>
+          </div>
+        </div>
+      </div>
+      <p class="text-xs text-stone-400 text-center">42 / 66 stories written · Baby → <span class="text-secondary font-semibold">Teen</span> → Adult</p>
+    </div>
+
+    <!-- Friends -->
+    <div class="w-full space-y-2">
+      <p class="font-label-sm text-on-surface-variant">Friends today</p>
+      <div class="flex gap-2">
+        <div class="flex-1 bg-surface-container-low rounded-2xl p-3 flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-xs font-bold text-secondary">J</div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-semibold text-stone-700">지수</p>
+            <p class="text-xs text-stone-400">Fed today ✓</p>
+          </div>
+          <div class="w-2 h-2 rounded-full bg-green-400"></div>
+        </div>
+        <div class="flex-1 bg-surface-container-low rounded-2xl p-3 flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-xs font-bold text-primary">M</div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-semibold text-stone-700">민준</p>
+            <p class="text-xs text-stone-400">Not yet...</p>
+          </div>
+          <div class="w-2 h-2 rounded-full bg-stone-300"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <button onclick="showScreen('screen-write')" class="w-full py-5 px-8 rounded-full bg-primary-container text-on-primary-container font-body-lg font-bold flex items-center justify-center gap-3 neomorph-raised active:scale-95 transition-all duration-300 group">
+      <span class="material-symbols-outlined text-2xl group-hover:rotate-12 transition-transform">edit</span>
+      <span>오늘 이야기 들려주기</span>
+    </button>
+    <p class="font-label-sm text-on-surface-variant opacity-60 italic -mt-3">"Every word makes Choco stronger."</p>
+  </main>
+
+  <!-- Bottom Nav -->
+  <nav class="fixed bottom-0 left-0 right-0 max-w-sm mx-auto flex justify-around items-center px-4 pt-2 pb-6 bg-stone-50/80 backdrop-blur-md border-t border-orange-100/30 shadow-[0_-4px_20px_rgba(0,0,0,0.03)] rounded-t-3xl z-50">
+    <button onclick="showTab('screen-home', this)" class="nav-tab active flex flex-col items-center justify-center px-4 py-1 transition-all duration-200">
+      <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+      <span class="text-[11px] font-medium" style="font-family: Newsreader, serif;">Home</span>
+    </button>
+    <button onclick="showTab('screen-house', this)" class="nav-tab flex flex-col items-center justify-center text-stone-400 px-4 py-1 transition-all duration-200">
+      <span class="material-symbols-outlined">pets</span>
+      <span class="text-[11px] font-medium" style="font-family: Newsreader, serif;">Our House</span>
+    </button>
+    <button onclick="showTab('screen-logs', this)" class="nav-tab flex flex-col items-center justify-center text-stone-400 px-4 py-1 transition-all duration-200">
+      <span class="material-symbols-outlined">history</span>
+      <span class="text-[11px] font-medium" style="font-family: Newsreader, serif;">My Logs</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ===== SCREEN: WRITE ===== -->
+<div id="screen-write" class="screen flex-col min-h-screen fade-in">
+  <header class="flex justify-between items-center w-full px-6 h-16 bg-stone-50 shadow-sm border-b border-orange-100/50 sticky top-0 z-50">
+    <button onclick="showScreen('screen-home')" class="text-stone-400 hover:bg-orange-50 p-2 rounded-full transition-all">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h2 class="text-base font-semibold text-stone-700" style="font-family: Newsreader, serif;">Today's Story</h2>
+    <button onclick="finishWrite()" class="text-primary font-semibold text-sm px-3 py-1.5 rounded-full bg-primary-container/50 hover:bg-primary-container transition-all">완료</button>
+  </header>
+
+  <main class="flex-1 flex flex-col px-6 py-6 gap-5">
+    <!-- Date -->
+    <p class="font-label-sm text-on-surface-variant">2026년 4월 28일 · 월요일</p>
+
+    <!-- Cat waiting -->
+    <div class="flex items-center gap-3 bg-secondary-container/30 rounded-2xl p-3">
+      <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCb5ZEhuV-3YynzkC8o3rvjclfmXAlj7pNGG0kG8Ods3HN26egs4mWmtcJnXRdCF88JV3a_GmxAZRBKcsSy3enD7W6_Hwqea2dZG2FOBs9gnlxQjFusDFQVbjeI3G0HDriaJfJWrroC_M4OkCsqwlDU3ekulrMyEo4qIhVZuPridrYIc3jwPbhtSBtPxFx5bQLe-uIJtVY-1NJ1Kd8LjxpFFcN1qJXxa2jKHCD4VO10iEtQf7QoVMEDxvdzbjeFEpQfts_-U-DKR1f7" class="w-10 h-10 rounded-full object-cover" alt="Choco"/>
+      <div>
+        <p class="text-xs font-semibold text-secondary">Choco is hungry 🍚</p>
+        <p class="text-xs text-stone-400">Your story is their food</p>
+      </div>
+    </div>
+
+    <!-- Editor -->
+    <div class="flex-1 flex flex-col gap-3">
+      <textarea id="story-input" class="flex-1 w-full min-h-[280px] p-4 rounded-2xl bg-surface-container-low border border-outline-variant/50 focus:outline-none focus:border-primary resize-none text-on-surface text-base leading-relaxed placeholder:text-stone-300" placeholder="오늘 하루는..."></textarea>
+
+      <!-- Toolbar -->
+      <div class="flex gap-2 pb-2 border-t border-outline-variant/30 pt-3">
+        <button class="text-xs text-stone-500 bg-surface-container rounded-xl px-3 py-1.5 font-semibold">B</button>
+        <button class="text-xs text-stone-500 bg-surface-container rounded-xl px-3 py-1.5 italic">I</button>
+        <button class="text-xs text-stone-500 bg-surface-container rounded-xl px-3 py-1.5 flex items-center gap-1">
+          <span class="material-symbols-outlined text-sm">image</span> 사진
+        </button>
+      </div>
+    </div>
+
+    <!-- Visibility -->
+    <div class="space-y-2">
+      <p class="font-label-sm text-on-surface-variant">공개 범위</p>
+      <div class="flex gap-2">
+        <button id="btn-private" onclick="setVisibility('private')" class="flex-1 border-2 border-primary bg-primary-container/20 rounded-2xl p-3 text-center transition-all">
+          <p class="text-xs font-semibold text-primary">🐱 Choco만</p>
+          <p class="text-xs text-stone-400 mt-0.5">고양이만 반응해요</p>
+        </button>
+        <button id="btn-public" onclick="setVisibility('public')" class="flex-1 border-2 border-surface-container-highest rounded-2xl p-3 text-center transition-all">
+          <p class="text-xs font-semibold text-stone-600">👥 친구 공개</p>
+          <p class="text-xs text-stone-400 mt-0.5">친구가 읽을 수 있어요</p>
+        </button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ===== SCREEN: WRITE COMPLETE ===== -->
+<div id="screen-complete" class="screen flex-col min-h-screen fade-in">
+  <main class="flex-1 flex flex-col items-center justify-center px-6 gap-8">
+    <div class="text-center space-y-2">
+      <span class="text-5xl">🍚</span>
+      <h2 class="text-2xl font-semibold text-stone-800 mt-4" style="font-family: Newsreader, serif;">Choco가 맛있게<br/>먹었어요!</h2>
+      <p class="text-stone-400 text-sm">오늘 이야기가 Choco의 밥이 됐어요</p>
+    </div>
+
+    <!-- Cat eating -->
+    <div class="relative w-64 h-64 rounded-full bg-surface border-4 border-surface-container-highest neomorph-raised flex items-center justify-center overflow-hidden nom">
+      <img alt="Happy Choco" class="w-44 h-44 object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCb5ZEhuV-3YynzkC8o3rvjclfmXAlj7pNGG0kG8Ods3HN26egs4mWmtcJnXRdCF88JV3a_GmxAZRBKcsSy3enD7W6_Hwqea2dZG2FOBs9gnlxQjFusDFQVbjeI3G0HDriaJfJWrroC_M4OkCsqwlDU3ekulrMyEo4qIhVZuPridrYIc3jwPbhtSBtPxFx5bQLe-uIJtVY-1NJ1Kd8LjxpFFcN1qJXxa2jKHCD4VO10iEtQf7QoVMEDxvdzbjeFEpQfts_-U-DKR1f7"/>
+    </div>
+
+    <!-- Progress update -->
+    <div class="w-full space-y-2 bg-surface-container-low rounded-2xl p-4">
+      <div class="flex justify-between items-center">
+        <p class="text-sm font-semibold text-stone-700">Choco's growth</p>
+        <p class="text-xs text-secondary font-semibold">43 / 66 🐾</p>
+      </div>
+      <div class="h-4 w-full bg-surface-container rounded-full overflow-hidden p-0.5">
+        <div class="h-full bg-secondary-fixed-dim rounded-full transition-all duration-1000" style="width: 65.1%"></div>
+      </div>
+      <p class="text-xs text-stone-400 text-center">성묘까지 23편 남았어요</p>
+    </div>
+
+    <button onclick="showScreen('screen-home')" class="w-full py-5 px-8 rounded-full bg-primary-container text-on-primary-container font-body-lg font-bold neomorph-raised active:scale-95 transition-all duration-300">
+      홈으로 돌아가기
+    </button>
+  </main>
+</div>
+
+<!-- ===== SCREEN: OUR HOUSE ===== -->
+<div id="screen-house" class="screen flex-col min-h-screen fade-in">
+  <header class="flex justify-between items-center w-full px-6 h-16 bg-stone-50 shadow-sm border-b border-orange-100/50 sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full bg-primary-container overflow-hidden">
+        <img alt="Cat icon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4KGoXx9DW3GKmyqe-GTBqkx0sr3mE49f_dsLTt1i3jzv81Lh8p6WHosyp3CLLG9dWD3BPGtqOe-9Qu37aQMInohnK977m721X50cTWoaoIoF9Eo7PQztGsSsX69zDRHF9C11_bErzwcT7YUVS9V2HTY1DVzH4yLecTcHOxQzp233NabmeX5ETQnHw1L2zIzYsVfn9kXvA3bFAztOGSV0lxPg-KwZd1M8n7dkJSYG6zEh2TyzEepstwTIEgnswPc1ZqlMVcPLZRxia" class="w-full h-full object-cover"/>
+      </div>
+      <h1 class="text-xl font-bold text-stone-800" style="font-family: Newsreader, serif;">Our House</h1>
+    </div>
+    <button class="text-stone-400 hover:bg-orange-50 p-2 rounded-full transition-all">
+      <span class="material-symbols-outlined">person_add</span>
+    </button>
+  </header>
+
+  <main class="flex-1 pb-28 px-6 py-6 space-y-6">
+    <!-- Currently raising -->
+    <div class="space-y-3">
+      <p class="font-label-sm text-on-surface-variant">지금 키우는 중</p>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="bg-surface-container-low rounded-2xl p-3 space-y-2">
+          <div class="w-full aspect-square rounded-xl bg-primary-container/20 flex items-center justify-center overflow-hidden">
+            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCb5ZEhuV-3YynzkC8o3rvjclfmXAlj7pNGG0kG8Ods3HN26egs4mWmtcJnXRdCF88JV3a_GmxAZRBKcsSy3enD7W6_Hwqea2dZG2FOBs9gnlxQjFusDFQVbjeI3G0HDriaJfJWrroC_M4OkCsqwlDU3ekulrMyEo4qIhVZuPridrYIc3jwPbhtSBtPxFx5bQLe-uIJtVY-1NJ1Kd8LjxpFFcN1qJXxa2jKHCD4VO10iEtQf7QoVMEDxvdzbjeFEpQfts_-U-DKR1f7" class="w-20 h-20 object-cover" alt="Choco"/>
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-stone-700">Choco</p>
+            <p class="text-xs text-stone-400">나 · 42편</p>
+          </div>
+          <div class="h-1.5 bg-surface-container rounded-full overflow-hidden">
+            <div class="h-full bg-secondary-fixed-dim rounded-full" style="width:64%"></div>
+          </div>
+        </div>
+        <div class="bg-surface-container-low rounded-2xl p-3 space-y-2">
+          <div class="w-full aspect-square rounded-xl bg-secondary-container/20 flex items-center justify-center overflow-hidden">
+            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCb5ZEhuV-3YynzkC8o3rvjclfmXAlj7pNGG0kG8Ods3HN26egs4mWmtcJnXRdCF88JV3a_GmxAZRBKcsSy3enD7W6_Hwqea2dZG2FOBs9gnlxQjFusDFQVbjeI3G0HDriaJfJWrroC_M4OkCsqwlDU3ekulrMyEo4qIhVZuPridrYIc3jwPbhtSBtPxFx5bQLe-uIJtVY-1NJ1Kd8LjxpFFcN1qJXxa2jKHCD4VO10iEtQf7QoVMEDxvdzbjeFEpQfts_-U-DKR1f7" class="w-20 h-20 object-cover" alt="Mochi"/>
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-stone-700">Mochi</p>
+            <p class="text-xs text-stone-400">지수 · 28편</p>
+          </div>
+          <div class="h-1.5 bg-surface-container rounded-full overflow-hidden">
+            <div class="h-full bg-secondary-fixed-dim rounded-full" style="width:42%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Graduated cats -->
+    <div class="space-y-3">
+      <p class="font-label-sm text-on-surface-variant">졸업한 고양이들 🎓</p>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="bg-surface-container-low/60 rounded-2xl p-3 space-y-2 opacity-70">
+          <div class="w-full aspect-square rounded-xl bg-tertiary-container/30 flex items-center justify-center overflow-hidden">
+            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCb5ZEhuV-3YynzkC8o3rvjclfmXAlj7pNGG0kG8Ods3HN26egs4mWmtcJnXRdCF88JV3a_GmxAZRBKcsSy3enD7W6_Hwqea2dZG2FOBs9gnlxQjFusDFQVbjeI3G0HDriaJfJWrroC_M4OkCsqwlDU3ekulrMyEo4qIhVZuPridrYIc3jwPbhtSBtPxFx5bQLe-uIJtVY-1NJ1Kd8LjxpFFcN1qJXxa2jKHCD4VO10iEtQf7QoVMEDxvdzbjeFEpQfts_-U-DKR1f7" class="w-20 h-20 object-cover" alt="Nabi"/>
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-stone-600">Nabi</p>
+            <p class="text-xs text-stone-400">66편 완성 ✨</p>
+          </div>
+        </div>
+        <div class="border-2 border-dashed border-surface-container-highest rounded-2xl p-3 flex flex-col items-center justify-center min-h-[140px] gap-2">
+          <span class="material-symbols-outlined text-stone-300 text-3xl">add_circle</span>
+          <p class="text-xs text-stone-300 text-center">다음 고양이를 키워봐요</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Friend stories -->
+    <div class="space-y-3">
+      <p class="font-label-sm text-on-surface-variant">친구의 오늘 이야기</p>
+      <div class="bg-surface-container-low rounded-2xl p-4 space-y-2">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-7 h-7 rounded-full bg-secondary-container flex items-center justify-center text-xs font-bold text-secondary">J</div>
+          <p class="text-xs font-semibold text-stone-700">지수</p>
+          <span class="text-xs text-stone-300 ml-auto">방금 전</span>
+        </div>
+        <p class="text-sm text-stone-500 leading-relaxed">오늘 카페에서 처음으로 혼자 밥을 먹었는데 생각보다 괜찮았다. 이어폰 끼고...</p>
+        <p class="text-xs text-stone-300">공개된 글 · 전체 읽기 →</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Nav -->
+  <nav class="fixed bottom-0 left-0 right-0 max-w-sm mx-auto flex justify-around items-center px-4 pt-2 pb-6 bg-stone-50/80 backdrop-blur-md border-t border-orange-100/30 rounded-t-3xl z-50">
+    <button onclick="showTab('screen-home', this)" class="nav-tab flex flex-col items-center justify-center text-stone-400 px-4 py-1 transition-all duration-200">
+      <span class="material-symbols-outlined">home</span>
+      <span class="text-[11px] font-medium" style="font-family: Newsreader, serif;">Home</span>
+    </button>
+    <button onclick="showTab('screen-house', this)" class="nav-tab active flex flex-col items-center justify-center px-4 py-1 transition-all duration-200">
+      <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">pets</span>
+      <span class="text-[11px] font-medium" style="font-family: Newsreader, serif;">Our House</span>
+    </button>
+    <button onclick="showTab('screen-logs', this)" class="nav-tab flex flex-col items-center justify-center text-stone-400 px-4 py-1 transition-all duration-200">
+      <span class="material-symbols-outlined">history</span>
+      <span class="text-[11px] font-medium" style="font-family: Newsreader, serif;">My Logs</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ===== SCREEN: MY LOGS ===== -->
+<div id="screen-logs" class="screen flex-col min-h-screen fade-in">
+  <header class="flex justify-between items-center w-full px-6 h-16 bg-stone-50 shadow-sm border-b border-orange-100/50 sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full bg-primary-container overflow-hidden">
+        <img alt="Cat icon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4KGoXx9DW3GKmyqe-GTBqkx0sr3mE49f_dsLTt1i3jzv81Lh8p6WHosyp3CLLG9dWD3BPGtqOe-9Qu37aQMInohnK977m721X50cTWoaoIoF9Eo7PQztGsSsX69zDRHF9C11_bErzwcT7YUVS9V2HTY1DVzH4yLecTcHOxQzp233NabmeX5ETQnHw1L2zIzYsVfn9kXvA3bFAztOGSV0lxPg-KwZd1M8n7dkJSYG6zEh2TyzEepstwTIEgnswPc1ZqlMVcPLZRxia" class="w-full h-full object-cover"/>
+      </div>
+      <h1 class="text-xl font-bold text-stone-800" style="font-family: Newsreader, serif;">My Logs</h1>
+    </div>
+  </header>
+
+  <main class="flex-1 pb-28 px-6 py-6 space-y-5">
+    <!-- Stats row -->
+    <div class="grid grid-cols-3 gap-3">
+      <div class="bg-surface-container-low rounded-2xl p-3 text-center">
+        <p class="text-2xl font-bold text-primary" style="font-family: Newsreader, serif;">42</p>
+        <p class="text-xs text-stone-400 mt-0.5">Stories</p>
+      </div>
+      <div class="bg-surface-container-low rounded-2xl p-3 text-center">
+        <p class="text-2xl font-bold text-secondary" style="font-family: Newsreader, serif;">6</p>
+        <p class="text-xs text-stone-400 mt-0.5">Streak 🔥</p>
+      </div>
+      <div class="bg-surface-container-low rounded-2xl p-3 text-center">
+        <p class="text-2xl font-bold text-tertiary" style="font-family: Newsreader, serif;">24</p>
+        <p class="text-xs text-stone-400 mt-0.5">Until adult</p>
+      </div>
+    </div>
+
+    <!-- Calendar -->
+    <div class="bg-surface-container-low rounded-2xl p-4 space-y-3">
+      <p class="font-label-sm text-on-surface-variant">April 2026</p>
+      <div class="grid grid-cols-7 gap-1 text-center">
+        <p class="text-xs text-stone-300">S</p><p class="text-xs text-stone-300">M</p><p class="text-xs text-stone-300">T</p><p class="text-xs text-stone-300">W</p><p class="text-xs text-stone-300">T</p><p class="text-xs text-stone-300">F</p><p class="text-xs text-stone-300">S</p>
+        <div></div><div></div><div class="w-7 h-7 mx-auto rounded-full bg-secondary-fixed-dim flex items-center justify-center text-xs text-secondary font-semibold">1</div><div class="w-7 h-7 mx-auto rounded-full bg-secondary-fixed-dim flex items-center justify-center text-xs text-secondary font-semibold">2</div><div class="w-7 h-7 mx-auto rounded-full flex items-center justify-center text-xs text-stone-400">3</div><div class="w-7 h-7 mx-auto rounded-full bg-secondary-fixed-dim flex items-center justify-center text-xs text-secondary font-semibold">4</div><div class="w-7 h-7 mx-auto rounded-full bg-secondary-fixed-dim flex items-center justify-center text-xs text-secondary font-semibold">5</div>
+        <div class="w-7 h-7 mx-auto rounded-full flex items-center justify-center text-xs text-stone-400">6</div><div class="w-7 h-7 mx-auto rounded-full bg-secondary-fixed-dim flex items-center justify-center text-xs text-secondary font-semibold">7</div><div class="w-7 h-7 mx-auto rounded-full bg-secondary-fixed-dim flex items-center justify-center text-xs text-secondary font-semibold">8</div><div class="w-7 h-7 mx-auto rounded-full bg-secondary-fixed-dim flex items-center justify-center text-xs text-secondary font-semibold">9</div><div class="w-7 h-7 mx-auto rounded-full bg-secondary-fixed-dim flex items-center justify-center text-xs text-secondary font-semibold">10</div><div class="w-7 h-7 mx-auto rounded-full bg-secondary-fixed-dim flex items-center justify-center text-xs text-secondary font-semibold">11</div><div class="w-7 h-7 mx-auto rounded-full flex items-center justify-center text-xs text-stone-400">12</div>
+        <div class="w-7 h-7 mx-auto rounded-full flex items-center justify-center text-xs text-stone-400">13</div><div class="w-7 h-7 mx-auto rounded-full bg-secondary-fixed-dim flex items-center justify-center text-xs text-secondary font-semibold">14</div><div class="w-7 h-7 mx-auto rounded-full bg-secondary-fixed-dim flex items-center justify-center text-xs text-secondary font-semibold">15</div><div class="w-7 h-7 mx-auto rounded-full bg-secondary-fixed-dim flex items-center justify-center text-xs text-secondary font-semibold">16</div><div class="w-7 h-7 mx-auto rounded-full bg-secondary-fixed-dim flex items-center justify-center text-xs text-secondary font-semibold">17</div><div class="w-7 h-7 mx-auto rounded-full bg-secondary-fixed-dim flex items-center justify-center text-xs text-secondary font-semibold">18</div><div class="w-7 h-7 mx-auto rounded-full flex items-center justify-center text-xs text-stone-400">19</div>
+        <div class="w-7 h-7 mx-auto rounded-full flex items-center justify-center text-xs text-stone-400">20</div><div class="w-7 h-7 mx-auto rounded-full bg-secondary-fixed-dim flex items-center justify-center text-xs text-secondary font-semibold">21</div><div class="w-7 h-7 mx-auto rounded-full bg-secondary-fixed-dim flex items-center justify-center text-xs text-secondary font-semibold">22</div><div class="w-7 h-7 mx-auto rounded-full bg-secondary-fixed-dim flex items-center justify-center text-xs text-secondary font-semibold">23</div><div class="w-7 h-7 mx-auto rounded-full bg-secondary-fixed-dim flex items-center justify-center text-xs text-secondary font-semibold">24</div><div class="w-7 h-7 mx-auto rounded-full bg-secondary-fixed-dim flex items-center justify-center text-xs text-secondary font-semibold">25</div><div class="w-7 h-7 mx-auto rounded-full flex items-center justify-center text-xs text-stone-400">26</div>
+        <div class="w-7 h-7 mx-auto rounded-full flex items-center justify-center text-xs text-stone-400">27</div><div class="w-7 h-7 mx-auto rounded-full border-2 border-primary flex items-center justify-center text-xs text-primary font-bold">28</div>
+      </div>
+    </div>
+
+    <!-- Weekly Report Entry -->
+    <button onclick="showScreen('screen-report')" class="w-full text-left bg-secondary-container/40 rounded-2xl p-4 space-y-2 active:scale-[0.98] transition-all duration-200">
+      <div class="flex justify-between items-center">
+        <p class="font-label-sm text-secondary">이번 주 리포트 🐾</p>
+        <span class="material-symbols-outlined text-secondary text-base">arrow_forward_ios</span>
+      </div>
+      <p class="text-base font-semibold text-stone-700" style="font-family: Newsreader, serif;">"의문 가지가 새로 자랐어요" +9%</p>
+      <p class="text-xs text-stone-400">4월 3주차 vs 4주차 · 지난주 대비 변화</p>
+    </button>
+
+    <!-- Recent stories -->
+    <div class="space-y-3">
+      <p class="font-label-sm text-on-surface-variant">최근 이야기</p>
+      <div class="space-y-2">
+        <div class="bg-surface-container-low rounded-2xl p-4 space-y-1">
+          <div class="flex justify-between items-center">
+            <p class="text-xs font-semibold text-stone-600">Apr 25</p>
+            <span class="text-xs text-stone-300">🔒 비공개</span>
+          </div>
+          <p class="text-sm text-stone-600 leading-relaxed line-clamp-2">오늘은 오랜만에 산책을 나갔다. 바람이 생각보다 차가웠는데...</p>
+        </div>
+        <div class="bg-surface-container-low rounded-2xl p-4 space-y-1">
+          <div class="flex justify-between items-center">
+            <p class="text-xs font-semibold text-stone-600">Apr 24</p>
+            <span class="text-xs text-secondary">👥 공개</span>
+          </div>
+          <p class="text-sm text-stone-600 leading-relaxed line-clamp-2">카페 창가에 앉아서 책을 읽었다. 옆 테이블 사람들 웃음소리가...</p>
+        </div>
+        <div class="bg-surface-container-low rounded-2xl p-4 space-y-1">
+          <div class="flex justify-between items-center">
+            <p class="text-xs font-semibold text-stone-600">Apr 23</p>
+            <span class="text-xs text-stone-300">🔒 비공개</span>
+          </div>
+          <p class="text-sm text-stone-600 leading-relaxed line-clamp-2">요즘 자꾸 같은 꿈을 꾼다. 어딘가를 찾고 있는데 찾지 못하는...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Nav -->
+  <nav class="fixed bottom-0 left-0 right-0 max-w-sm mx-auto flex justify-around items-center px-4 pt-2 pb-6 bg-stone-50/80 backdrop-blur-md border-t border-orange-100/30 rounded-t-3xl z-50">
+    <button onclick="showTab('screen-home', this)" class="nav-tab flex flex-col items-center justify-center text-stone-400 px-4 py-1 transition-all duration-200">
+      <span class="material-symbols-outlined">home</span>
+      <span class="text-[11px] font-medium" style="font-family: Newsreader, serif;">Home</span>
+    </button>
+    <button onclick="showTab('screen-house', this)" class="nav-tab flex flex-col items-center justify-center text-stone-400 px-4 py-1 transition-all duration-200">
+      <span class="material-symbols-outlined">pets</span>
+      <span class="text-[11px] font-medium" style="font-family: Newsreader, serif;">Our House</span>
+    </button>
+    <button onclick="showTab('screen-logs', this)" class="nav-tab active flex flex-col items-center justify-center px-4 py-1 transition-all duration-200">
+      <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">history</span>
+      <span class="text-[11px] font-medium" style="font-family: Newsreader, serif;">My Logs</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ===== SCREEN: WEEKLY REPORT ===== -->
+<div id="screen-report" class="screen flex-col min-h-screen fade-in">
+  <header class="flex justify-between items-center w-full px-6 h-16 bg-stone-50 shadow-sm border-b border-orange-100/50 sticky top-0 z-50">
+    <button onclick="showScreen('screen-home')" class="text-stone-400 hover:bg-orange-50 p-2 rounded-full transition-all">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h2 class="text-base font-semibold text-stone-700" style="font-family: Newsreader, serif;">Weekly Report</h2>
+    <div class="w-10"></div>
+  </header>
+
+  <main class="flex-1 pb-16 px-6 py-6 space-y-5">
+    <!-- Header card -->
+    <div class="bg-secondary-container/40 rounded-3xl p-5 space-y-2">
+      <p class="font-label-sm text-secondary">4월 3주차 vs 4주차</p>
+      <h2 class="text-xl font-semibold text-stone-800 leading-snug" style="font-family: Newsreader, serif;">"의문 가지가<br/>새로 자랐어요" +9%</h2>
+      <div class="flex items-center gap-2 mt-3">
+        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCb5ZEhuV-3YynzkC8o3rvjclfmXAlj7pNGG0kG8Ods3HN26egs4mWmtcJnXRdCF88JV3a_GmxAZRBKcsSy3enD7W6_Hwqea2dZG2FOBs9gnlxQjFusDFQVbjeI3G0HDriaJfJWrroC_M4OkCsqwlDU3ekulrMyEo4qIhVZuPridrYIc3jwPbhtSBtPxFx5bQLe-uIJtVY-1NJ1Kd8LjxpFFcN1qJXxa2jKHCD4VO10iEtQf7QoVMEDxvdzbjeFEpQfts_-U-DKR1f7" class="w-8 h-8 rounded-full object-cover" alt="Choco"/>
+        <p class="text-xs text-stone-500">Choco도 잘 먹은 한 주였어요 🍚</p>
+      </div>
+    </div>
+
+    <!-- Metrics -->
+    <div class="space-y-2">
+      <p class="font-label-sm text-on-surface-variant">이번 주 변화</p>
+      <div class="space-y-2">
+        <div class="bg-surface-container-low rounded-2xl px-4 py-3 flex justify-between items-center">
+          <div>
+            <p class="text-xs text-stone-400">사고방식</p>
+            <p class="text-sm font-semibold text-stone-700">Interpretation</p>
+          </div>
+          <span class="text-xs font-bold text-green-500 bg-green-50 px-2 py-1 rounded-full">+12%</span>
+        </div>
+        <div class="bg-surface-container-low rounded-2xl px-4 py-3 flex justify-between items-center">
+          <div>
+            <p class="text-xs text-stone-400">세계관</p>
+            <p class="text-sm font-semibold text-stone-700">Open thinking</p>
+          </div>
+          <span class="text-xs font-bold text-green-500 bg-green-50 px-2 py-1 rounded-full">+7%</span>
+        </div>
+        <div class="bg-surface-container-low rounded-2xl px-4 py-3 flex justify-between items-center">
+          <div>
+            <p class="text-xs text-stone-400">Insight 비율</p>
+            <p class="text-sm font-semibold text-stone-700">34%</p>
+          </div>
+          <span class="text-xs font-bold text-red-400 bg-red-50 px-2 py-1 rounded-full">-3%</span>
+        </div>
+        <div class="bg-surface-container-low rounded-2xl px-4 py-3 flex justify-between items-center">
+          <div>
+            <p class="text-xs text-stone-400">연속 기록</p>
+            <p class="text-sm font-semibold text-stone-700">6일째 🔥</p>
+          </div>
+          <span class="text-xs font-bold text-secondary bg-secondary-container/50 px-2 py-1 rounded-full">유지중</span>
+        </div>
+        <div class="bg-surface-container-low rounded-2xl px-4 py-3 flex justify-between items-center">
+          <div>
+            <p class="text-xs text-stone-400">Choco 상태</p>
+            <p class="text-sm font-semibold text-stone-700">Teen cat 🐱</p>
+          </div>
+          <span class="text-xs font-bold text-primary bg-primary-container/50 px-2 py-1 rounded-full">성장중</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="flex gap-3">
+      <button class="flex-1 py-3 rounded-2xl bg-secondary-container text-on-secondary-container font-semibold text-sm flex items-center justify-center gap-2">
+        <span class="material-symbols-outlined text-base">share</span> SNS 공유
+      </button>
+      <button onclick="showScreen('screen-dashboard')" class="flex-1 py-3 rounded-2xl bg-surface-container text-stone-600 font-semibold text-sm flex items-center justify-center gap-2">
+        <span class="material-symbols-outlined text-base">analytics</span> 자세히
+      </button>
+    </div>
+  </main>
+</div>
+
+<!-- ===== SCREEN: DASHBOARD ===== -->
+<div id="screen-dashboard" class="screen flex-col min-h-screen fade-in">
+  <header class="flex justify-between items-center w-full px-6 h-16 bg-stone-50 shadow-sm border-b border-orange-100/50 sticky top-0 z-50">
+    <button onclick="showScreen('screen-report')" class="text-stone-400 hover:bg-orange-50 p-2 rounded-full transition-all">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h2 class="text-base font-semibold text-stone-700" style="font-family: Newsreader, serif;">My Insights</h2>
+    <div class="w-10"></div>
+  </header>
+
+  <!-- Tab switcher -->
+  <div class="flex px-6 pt-4 gap-2 sticky top-16 bg-background z-40 pb-3">
+    <button id="tab-emotion-btn" onclick="switchDashTab('emotion')" class="flex-1 py-2 rounded-full bg-primary-container text-on-primary-container text-sm font-semibold transition-all">Emotion</button>
+    <button id="tab-language-btn" onclick="switchDashTab('language')" class="flex-1 py-2 rounded-full bg-surface-container text-stone-500 text-sm font-semibold transition-all">Language</button>
+  </div>
+
+  <main class="flex-1 pb-16 px-6 overflow-y-auto">
+
+    <!-- ===== EMOTION TAB ===== -->
+    <div id="dash-emotion" class="space-y-4 py-4">
+
+      <!-- KPI cards -->
+      <div class="grid grid-cols-3 gap-2">
+        <div class="bg-surface-container-low rounded-2xl p-3 text-center">
+          <div class="text-2xl">😊</div>
+          <p class="text-xs text-stone-400 mt-1">이번 주</p>
+          <p class="text-xs font-bold text-secondary">Good</p>
+        </div>
+        <div class="bg-surface-container-low rounded-2xl p-3 text-center">
+          <div class="text-2xl">😌</div>
+          <p class="text-xs text-stone-400 mt-1">많은 감정</p>
+          <p class="text-xs font-bold text-primary">Joy</p>
+        </div>
+        <div class="bg-surface-container-low rounded-2xl p-3 text-center">
+          <div class="text-2xl">📈</div>
+          <p class="text-xs text-stone-400 mt-1">지난 주 대비</p>
+          <p class="text-xs font-bold text-green-500">+9%</p>
+        </div>
+      </div>
+
+      <!-- Weekly Mood Trend -->
+      <div class="bg-surface-container-low rounded-2xl p-4 space-y-3">
+        <p class="font-label-sm text-on-surface-variant">Weekly Mood Trend</p>
+        <div class="flex items-end justify-between gap-1 h-20">
+          <div class="flex flex-col items-center gap-1 flex-1">
+            <div class="w-full rounded-t-lg bg-secondary-fixed-dim" style="height:45%"></div>
+            <p class="text-[9px] text-stone-400">Mon</p>
+          </div>
+          <div class="flex flex-col items-center gap-1 flex-1">
+            <div class="w-full rounded-t-lg bg-secondary-fixed-dim" style="height:70%"></div>
+            <p class="text-[9px] text-stone-400">Tue</p>
+          </div>
+          <div class="flex flex-col items-center gap-1 flex-1">
+            <div class="w-full rounded-t-lg bg-secondary-fixed-dim" style="height:55%"></div>
+            <p class="text-[9px] text-stone-400">Wed</p>
+          </div>
+          <div class="flex flex-col items-center gap-1 flex-1">
+            <div class="w-full rounded-t-lg bg-secondary-fixed-dim" style="height:85%"></div>
+            <p class="text-[9px] text-stone-400">Thu</p>
+          </div>
+          <div class="flex flex-col items-center gap-1 flex-1">
+            <div class="w-full rounded-t-lg bg-secondary-fixed-dim" style="height:60%"></div>
+            <p class="text-[9px] text-stone-400">Fri</p>
+          </div>
+          <div class="flex flex-col items-center gap-1 flex-1">
+            <div class="w-full rounded-t-lg bg-primary-container" style="height:30%"></div>
+            <p class="text-[9px] text-stone-400">Sat</p>
+          </div>
+          <div class="flex flex-col items-center gap-1 flex-1">
+            <div class="w-full rounded-t-lg bg-secondary-container border-2 border-secondary" style="height:75%"></div>
+            <p class="text-[9px] text-stone-600 font-bold">Sun</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Emotion Distribution -->
+      <div class="bg-surface-container-low rounded-2xl p-4 space-y-3">
+        <p class="font-label-sm text-on-surface-variant">Emotion Distribution</p>
+        <div class="space-y-2">
+          <div class="flex items-center gap-2">
+            <span class="text-xs w-14 text-stone-500">Joy</span>
+            <div class="flex-1 h-3 bg-surface-container rounded-full overflow-hidden">
+              <div class="h-full bg-amber-300 rounded-full" style="width:42%"></div>
+            </div>
+            <span class="text-xs text-stone-400 w-8 text-right">42%</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs w-14 text-stone-500">Neutral</span>
+            <div class="flex-1 h-3 bg-surface-container rounded-full overflow-hidden">
+              <div class="h-full bg-stone-300 rounded-full" style="width:28%"></div>
+            </div>
+            <span class="text-xs text-stone-400 w-8 text-right">28%</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs w-14 text-stone-500">Sadness</span>
+            <div class="flex-1 h-3 bg-surface-container rounded-full overflow-hidden">
+              <div class="h-full bg-blue-300 rounded-full" style="width:18%"></div>
+            </div>
+            <span class="text-xs text-stone-400 w-8 text-right">18%</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs w-14 text-stone-500">Surprise</span>
+            <div class="flex-1 h-3 bg-surface-container rounded-full overflow-hidden">
+              <div class="h-full bg-purple-300 rounded-full" style="width:8%"></div>
+            </div>
+            <span class="text-xs text-stone-400 w-8 text-right">8%</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs w-14 text-stone-500">Anger</span>
+            <div class="flex-1 h-3 bg-surface-container rounded-full overflow-hidden">
+              <div class="h-full bg-red-300 rounded-full" style="width:4%"></div>
+            </div>
+            <span class="text-xs text-stone-400 w-8 text-right">4%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Daily Patterns -->
+      <div class="bg-surface-container-low rounded-2xl p-4 space-y-3">
+        <p class="font-label-sm text-on-surface-variant">Daily Patterns</p>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="bg-amber-50 rounded-xl p-3 text-center">
+            <p class="text-xs text-stone-400 mb-1">Morning</p>
+            <div class="text-xl">😊</div>
+            <p class="text-xs font-semibold text-amber-600 mt-1">Joy</p>
+          </div>
+          <div class="bg-blue-50 rounded-xl p-3 text-center">
+            <p class="text-xs text-stone-400 mb-1">Afternoon</p>
+            <div class="text-xl">😌</div>
+            <p class="text-xs font-semibold text-blue-500 mt-1">Neutral</p>
+          </div>
+          <div class="bg-purple-50 rounded-xl p-3 text-center">
+            <p class="text-xs text-stone-400 mb-1">Evening</p>
+            <div class="text-xl">🥺</div>
+            <p class="text-xs font-semibold text-purple-500 mt-1">Sadness</p>
+          </div>
+          <div class="bg-stone-50 rounded-xl p-3 text-center">
+            <p class="text-xs text-stone-400 mb-1">Night</p>
+            <div class="text-xl">😴</div>
+            <p class="text-xs font-semibold text-stone-500 mt-1">Neutral</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mood Calendar -->
+      <div class="bg-surface-container-low rounded-2xl p-4 space-y-3">
+        <p class="font-label-sm text-on-surface-variant">Mood Calendar — April</p>
+        <div class="grid grid-cols-7 gap-1 text-center">
+          <p class="text-[9px] text-stone-300">S</p><p class="text-[9px] text-stone-300">M</p><p class="text-[9px] text-stone-300">T</p><p class="text-[9px] text-stone-300">W</p><p class="text-[9px] text-stone-300">T</p><p class="text-[9px] text-stone-300">F</p><p class="text-[9px] text-stone-300">S</p>
+          <div></div><div></div><div class="text-sm">😊</div><div class="text-sm">😌</div><div class="text-sm">😔</div><div class="text-sm">😊</div><div class="text-sm">😊</div>
+          <div class="text-sm">😴</div><div class="text-sm">😊</div><div class="text-sm">😌</div><div class="text-sm">😊</div><div class="text-sm">😊</div><div class="text-sm">😌</div><div class="text-sm">😔</div>
+          <div class="text-sm">😌</div><div class="text-sm">😊</div><div class="text-sm">😊</div><div class="text-sm">😊</div><div class="text-sm">😌</div><div class="text-sm">😊</div><div class="text-sm">😌</div>
+          <div class="text-sm">😌</div><div class="w-7 h-7 mx-auto rounded-full border-2 border-primary flex items-center justify-center text-sm">😊</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== LANGUAGE TAB ===== -->
+    <div id="dash-language" class="space-y-4 py-4 hidden">
+
+      <!-- KPI cards -->
+      <div class="grid grid-cols-2 gap-2">
+        <div class="bg-surface-container-low rounded-2xl p-3">
+          <p class="text-xs text-stone-400">Layer Reach</p>
+          <p class="text-xl font-bold text-primary" style="font-family: Newsreader, serif;">68%</p>
+          <p class="text-xs text-stone-400">T·I 도달일</p>
+        </div>
+        <div class="bg-surface-container-low rounded-2xl p-3">
+          <p class="text-xs text-stone-400">Causal Ratio</p>
+          <p class="text-xl font-bold text-secondary" style="font-family: Newsreader, serif;">34%</p>
+          <p class="text-xs text-stone-400">인과문 비율</p>
+        </div>
+        <div class="bg-surface-container-low rounded-2xl p-3">
+          <p class="text-xs text-stone-400">Avg Words</p>
+          <p class="text-xl font-bold text-tertiary" style="font-family: Newsreader, serif;">187</p>
+          <p class="text-xs text-stone-400">편당 평균</p>
+        </div>
+        <div class="bg-surface-container-low rounded-2xl p-3">
+          <p class="text-xs text-stone-400">Structure Score</p>
+          <p class="text-xl font-bold text-on-primary-container" style="font-family: Newsreader, serif;">72</p>
+          <p class="text-xs text-stone-400">/100</p>
+        </div>
+      </div>
+
+      <!-- Thinking Type Distribution -->
+      <div class="bg-surface-container-low rounded-2xl p-4 space-y-3">
+        <p class="font-label-sm text-on-surface-variant">Thinking Type</p>
+        <div class="space-y-2">
+          <div>
+            <div class="flex justify-between mb-1">
+              <span class="text-xs text-stone-500">Causal Reasoning</span>
+              <span class="text-xs font-bold text-secondary">+12%</span>
+            </div>
+            <div class="h-3 bg-surface-container rounded-full overflow-hidden">
+              <div class="h-full bg-secondary-fixed-dim rounded-full" style="width:58%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between mb-1">
+              <span class="text-xs text-stone-500">Interpretation</span>
+              <span class="text-xs font-bold text-green-500">+7%</span>
+            </div>
+            <div class="h-3 bg-surface-container rounded-full overflow-hidden">
+              <div class="h-full bg-green-200 rounded-full" style="width:72%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between mb-1">
+              <span class="text-xs text-stone-500">Event Listing</span>
+              <span class="text-xs font-bold text-red-400">-5%</span>
+            </div>
+            <div class="h-3 bg-surface-container rounded-full overflow-hidden">
+              <div class="h-full bg-red-200 rounded-full" style="width:30%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Language Lens -->
+      <div class="bg-surface-container-low rounded-2xl p-4 space-y-3">
+        <p class="font-label-sm text-on-surface-variant">Language Lens</p>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="bg-green-50 rounded-xl p-3">
+            <div class="flex justify-between items-center mb-2">
+              <p class="text-xs font-semibold text-green-700">Open</p>
+              <span class="text-xs text-green-500 font-bold">+7%</span>
+            </div>
+            <div class="h-2 bg-green-100 rounded-full overflow-hidden">
+              <div class="h-full bg-green-400 rounded-full" style="width:64%"></div>
+            </div>
+            <p class="text-xs text-green-600 mt-1">64%</p>
+          </div>
+          <div class="bg-amber-50 rounded-xl p-3">
+            <div class="flex justify-between items-center mb-2">
+              <p class="text-xs font-semibold text-amber-700">Passive</p>
+              <span class="text-xs text-red-400 font-bold">-3%</span>
+            </div>
+            <div class="h-2 bg-amber-100 rounded-full overflow-hidden">
+              <div class="h-full bg-amber-400 rounded-full" style="width:22%"></div>
+            </div>
+            <p class="text-xs text-amber-600 mt-1">22%</p>
+          </div>
+          <div class="bg-blue-50 rounded-xl p-3">
+            <div class="flex justify-between items-center mb-2">
+              <p class="text-xs font-semibold text-blue-700">Closed</p>
+              <span class="text-xs text-stone-400 font-bold">0%</span>
+            </div>
+            <div class="h-2 bg-blue-100 rounded-full overflow-hidden">
+              <div class="h-full bg-blue-400 rounded-full" style="width:8%"></div>
+            </div>
+            <p class="text-xs text-blue-600 mt-1">8%</p>
+          </div>
+          <div class="bg-red-50 rounded-xl p-3">
+            <div class="flex justify-between items-center mb-2">
+              <p class="text-xs font-semibold text-red-700">Rigid</p>
+              <span class="text-xs text-red-400 font-bold">-2%</span>
+            </div>
+            <div class="h-2 bg-red-100 rounded-full overflow-hidden">
+              <div class="h-full bg-red-400 rounded-full" style="width:6%"></div>
+            </div>
+            <p class="text-xs text-red-600 mt-1">6%</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Structure Score / Layer Depth -->
+      <div class="bg-surface-container-low rounded-2xl p-4 space-y-3">
+        <div class="flex justify-between items-center">
+          <p class="font-label-sm text-on-surface-variant">Layer Depth</p>
+          <p class="text-xs text-stone-400">이번 주</p>
+        </div>
+        <div class="flex items-end justify-between gap-1 h-20">
+          <div class="flex flex-col items-center gap-1 flex-1">
+            <div class="w-full flex flex-col rounded-t-lg overflow-hidden" style="height:80px;">
+              <div class="w-full bg-purple-300 flex-none" style="height:20%"></div>
+              <div class="w-full bg-green-300 flex-none" style="height:30%"></div>
+              <div class="w-full bg-amber-200 flex-none" style="height:50%"></div>
+            </div>
+            <p class="text-[9px] text-stone-400">Mon</p>
+          </div>
+          <div class="flex flex-col items-center gap-1 flex-1">
+            <div class="w-full flex flex-col rounded-t-lg overflow-hidden" style="height:80px;">
+              <div class="w-full bg-purple-300 flex-none" style="height:30%"></div>
+              <div class="w-full bg-green-300 flex-none" style="height:40%"></div>
+              <div class="w-full bg-amber-200 flex-none" style="height:30%"></div>
+            </div>
+            <p class="text-[9px] text-stone-400">Tue</p>
+          </div>
+          <div class="flex flex-col items-center gap-1 flex-1">
+            <div class="w-full flex flex-col rounded-t-lg overflow-hidden" style="height:80px;">
+              <div class="w-full bg-purple-300 flex-none" style="height:10%"></div>
+              <div class="w-full bg-green-300 flex-none" style="height:25%"></div>
+              <div class="w-full bg-amber-200 flex-none" style="height:65%"></div>
+            </div>
+            <p class="text-[9px] text-stone-400">Wed</p>
+          </div>
+          <div class="flex flex-col items-center gap-1 flex-1">
+            <div class="w-full flex flex-col rounded-t-lg overflow-hidden" style="height:80px;">
+              <div class="w-full bg-purple-300 flex-none" style="height:35%"></div>
+              <div class="w-full bg-green-300 flex-none" style="height:35%"></div>
+              <div class="w-full bg-amber-200 flex-none" style="height:30%"></div>
+            </div>
+            <p class="text-[9px] text-stone-400">Thu</p>
+          </div>
+          <div class="flex flex-col items-center gap-1 flex-1">
+            <div class="w-full flex flex-col rounded-t-lg overflow-hidden" style="height:80px;">
+              <div class="w-full bg-purple-300 flex-none" style="height:25%"></div>
+              <div class="w-full bg-green-300 flex-none" style="height:45%"></div>
+              <div class="w-full bg-amber-200 flex-none" style="height:30%"></div>
+            </div>
+            <p class="text-[9px] text-stone-400">Fri</p>
+          </div>
+          <div class="flex flex-col items-center gap-1 flex-1">
+            <div class="w-full bg-surface-container rounded-t-lg" style="height:80px;"></div>
+            <p class="text-[9px] text-stone-300">Sat</p>
+          </div>
+          <div class="flex flex-col items-center gap-1 flex-1">
+            <div class="w-full bg-surface-container rounded-t-lg" style="height:80px;"></div>
+            <p class="text-[9px] text-stone-300">Sun</p>
+          </div>
+        </div>
+        <div class="flex gap-3 justify-center">
+          <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-purple-300"></div><span class="text-[10px] text-stone-400">Insight</span></div>
+          <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-green-300"></div><span class="text-[10px] text-stone-400">Thought</span></div>
+          <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-amber-200"></div><span class="text-[10px] text-stone-400">Observation</span></div>
+        </div>
+      </div>
+
+      <!-- Words I Use Often -->
+      <div class="bg-surface-container-low rounded-2xl p-4 space-y-3">
+        <p class="font-label-sm text-on-surface-variant">Words I Use Often</p>
+        <div class="flex flex-wrap gap-2">
+          <span class="px-3 py-1.5 rounded-full bg-secondary-container text-secondary text-sm font-semibold">의문</span>
+          <span class="px-3 py-1.5 rounded-full bg-primary-container text-primary text-xs font-semibold">천천히</span>
+          <span class="px-3 py-1.5 rounded-full bg-tertiary-container text-tertiary text-base font-bold">바람</span>
+          <span class="px-2 py-1 rounded-full bg-surface-container text-stone-500 text-xs">혼자</span>
+          <span class="px-3 py-1.5 rounded-full bg-secondary-container/50 text-secondary text-sm">느껴</span>
+          <span class="px-2 py-1 rounded-full bg-surface-container text-stone-400 text-xs">카페</span>
+          <span class="px-3 py-1.5 rounded-full bg-primary-container/50 text-primary text-xs">생각</span>
+          <span class="px-2 py-1 rounded-full bg-surface-container text-stone-400 text-xs">오늘</span>
+          <span class="px-3 py-1.5 rounded-full bg-tertiary-container/50 text-tertiary text-xs">어쩌면</span>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+</div>
+
+<script>
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    const target = document.getElementById(id);
+    if (target) {
+      target.classList.add('active');
+      target.classList.remove('fade-in');
+      void target.offsetWidth;
+      target.classList.add('fade-in');
+    }
+  }
+
+  function showTab(id, btn) {
+    showScreen(id);
+    // Update nav tabs in all navbars
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => {
+      if (t.getAttribute('onclick') && t.getAttribute('onclick').includes(id)) {
+        t.classList.add('active');
+      }
+    });
+  }
+
+  function selectCat(el, name) {
+    document.querySelectorAll('.cat-option').forEach(o => {
+      o.classList.remove('border-primary', 'bg-primary-container/10');
+      o.classList.add('border-surface-container-highest');
+    });
+    el.classList.add('border-primary', 'bg-primary-container/10');
+    el.classList.remove('border-surface-container-highest');
+    document.getElementById('cat-name-input').value = name;
+  }
+
+  function setVisibility(type) {
+    const priv = document.getElementById('btn-private');
+    const pub = document.getElementById('btn-public');
+    if (type === 'private') {
+      priv.classList.add('border-primary', 'bg-primary-container/20');
+      priv.classList.remove('border-surface-container-highest');
+      pub.classList.remove('border-primary', 'bg-primary-container/20');
+      pub.classList.add('border-surface-container-highest');
+    } else {
+      pub.classList.add('border-primary', 'bg-primary-container/20');
+      pub.classList.remove('border-surface-container-highest');
+      priv.classList.remove('border-primary', 'bg-primary-container/20');
+      priv.classList.add('border-surface-container-highest');
+    }
+  }
+
+  function finishWrite() {
+    showScreen('screen-complete');
+  }
+
+  // Initialize first cat option as selected
+  document.addEventListener('DOMContentLoaded', () => {
+    const first = document.querySelector('.cat-option');
+    if (first) {
+      first.classList.add('border-primary', 'bg-primary-container/10');
+      first.classList.remove('border-surface-container-highest');
+    }
+  });
+
+  function switchDashTab(tab) {
+    const emotionBtn = document.getElementById('tab-emotion-btn');
+    const languageBtn = document.getElementById('tab-language-btn');
+    const emotionContent = document.getElementById('dash-emotion');
+    const languageContent = document.getElementById('dash-language');
+
+    if (tab === 'emotion') {
+      emotionBtn.classList.add('bg-primary-container', 'text-on-primary-container');
+      emotionBtn.classList.remove('bg-surface-container', 'text-stone-500');
+      languageBtn.classList.add('bg-surface-container', 'text-stone-500');
+      languageBtn.classList.remove('bg-primary-container', 'text-on-primary-container');
+      emotionContent.classList.remove('hidden');
+      languageContent.classList.add('hidden');
+    } else {
+      languageBtn.classList.add('bg-primary-container', 'text-on-primary-container');
+      languageBtn.classList.remove('bg-surface-container', 'text-stone-500');
+      emotionBtn.classList.add('bg-surface-container', 'text-stone-500');
+      emotionBtn.classList.remove('bg-primary-container', 'text-on-primary-container');
+      languageContent.classList.remove('hidden');
+      emotionContent.classList.add('hidden');
+    }
+  }
+</script>
+</body>
+</html>

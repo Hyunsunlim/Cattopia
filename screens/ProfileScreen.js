@@ -9,9 +9,15 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
+import { useTheme } from '../context/ThemeContext';
 
 export default function ProfileScreen({ navigation }) {
-  const [userName, setUserName] = useState('User');
+  const { t } = useTranslation();
+  const theme = useTheme();
+  const styles = getStyles(theme);
+
+  const [userName, setUserName] = useState('');
   const [startDate, setStartDate] = useState('');
   const [isEditingName, setIsEditingName] = useState(false);
 
@@ -24,7 +30,7 @@ export default function ProfileScreen({ navigation }) {
       const settings = await AsyncStorage.getItem('settings');
       if (settings) {
         const parsed = JSON.parse(settings);
-        setUserName(String(parsed.userName ?? 'User'));
+        setUserName(String(parsed.userName ?? ''));
         setStartDate(String(parsed.startDate ?? ''));
       }
     } catch (error) {
@@ -48,20 +54,22 @@ export default function ProfileScreen({ navigation }) {
     saveSettings({ userName });
   };
 
+  const displayName = userName || t('profile.defaultName');
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="chevron-back" size={28} color="#333" />
+          <Ionicons name="chevron-back" size={28} color={theme.primaryText} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Profile</Text>
+        <Text style={styles.headerTitle}>{t('profile.headerTitle')}</Text>
         <View style={{ width: 28 }} />
       </View>
 
       <View style={styles.content}>
         <View style={styles.profileCard}>
           <View style={styles.profileIcon}>
-            <Ionicons name="person" size={32} color="#6366f1" />
+            <Ionicons name="person" size={32} color={theme.accent} />
           </View>
           <View style={styles.profileInfo}>
             {isEditingName ? (
@@ -75,11 +83,13 @@ export default function ProfileScreen({ navigation }) {
               />
             ) : (
               <TouchableOpacity onPress={() => setIsEditingName(true)}>
-                <Text style={styles.profileName}>{userName}</Text>
-                <Text style={styles.tapToEdit}>Tap to edit</Text>
+                <Text style={styles.profileName}>{displayName}</Text>
+                <Text style={styles.tapToEdit}>{t('profile.tapToEdit')}</Text>
               </TouchableOpacity>
             )}
-            <Text style={styles.profileDate}>Started {startDate}</Text>
+            {startDate ? (
+              <Text style={styles.profileDate}>{t('profile.startedDate', { date: startDate })}</Text>
+            ) : null}
           </View>
         </View>
       </View>
@@ -87,10 +97,10 @@ export default function ProfileScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9f5f5',
+    backgroundColor: theme.background,
   },
   header: {
     flexDirection: 'row',
@@ -102,7 +112,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
+    color: theme.primaryText,
   },
   content: {
     padding: 16,
@@ -110,7 +120,7 @@ const styles = StyleSheet.create({
   profileCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: theme.card,
     padding: 16,
     borderRadius: 12,
   },
@@ -118,7 +128,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#f0f0ff',
+    backgroundColor: theme.background,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 14,
@@ -129,26 +139,26 @@ const styles = StyleSheet.create({
   profileName: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#333',
+    color: theme.primaryText,
     marginBottom: 2,
   },
   profileNameInput: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#333',
+    color: theme.primaryText,
     marginBottom: 2,
     padding: 0,
     borderBottomWidth: 1,
-    borderBottomColor: '#6366f1',
+    borderBottomColor: theme.accent,
   },
   tapToEdit: {
     fontSize: 12,
-    color: '#bbb',
+    color: theme.tertiaryText,
     marginBottom: 4,
   },
   profileDate: {
     fontSize: 13,
-    color: '#999',
+    color: theme.secondaryText,
     marginTop: 4,
   },
 });

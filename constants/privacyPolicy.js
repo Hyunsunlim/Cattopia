@@ -1,4 +1,5 @@
-export const PRIVACY_POLICY = `LucidNote Privacy Policy
+import { APP_NAME } from './appConfig';
+export const PRIVACY_POLICY = `${APP_NAME} Privacy Policy
 Last Updated: February 2026
 
 1. Data Storage

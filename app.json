@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "BetterDiary",
+    "name": "Meow",
     "slug": "BetterDiary",
-    "scheme": "betterdiary",
+    "scheme": "meow",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -14,7 +14,11 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.hyunsun.BetterDiary",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -44,7 +48,15 @@
         {
           "sounds": []
         }
-      ]
+      ],
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.989988743907-s01n5q7r87g6c1pduguj6v1ul34ldt6k"
+        }
+      ],
+      "@react-native-community/datetimepicker",
+      "expo-localization"
     ],
     "runtimeVersion": {
       "policy": "appVersion"

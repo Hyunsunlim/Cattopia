@@ -13,9 +13,16 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import MaskedView from '@react-native-masked-view/masked-view';
+import { useTranslation } from 'react-i18next';
 import { signup, login, saveToken } from '../services/auth';
+import { APP_NAME } from '../constants/appConfig';
+import { useTheme } from '../context/ThemeContext';
 
 export default function SignupScreen({ onLogin, onGoToLogin }) {
+  const { t } = useTranslation();
+  const theme = useTheme();
+  const styles = getStyles(theme);
+
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,7 +31,7 @@ export default function SignupScreen({ onLogin, onGoToLogin }) {
 
   const handleSignup = async () => {
     if (!username.trim() || !email.trim() || !password.trim()) {
-      setError('Please fill in all fields.');
+      setError(t('signup.validationError'));
       return;
     }
 
@@ -39,12 +46,12 @@ export default function SignupScreen({ onLogin, onGoToLogin }) {
         await saveToken(token);
       }
       Alert.alert(
-        'Welcome!',
-        `Account created successfully. Welcome, ${username.trim()}!`,
-        [{ text: 'Get Started', onPress: onLogin }],
+        t('signup.welcomeTitle'),
+        t('signup.welcomeMessage', { username: username.trim() }),
+        [{ text: t('signup.getStarted'), onPress: onLogin }],
       );
     } catch (err) {
-      setError(err.message || 'Signup failed. Please try again.');
+      setError(err.message || t('signup.signupFailed'));
     } finally {
       setLoading(false);
     }
@@ -58,11 +65,11 @@ export default function SignupScreen({ onLogin, onGoToLogin }) {
       >
         <View style={styles.logoContainer}>
           {Platform.OS === 'android' ? (
-            <Text style={[styles.logoText, { color: '#6366f1' }]}>LucidNote</Text>
+            <Text style={[styles.logoText, { color: '#6366f1' }]}>{APP_NAME}</Text>
           ) : (
             <MaskedView
               maskElement={
-                <Text style={styles.logoText}>LucidNote</Text>
+                <Text style={styles.logoText}>{APP_NAME}</Text>
               }
             >
               <LinearGradient
@@ -70,11 +77,11 @@ export default function SignupScreen({ onLogin, onGoToLogin }) {
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
               >
-                <Text style={[styles.logoText, { opacity: 0 }]}>LucidNote</Text>
+                <Text style={[styles.logoText, { opacity: 0 }]}>{APP_NAME}</Text>
               </LinearGradient>
             </MaskedView>
           )}
-          <Text style={styles.subtitle}>Create your account</Text>
+          <Text style={styles.subtitle}>{t('signup.subtitle')}</Text>
         </View>
 
         <View style={styles.form}>
@@ -86,8 +93,8 @@ export default function SignupScreen({ onLogin, onGoToLogin }) {
 
           <TextInput
             style={styles.input}
-            placeholder="Username"
-            placeholderTextColor="#999"
+            placeholder={t('signup.usernamePlaceholder')}
+            placeholderTextColor={theme.placeholderText}
             value={username}
             onChangeText={setUsername}
             autoCapitalize="none"
@@ -97,8 +104,8 @@ export default function SignupScreen({ onLogin, onGoToLogin }) {
 
           <TextInput
             style={styles.input}
-            placeholder="Email"
-            placeholderTextColor="#999"
+            placeholder={t('signup.emailPlaceholder')}
+            placeholderTextColor={theme.placeholderText}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -109,8 +116,8 @@ export default function SignupScreen({ onLogin, onGoToLogin }) {
 
           <TextInput
             style={styles.input}
-            placeholder="Password"
-            placeholderTextColor="#999"
+            placeholder={t('signup.passwordPlaceholder')}
+            placeholderTextColor={theme.placeholderText}
             value={password}
             onChangeText={setPassword}
             secureTextEntry={true}
@@ -125,7 +132,7 @@ export default function SignupScreen({ onLogin, onGoToLogin }) {
             {loading ? (
               <ActivityIndicator color="white" />
             ) : (
-              <Text style={styles.buttonText}>Sign Up</Text>
+              <Text style={styles.buttonText}>{t('signup.signupButton')}</Text>
             )}
           </TouchableOpacity>
 
@@ -135,7 +142,7 @@ export default function SignupScreen({ onLogin, onGoToLogin }) {
             disabled={loading}
           >
             <Text style={styles.linkText}>
-              Already have an account? <Text style={styles.linkBold}>Login</Text>
+              {t('signup.loginLink')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -144,10 +151,10 @@ export default function SignupScreen({ onLogin, onGoToLogin }) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9f5f5',
+    backgroundColor: theme.background,
   },
   inner: {
     flex: 1,
@@ -161,33 +168,34 @@ const styles = StyleSheet.create({
   logoText: {
     fontSize: 36,
     fontWeight: 'bold',
+    color: theme.primaryText,
   },
   subtitle: {
     fontSize: 15,
-    color: '#999',
+    color: theme.secondaryText,
     marginTop: 8,
   },
   form: {
     gap: 14,
   },
   errorContainer: {
-    backgroundColor: '#fef2f2',
+    backgroundColor: theme.dangerBackground,
     padding: 12,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#fecaca',
+    borderColor: theme.dangerBorder,
   },
   errorText: {
-    color: '#dc2626',
+    color: theme.danger,
     fontSize: 14,
     textAlign: 'center',
   },
   input: {
-    backgroundColor: 'white',
+    backgroundColor: theme.inputBackground,
     padding: 16,
     borderRadius: 12,
     fontSize: 16,
-    color: '#333',
+    color: theme.primaryText,
   },
   button: {
     backgroundColor: '#6366f1',
@@ -210,10 +218,6 @@ const styles = StyleSheet.create({
   },
   linkText: {
     fontSize: 14,
-    color: '#999',
-  },
-  linkBold: {
-    color: '#6366f1',
-    fontWeight: '600',
+    color: theme.secondaryText,
   },
 });

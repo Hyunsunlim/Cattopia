@@ -5,12 +5,28 @@ const API_URL = "https://lucidnote-api-production-cbe8.up.railway.app/analyze";
 
 export async function analyzeEmotion(text) {
   const useAI = await AsyncStorage.getItem('useAIAnalysis');
-
   if (useAI === 'true') {
-    return await analyzeEmotionWithAI(text);
-  } else {
-    return analyzeEmotionLocally(text);
+    try {
+      return await analyzeEmotionWithAI(text);
+    } catch {
+      return analyzeEmotionLocally(text);
+    }
   }
+  return analyzeEmotionLocally(text);
+}
+
+// Returns { emotion, failed } — failed=true if AI was attempted but fell back to local
+export async function analyzeEmotionWithFallback(text) {
+  const useAI = await AsyncStorage.getItem('useAIAnalysis');
+  if (useAI === 'true') {
+    try {
+      const emotion = await analyzeEmotionWithAI(text);
+      return { emotion, failed: false };
+    } catch {
+      return { emotion: analyzeEmotionLocally(text), failed: true };
+    }
+  }
+  return { emotion: analyzeEmotionLocally(text), failed: false };
 }
 
 // AI-based analysis (existing logic)
