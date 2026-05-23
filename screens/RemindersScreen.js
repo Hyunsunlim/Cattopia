@@ -36,7 +36,7 @@ export default function RemindersScreen({ navigation }) {
   const pickerAnim = useRef(new Animated.Value(0)).current;
 
   const [useAutoPrompts, setUseAutoPrompts] = useState(true);
-  const [notificationPreview, setNotificationPreview] = useState('How was your day?');
+  const [notificationPreview, setNotificationPreview] = useState('');
   const [weeklyReportEnabled, setWeeklyReportEnabled] = useState(false);
 
   useEffect(() => {
@@ -54,7 +54,11 @@ export default function RemindersScreen({ navigation }) {
         } else if (parsed.reminderTime) {
           setReminderTimes([String(parsed.reminderTime)]);
         }
-        setNotificationPreview(String(parsed.notificationPreview ?? 'How was your day?'));
+        const savedPreview = parsed.notificationPreview;
+        const catName = parsed.catName || 'Choco';
+        const oldDefaults = ['How was your day?', 'Choco is waiting 🐱 오늘 이야기 들려줄래요?'];
+        const newDefault = `${catName} is waiting 🐱 오늘 이야기 들려줄래요?`;
+        setNotificationPreview(savedPreview && !oldDefaults.includes(savedPreview) ? savedPreview : newDefault);
         if (parsed.useAutoPrompts !== undefined) {
           setUseAutoPrompts(parsed.useAutoPrompts);
         }

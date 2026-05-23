@@ -57,25 +57,35 @@ export async function registerForPushNotificationsAsync() {
   return finalStatus === 'granted';
 }
 
-// One message per day of the week (index 0 = Sun, 1 = Mon, ..., 6 = Sat)
-export const WEEKDAY_MESSAGES = [
-  "Before the week ends — what did you notice?",   // Sun
-  "A new week — what are you noticing?",            // Mon
-  "Something caught your eye today?",               // Tue
-  "What stood out today?",                          // Wed
-  "Did anything surprise you today?",               // Thu
-  "What's worth remembering from today?",           // Fri
-  "Slow down — what did you observe?",              // Sat
+async function getCatName() {
+  const raw = await AsyncStorage.getItem('settings');
+  const settings = raw ? JSON.parse(raw) : {};
+  return settings.catName || 'Choco';
+}
+
+const getWeekdayMessages = (name) => [
+  `${name} is hungry 🐱 What happened this week?`,         // Sun
+  `New week! Feed ${name} your first story 🍚`,            // Mon
+  `${name} is waiting... anything on your mind today? 🐾`, // Tue
+  `${name} hasn't eaten yet today 😿 What's going on?`,    // Wed
+  `Did something surprise you? ${name} wants to hear 🐱`,  // Thu
+  `Almost weekend — feed ${name} before the day ends 🍚`,  // Fri
+  `Weekend~ ${name} loves weekend stories 😺`,             // Sat
 ];
+
+// 하위 호환용
+export const WEEKDAY_MESSAGES = getWeekdayMessages('Choco');
 
 export async function scheduleWeeklyNotifications(times) {
   await cancelAllNotifications();
+  const catName = await getCatName();
+  const messages = getWeekdayMessages(catName);
   const ids = [];
   for (const time of times) {
     const [hours, minutes] = time.split(':').map(Number);
     // expo-notifications: weekday 1=Sun, 2=Mon, ..., 7=Sat
     for (let weekday = 1; weekday <= 7; weekday++) {
-      const body = WEEKDAY_MESSAGES[weekday - 1];
+      const body = messages[weekday - 1];
       const id = await Notifications.scheduleNotificationAsync({
         content: {
           title: APP_NAME,
@@ -131,10 +141,11 @@ export async function scheduleDailyNotification(time, message) {
 }
 
 export async function scheduleNotePromptNotification(diaryId) {
+  const catName = await getCatName();
   return Notifications.scheduleNotificationAsync({
     content: {
       title: APP_NAME,
-      body: 'Want to write a note? 📝',
+      body: `${catName} is hungry 🐱 Want to write something?`,
       sound: true,
       categoryIdentifier: 'note-prompt',
       data: { diaryId, type: 'note-prompt' },
@@ -147,10 +158,11 @@ export async function scheduleNotePromptNotification(diaryId) {
 }
 
 export async function scheduleWriteReminderNotification(delayMinutes, diaryId) {
+  const catName = await getCatName();
   return Notifications.scheduleNotificationAsync({
     content: {
       title: APP_NAME,
-      body: "How about writing a bit more about that feeling? ✍️",
+      body: `${catName} wants more 🐾 How about writing a little more?`,
       sound: true,
       data: { diaryId, type: 'write-reminder' },
     },
@@ -177,10 +189,11 @@ export async function scheduleWeeklyReportNotification() {
       sound: true,
     });
   }
+  const catName = await getCatName();
   const id = await Notifications.scheduleNotificationAsync({
     content: {
       title: '이번 주 리포트가 준비됐어요 📊',
-      body: `Choco와 함께한 이번 주를 돌아봐요`,
+      body: `${catName}와 함께한 이번 주를 돌아봐요`,
       sound: true,
       data: { type: 'weekly-report' },
     },

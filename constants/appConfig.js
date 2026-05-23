@@ -1,1 +1,1 @@
-export const APP_NAME = 'Obsurve';
+export const APP_NAME = 'Cattopia';

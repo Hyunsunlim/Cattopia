@@ -1,18 +1,16 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  ScrollView,
-  Share,
-  Platform,
+  StyleSheet, Text, View, TouchableOpacity, ScrollView, Platform, Alert,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
+import { useInviteFriend } from '../hooks/useInviteFriend';
+import { InviteToast } from '../components/InviteFriendUI';
+import { fetchFriends, getCachedFriends, removeFriend as removeFriendAPI } from '../services/friends';
 
 const C = {
   primary: '#755844',
@@ -24,88 +22,124 @@ const C = {
   surface: '#ffffff',
   surfaceContainer: '#f0eded',
   surfaceContainerLow: '#f6f3f2',
-  tertiaryContainer: '#e2dfd9',
   onSurface: '#1b1c1c',
   onSurfaceVariant: '#4f453e',
   outline: '#81756d',
   outlineVariant: '#d3c4bb',
-  orange: '#f97316',
 };
 
-const TOTAL_STORIES = 66;
-const CAT_NAME = 'Choco';
 const SERIF = Platform.OS === 'ios' ? 'Georgia' : 'serif';
+const DAILY_WORDS_MAX = 300;
 
-// graduatedCats item shape:
-// { id, name, emoji, completedAt, storiesCount }
+const EMOTION_DISPLAY = {
+  joy:      { label: 'Happy',   emoji: '🐾', bg: '#d1fae5', color: '#065f46' },
+  neutral:  { label: 'Calm',    emoji: '😌', bg: '#f3f4f6', color: '#4f453e' },
+  sadness:  { label: 'Sad',     emoji: '🌧️', bg: '#dbeafe', color: '#1e40af' },
+  anger:    { label: 'Grumpy',  emoji: '😾', bg: '#fee2e2', color: '#991b1b' },
+  fear:     { label: 'Scared',  emoji: '🙀', bg: '#ede9fe', color: '#5b21b6' },
+  surprise: { label: 'Curious', emoji: '👀', bg: '#fef3c7', color: '#92400e' },
+  disgust:  { label: 'Bleh',    emoji: '😿', bg: '#d1fae5', color: '#065f46' },
+};
+
+const getOrCreateInviteCode = async () => {
+  const existing = await AsyncStorage.getItem('myInviteCode');
+  if (existing) return existing;
+  const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+  await AsyncStorage.setItem('myInviteCode', code);
+  return code;
+};
+
+const INVITE_SENT_KEY = 'invite_sent';
 
 export default function OurHouseScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const [diaryCount, setDiaryCount] = useState(0);
   const [friends, setFriends] = useState([]);
-  const [graduatedCats, setGraduatedCats] = useState([]);
+  const [inviteSent, setInviteSent] = useState(false);
+
+  const { toastAnim, toastMessage, sendInvite } = useInviteFriend();
+  const inviting = useRef(false);
 
   useFocusEffect(
     useCallback(() => {
-      loadData();
+      if (!inviting.current) loadData();
     }, [])
   );
 
   const loadData = async () => {
     try {
-      const [diariesRaw, friendsRaw, graduatedRaw] = await Promise.all([
-        AsyncStorage.getItem('diaries'),
-        AsyncStorage.getItem('friends'),
-        AsyncStorage.getItem('graduatedCats'),
-      ]);
-
-      if (diariesRaw) setDiaryCount(JSON.parse(diariesRaw).length);
-
-      if (friendsRaw === null) {
-        await AsyncStorage.setItem('friends', JSON.stringify([]));
-        setFriends([]);
-      } else {
-        setFriends(JSON.parse(friendsRaw));
-      }
-
-      if (graduatedRaw === null) {
-        await AsyncStorage.setItem('graduatedCats', JSON.stringify([]));
-        setGraduatedCats([]);
-      } else {
-        setGraduatedCats(JSON.parse(graduatedRaw));
-      }
+      const flag = await AsyncStorage.getItem(INVITE_SENT_KEY);
+      setInviteSent(flag === 'true');
+      const cached = await getCachedFriends();
+      if (cached.length > 0) setFriends(cached);
+      const data = await fetchFriends();
+      setFriends(data);
     } catch (e) {
       console.error('OurHouseScreen loadData error:', e);
     }
   };
 
   const handleInvite = async () => {
-    try {
-      await Share.share({
-        message: `함께 고양이를 키워봐요! 🐱\nMeow 앱에서 매일 이야기를 쓰면 고양이가 자라요.\n지금 초대할게요!`,
-        title: 'Meow — 함께 키우기',
-      });
-    } catch (e) {
-      // user dismissed share sheet
+    inviting.current = true;
+    const result = await sendInvite();
+    inviting.current = false;
+    if (result === 'sent') {
+      await AsyncStorage.setItem(INVITE_SENT_KEY, 'true');
+      setInviteSent(true);
+    } else {
+      await AsyncStorage.setItem(INVITE_SENT_KEY, 'false');
+      setInviteSent(false);
     }
+    loadData();
   };
 
-  const progress = Math.min(1, diaryCount / TOTAL_STORIES);
-  const progressPct = `${Math.round(progress * 100)}%`;
-  const isMyCatComplete = diaryCount >= TOTAL_STORIES;
+  const handleRemoveFriend = (friend) => {
+    const displayName = friend.username || friend.name || t('meow.ourHouse.friendFallback');
+    Alert.alert(
+      t('meow.ourHouse.disconnectTitle'),
+      t('meow.ourHouse.disconnectMessage', { name: displayName }),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('meow.ourHouse.disconnectTitle'),
+          style: 'destructive',
+          onPress: async () => {
+            setFriends(prev => prev.filter(f => f.id !== friend.id));
+            try {
+              if (!String(friend.id).startsWith('pending-')) {
+                await removeFriendAPI(friend.id);
+              }
+            } catch (e) {
+              console.warn('Remove friend error:', e);
+              loadData(); // revert on error
+            }
+          },
+        },
+      ],
+    );
+  };
+
+  const activeFriends = friends.filter(f => f.status === 'accepted');
+  const invitedFriends = friends.filter(f => f.status === 'pending' && (f.username || inviteSent));
 
   return (
     <View style={styles.root}>
       <StatusBar style="dark" />
+
+      <InviteToast toastAnim={toastAnim} toastMessage={toastMessage} />
+
       <SafeAreaView style={styles.safeArea} edges={['top']}>
 
-        {/* ── Header ─────────────────────────────────────────── */}
+        {/* ── Header ── */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <View style={styles.headerBadge}>
               <Text style={{ fontSize: 18 }}>🐱</Text>
             </View>
-            <Text style={styles.headerTitle}>Our House</Text>
+            <View>
+              <Text style={styles.headerTitle}>Our House</Text>
+              <Text style={styles.headerSub}>{t('meow.ourHouse.headerSub')}</Text>
+            </View>
           </View>
           <TouchableOpacity onPress={handleInvite} activeOpacity={0.7} hitSlop={8}>
             <Ionicons name="person-add-outline" size={22} color={C.onSurfaceVariant} />
@@ -117,325 +151,231 @@ export default function OurHouseScreen() {
           contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 32 }]}
           showsVerticalScrollIndicator={false}
         >
+          {activeFriends.map((friend, i) => (
+            <ActiveFriendCard key={friend.id ?? i} friend={friend} onRemove={() => handleRemoveFriend(friend)} t={t} />
+          ))}
 
-          {/* ── 지금 키우는 중 ────────────────────────────────── */}
-          <View style={styles.section}>
-            <Text style={styles.sectionLabel}>지금 키우는 중</Text>
+          {invitedFriends.map((friend, i) => (
+            <InvitedFriendCard key={friend.id ?? `inv-${i}`} friend={friend} onRemove={() => handleRemoveFriend(friend)} t={t} />
+          ))}
 
-            <View style={styles.catGrid}>
-              {/* 내 고양이 카드 */}
-              <MyCatCard
-                name={CAT_NAME}
-                count={diaryCount}
-                progressPct={progressPct}
-              />
-
-              {/* 친구 고양이 카드 (friends 있을 때만) */}
-              {friends.map((friend, i) => (
-                <FriendCatCard key={i} friend={friend} />
-              ))}
-            </View>
-          </View>
-
-          {/* ── 친구 없는 상태 ────────────────────────────────── */}
-          {friends.length === 0 && (
-            <View style={styles.emptyFriends}>
-              <Text style={styles.emptyFriendsText}>
-                아직 함께 키우는 친구가 없어요
-              </Text>
-              <TouchableOpacity
-                style={styles.inviteBtn}
-                onPress={handleInvite}
-                activeOpacity={0.75}
-              >
-                <Text style={styles.inviteBtnText}>친구 초대하기 →</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-
-          {/* ── 졸업한 고양이들 ───────────────────────────────── */}
-          <View style={styles.section}>
-            <Text style={styles.sectionLabel}>졸업한 고양이들 🎓</Text>
-
-            <View style={styles.catGrid}>
-              {graduatedCats.map((cat, i) => (
-                <GraduatedCatCard key={i} cat={cat} />
-              ))}
-              {/* "다음 고양이를 키워봐요" 슬롯 */}
-              <View style={styles.nextCatSlot}>
-                <Text style={styles.nextCatIcon}>+</Text>
-                <Text style={styles.nextCatText}>다음 고양이를{'\n'}키워봐요</Text>
-              </View>
-            </View>
-          </View>
-
-          {/* ── 유기묘 후원 배너 (고양이 완성 시에만 노출) ─────── */}
-          {isMyCatComplete && (
-            <View style={styles.donationBanner}>
-              <Text style={styles.donationEmoji}>🐾</Text>
-              <View style={styles.donationText}>
-                <Text style={styles.donationTitle}>고양이를 완성했어요!</Text>
-                <Text style={styles.donationSub}>유기묘 후원으로 실제 고양이도 도와줘요</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color={C.outline} />
-            </View>
-          )}
+          <GrowColonyCard onPress={handleInvite} t={t} />
         </ScrollView>
       </SafeAreaView>
+
     </View>
   );
 }
 
-// ── Sub-components ──────────────────────────────────────────────────────────
+// ── Sub-components ───────────────────────────────────────────────────────────
 
-function MyCatCard({ name, count, progressPct }) {
-  return (
-    <View style={[styles.catCard, styles.myCatCard]}>
-      <View style={[styles.catImageBox, { backgroundColor: 'rgba(255,216,190,0.35)' }]}>
-        <Text style={styles.catEmoji}>🐱</Text>
-      </View>
-      <View style={styles.catCardMeta}>
-        <Text style={styles.catCardName}>{name}</Text>
-        <Text style={styles.catCardSub}>나 · {count}편</Text>
-      </View>
-      <View style={styles.miniTrack}>
-        <View style={[styles.miniFill, { width: progressPct }]} />
-      </View>
-    </View>
-  );
-}
-
-function FriendCatCard({ friend }) {
-  const friendProgress = Math.min(1, (friend.count ?? 0) / TOTAL_STORIES);
-  const friendPct = `${Math.round(friendProgress * 100)}%`;
-  const todayDot = friend.wroteToday ? '#4ade80' : C.outlineVariant;
+function ActiveFriendCard({ friend, onRemove, t }) {
+  const emotion = EMOTION_DISPLAY[friend.todayEmotion] ?? EMOTION_DISPLAY[friend.lastEmotion] ?? null;
+  const wroteToday = friend.wroteToday ?? false;
+  const wordCount = friend.todayWordCount ?? 0;
+  const fillPct = `${Math.min(100, Math.round((wordCount / DAILY_WORDS_MAX) * 100))}%`;
 
   return (
-    <View style={[styles.catCard, styles.friendCatCard]}>
-      <View style={[styles.catImageBox, { backgroundColor: 'rgba(188,233,217,0.35)' }]}>
-        <Text style={styles.catEmoji}>{friend.catEmoji ?? '😺'}</Text>
-      </View>
-      <View style={styles.catCardMeta}>
-        <View style={styles.catCardNameRow}>
-          <Text style={styles.catCardName}>{friend.catName ?? '?'}</Text>
-          <View style={[styles.friendDot, { backgroundColor: todayDot }]} />
+    <TouchableOpacity
+      style={styles.friendCard}
+      onLongPress={onRemove}
+      delayLongPress={500}
+      activeOpacity={1}
+    >
+      <View style={styles.cardTop}>
+        <View style={styles.catImageBox}>
+          <Text style={styles.catEmoji}>{friend.catEmoji ?? '🐱'}</Text>
+          {wroteToday ? (
+            <View style={styles.statusBadge}>
+              <Ionicons name="checkmark" size={10} color="#fff" />
+            </View>
+          ) : (
+            <View style={[styles.statusBadge, { backgroundColor: C.outlineVariant }]} />
+          )}
         </View>
-        <Text style={styles.catCardSub}>{friend.name} · {friend.count ?? 0}편</Text>
+        <View style={styles.cardInfo}>
+          <Text style={styles.catName}>{friend.catName || friend.cat_name || friend.username}</Text>
+          {emotion ? (
+            <View style={[styles.emotionBadge, { backgroundColor: emotion.bg, opacity: wroteToday ? 1 : 0.5 }]}>
+              <Text style={[styles.emotionText, { color: emotion.color }]}>
+                {emotion.label} {emotion.emoji}
+              </Text>
+            </View>
+          ) : (
+            <View style={[styles.emotionBadge, { backgroundColor: C.surfaceContainer }]}>
+              <Text style={[styles.emotionText, { color: C.outline }]}>{t('meow.ourHouse.notFedYet')}</Text>
+            </View>
+          )}
+        </View>
+        <TouchableOpacity onPress={onRemove} hitSlop={8} style={styles.moreBtn}>
+          <Ionicons name="ellipsis-horizontal" size={18} color={C.outline} />
+        </TouchableOpacity>
       </View>
-      <View style={styles.miniTrack}>
-        <View style={[styles.miniFill, { width: friendPct }]} />
-      </View>
-    </View>
+
+      {wroteToday && (
+        <View style={styles.progressSection}>
+          <Text style={styles.progressLabel}>Daily Progress</Text>
+          <View style={styles.progressTrack}>
+            <View style={[styles.progressFill, { width: fillPct }]}>
+              <Text style={styles.pawOnFill}>🐾</Text>
+            </View>
+          </View>
+        </View>
+      )}
+    </TouchableOpacity>
   );
 }
 
-function GraduatedCatCard({ cat }) {
+function InvitedFriendCard({ friend, onRemove, t }) {
+  const daysAgo = Math.floor(
+    (Date.now() - new Date(friend.invitedAt ?? Date.now()).getTime()) / 86400000
+  );
+  const timeLabel = daysAgo === 0 ? t('meow.ourHouse.today') : t('meow.ourHouse.daysAgo', { n: daysAgo });
+
   return (
-    <View style={[styles.catCard, styles.graduatedCard]}>
-      <View style={[styles.catImageBox, { backgroundColor: 'rgba(226,223,217,0.4)' }]}>
-        <Text style={styles.catEmoji}>{cat.emoji ?? '😸'}</Text>
+    <TouchableOpacity
+      style={[styles.friendCard, styles.invitedCard]}
+      onLongPress={onRemove}
+      delayLongPress={500}
+      activeOpacity={1}
+    >
+      <View style={styles.invitedAvatar}>
+        <Ionicons name="person-outline" size={22} color={C.outline} />
       </View>
-      <View style={styles.catCardMeta}>
-        <Text style={[styles.catCardName, { color: C.onSurfaceVariant }]}>{cat.name}</Text>
-        <Text style={styles.catCardSub}>66편 완성 ✨</Text>
+      <View style={styles.invitedInfo}>
+        <Text style={styles.invitedName}>{friend.username || t('meow.ourHouse.pendingPlaceholder')}</Text>
+        <Text style={styles.invitedEmail}>{friend.is_sender ? t('meow.ourHouse.waitingAccept') : t('meow.ourHouse.invitedStatus')}</Text>
       </View>
-    </View>
+      <View style={styles.invitedMeta}>
+        <Text style={styles.invitedTime}>{timeLabel}</Text>
+        <View style={styles.pendingBadge}>
+          <Ionicons name="time-outline" size={11} color={C.primary} />
+          <Text style={styles.pendingText}>Invited</Text>
+        </View>
+      </View>
+      <TouchableOpacity onPress={onRemove} hitSlop={8} style={styles.moreBtn}>
+        <Ionicons name="ellipsis-horizontal" size={18} color={C.outline} />
+      </TouchableOpacity>
+    </TouchableOpacity>
   );
 }
 
-// ── Styles ──────────────────────────────────────────────────────────────────
+function GrowColonyCard({ onPress, t }) {
+  return (
+    <TouchableOpacity style={styles.growCard} onPress={onPress} activeOpacity={0.75}>
+      <View style={styles.growIconCircle}>
+        <Ionicons name="person-add-outline" size={24} color={C.outline} />
+      </View>
+      <Text style={styles.growTitle}>{t('meow.ourHouse.growTitle')}</Text>
+      <Text style={styles.growSub}>{t('meow.ourHouse.growSub')}</Text>
+    </TouchableOpacity>
+  );
+}
+
+// ── Styles ───────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: C.background },
   safeArea: { flex: 1 },
 
-  // Header
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingVertical: 14,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: 'rgba(211,196,187,0.6)',
     backgroundColor: C.background,
   },
-  headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   headerBadge: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 40, height: 40, borderRadius: 20,
     backgroundColor: C.primaryContainer,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'center', alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: C.onSurface,
-    fontFamily: SERIF,
+    fontSize: 20, fontWeight: '700',
+    color: C.onSurface, fontFamily: SERIF, lineHeight: 24,
   },
+  headerSub: { fontSize: 12, color: C.outline, marginTop: 1 },
 
-  // Scroll
   scroll: { flex: 1 },
-  scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 24,
-    gap: 28,
-  },
+  scrollContent: { paddingHorizontal: 20, paddingTop: 20, gap: 14 },
 
-  // Section
-  section: { gap: 14 },
-  sectionLabel: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: C.onSurfaceVariant,
-    letterSpacing: 0.6,
-    textTransform: 'uppercase',
+  // Active friend card
+  friendCard: {
+    backgroundColor: C.surface,
+    borderRadius: 20, padding: 16, gap: 14,
+    shadowColor: C.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06, shadowRadius: 8, elevation: 2,
   },
-
-  // Cat card grid
-  catGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
-
-  // Shared cat card
-  catCard: {
-    width: '47.5%',
-    backgroundColor: C.surfaceContainerLow,
-    borderRadius: 18,
-    padding: 12,
-    gap: 10,
-  },
-  myCatCard: {
-    backgroundColor: C.surfaceContainerLow,
-  },
-  friendCatCard: {
-    backgroundColor: C.surfaceContainerLow,
-  },
-  graduatedCard: {
-    opacity: 0.72,
-  },
-
+  cardTop: { flexDirection: 'row', alignItems: 'center', gap: 14 },
   catImageBox: {
-    width: '100%',
-    aspectRatio: 1,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: 72, height: 72, borderRadius: 16,
+    backgroundColor: 'rgba(255,216,190,0.35)',
+    justifyContent: 'center', alignItems: 'center',
   },
-  catEmoji: { fontSize: 48 },
+  statusBadge: {
+    position: 'absolute', bottom: 4, right: 4,
+    width: 20, height: 20, borderRadius: 10,
+    backgroundColor: '#4ade80',
+    borderWidth: 2, borderColor: '#fff',
+    justifyContent: 'center', alignItems: 'center',
+  },
+  catEmoji: { fontSize: 40 },
+  cardInfo: { flex: 1, gap: 8 },
+  moreBtn: { padding: 4, alignSelf: 'flex-start' },
+  catName: { fontSize: 18, fontWeight: '700', color: C.onSurface, fontFamily: SERIF },
+  emotionBadge: {
+    alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 99,
+  },
+  emotionText: { fontSize: 13, fontWeight: '600' },
 
-  catCardMeta: { gap: 2 },
-  catCardNameRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  progressSection: { gap: 8 },
+  progressLabelRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  progressLabel: { fontSize: 12, fontWeight: '600', color: C.onSurfaceVariant },
+  wordCount: { fontSize: 16, fontWeight: '700', color: C.primary, fontFamily: SERIF },
+  progressTrack: {
+    height: 20, borderRadius: 99,
+    backgroundColor: C.surfaceContainer, overflow: 'hidden', padding: 2,
   },
-  catCardName: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: C.onSurface,
-  },
-  catCardSub: {
-    fontSize: 12,
-    color: C.outline,
-  },
-  friendDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-
-  // Mini progress bar
-  miniTrack: {
-    height: 6,
-    borderRadius: 99,
-    backgroundColor: C.surfaceContainer,
-    overflow: 'hidden',
-  },
-  miniFill: {
-    height: '100%',
-    borderRadius: 99,
+  progressFill: {
+    height: '100%', borderRadius: 99,
     backgroundColor: C.secondaryFixedDim,
-    minWidth: 6,
+    flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center',
+    paddingRight: 2, minWidth: 20,
   },
+  pawOnFill: { fontSize: 10, lineHeight: 14 },
 
-  // "다음 고양이를 키워봐요" slot
-  nextCatSlot: {
-    width: '47.5%',
-    aspectRatio: 0.9,
-    borderRadius: 18,
-    borderWidth: 2,
-    borderStyle: 'dashed',
-    borderColor: C.outlineVariant,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 8,
+  // Invited card
+  invitedCard: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 14 },
+  invitedAvatar: {
+    width: 48, height: 48, borderRadius: 24,
+    backgroundColor: C.surfaceContainer,
+    justifyContent: 'center', alignItems: 'center',
   },
-  nextCatIcon: {
-    fontSize: 28,
-    color: C.outlineVariant,
-    fontWeight: '300',
-  },
-  nextCatText: {
-    fontSize: 12,
-    color: C.outlineVariant,
-    textAlign: 'center',
-    lineHeight: 18,
-  },
+  invitedInfo: { flex: 1 },
+  invitedName: { fontSize: 15, fontWeight: '600', color: C.onSurface },
+  invitedEmail: { fontSize: 12, color: C.outline, marginTop: 2 },
+  invitedMeta: { alignItems: 'flex-end', gap: 4 },
+  invitedTime: { fontSize: 12, color: C.outline },
+  pendingBadge: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+  pendingText: { fontSize: 12, fontWeight: '600', color: C.primary },
 
-  // 친구 없는 상태
-  emptyFriends: {
-    backgroundColor: 'rgba(188,233,217,0.22)',
-    borderRadius: 18,
-    paddingVertical: 24,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    gap: 14,
-    marginTop: -8,
+  // Grow the colony
+  growCard: {
+    borderWidth: 2, borderStyle: 'dashed', borderColor: C.outlineVariant,
+    borderRadius: 20, paddingVertical: 28, paddingHorizontal: 20,
+    alignItems: 'center', gap: 10, marginTop: 4,
   },
-  emptyFriendsText: {
-    fontSize: 14,
-    color: C.onSurfaceVariant,
-    fontWeight: '500',
-    textAlign: 'center',
+  growIconCircle: {
+    width: 52, height: 52, borderRadius: 26,
+    backgroundColor: C.surfaceContainer,
+    justifyContent: 'center', alignItems: 'center',
   },
-  inviteBtn: {
-    paddingHorizontal: 20,
-    paddingVertical: 9,
-    borderRadius: 99,
-    borderWidth: 1.5,
-    borderColor: C.secondary,
-  },
-  inviteBtnText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: C.secondary,
-  },
+  growTitle: { fontSize: 16, fontWeight: '700', color: C.onSurfaceVariant, fontFamily: SERIF },
+  growSub: { fontSize: 13, color: C.outline, textAlign: 'center' },
 
-  // 유기묘 후원 배너
-  donationBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    backgroundColor: C.surfaceContainerLow,
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(211,196,187,0.5)',
-  },
-  donationEmoji: { fontSize: 28 },
-  donationText: { flex: 1, gap: 3 },
-  donationTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: C.onSurface,
-  },
-  donationSub: {
-    fontSize: 12,
-    color: C.outline,
-  },
 });
