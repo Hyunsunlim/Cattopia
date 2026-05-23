@@ -1,18 +1,18 @@
 import { useState, useCallback } from 'react';
 import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  ScrollView,
-  Platform,
+  StyleSheet, Text, View, TouchableOpacity, ScrollView, Platform,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import { useInviteFriend } from '../hooks/useInviteFriend';
+import { APP_NAME } from '../constants/appConfig';
+import { InviteToast } from '../components/InviteFriendUI';
+import { fetchFriends } from '../services/friends';
+import { fetchNotes } from '../services/notes';
+import { useCatName } from '../context/CatNameContext';
 
 const C = {
   primary: '#755844',
@@ -31,14 +31,15 @@ const C = {
 };
 
 const TOTAL_STORIES = 66;
-const CAT_NAME = 'Choco';
-
 export default function MeowHomeScreen({ navigation }) {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
+  const { catName: CAT_NAME } = useCatName();
 
   const [diaryCount, setDiaryCount] = useState(0);
+  const [wroteToday, setWroteToday] = useState(false);
   const [friends, setFriends] = useState([]);
+
+  const { toastAnim, toastMessage, sendInvite } = useInviteFriend();
 
   useFocusEffect(
     useCallback(() => {
@@ -48,26 +49,21 @@ export default function MeowHomeScreen({ navigation }) {
 
   const loadData = async () => {
     try {
-      const [diariesRaw, friendsRaw] = await Promise.all([
-        AsyncStorage.getItem('diaries'),
-        AsyncStorage.getItem('friends'),
+      const [diaries, friendsData] = await Promise.all([
+        fetchNotes().catch(() => []),
+        fetchFriends().catch(() => []),
       ]);
 
-      if (diariesRaw) {
-        setDiaryCount(JSON.parse(diariesRaw).length);
-      }
-
-      if (friendsRaw === null) {
-        await AsyncStorage.setItem('friends', JSON.stringify([]));
-        setFriends([]);
-      } else {
-        setFriends(JSON.parse(friendsRaw));
-      }
+      setDiaryCount(diaries.length);
+      const todayStr = new Date().toDateString();
+      setWroteToday(diaries.some(d => new Date(d.timestamp).toDateString() === todayStr));
+      setFriends(friendsData);
     } catch (e) {
       console.error('MeowHomeScreen loadData error:', e);
     }
   };
 
+  const isComplete = diaryCount >= TOTAL_STORIES;
   const remaining = Math.max(0, TOTAL_STORIES - diaryCount);
   const progress = Math.min(1, diaryCount / TOTAL_STORIES);
   const progressPct = `${Math.round(progress * 100)}%`;
@@ -76,9 +72,11 @@ export default function MeowHomeScreen({ navigation }) {
     navigation.navigate('Write');
   };
 
+
   return (
     <View style={styles.root}>
       <StatusBar style="dark" />
+      <InviteToast toastAnim={toastAnim} toastMessage={toastMessage} />
       <SafeAreaView style={styles.safeArea} edges={['top']}>
 
         {/* ── Header ─────────────────────────────────────────────── */}
@@ -87,7 +85,7 @@ export default function MeowHomeScreen({ navigation }) {
             <View style={styles.headerCatBadge}>
               <Text style={{ fontSize: 18 }}>🐱</Text>
             </View>
-            <Text style={styles.headerTitle}>Meow</Text>
+            <Text style={styles.headerTitle}>{APP_NAME}</Text>
           </View>
           <TouchableOpacity
             onPress={() => navigation.navigate('Settings')}
@@ -101,7 +99,7 @@ export default function MeowHomeScreen({ navigation }) {
         {/* ── Scrollable content ─────────────────────────────────── */}
         <ScrollView
           style={styles.scroll}
-          contentContainerStyle={[styles.scrollContent, { paddingBottom: 32 }]}
+          contentContainerStyle={[styles.scrollContent, { paddingBottom: 16, flexGrow: 1 }]}
           showsVerticalScrollIndicator={false}
         >
           {/* Status badge + headline */}
@@ -110,7 +108,9 @@ export default function MeowHomeScreen({ navigation }) {
               <Text style={styles.badgeText}>{t('meow.home.dailyRitual')}</Text>
             </View>
             <Text style={styles.headline}>
-              {t('meow.home.waitingTitle', { catName: CAT_NAME })}
+              {wroteToday
+                ? t('meow.home.fedTitle')
+                : t('meow.home.waitingTitle', { catName: CAT_NAME })}
             </Text>
           </View>
 
@@ -136,59 +136,45 @@ export default function MeowHomeScreen({ navigation }) {
               </Text>
             </View>
             <View style={styles.progressTrack}>
-              <View style={[styles.progressFill, { width: progressPct }]}>
-                <View style={styles.progressKnob}>
-                  <Text style={{ fontSize: 7, lineHeight: 10 }}>🐾</Text>
-                </View>
+              <View style={[
+                styles.progressFill,
+                { width: progressPct, backgroundColor: isComplete ? '#f59e0b' : C.secondaryFixedDim },
+              ]}>
+                {!isComplete && (
+                  <View style={styles.progressKnob}>
+                    <Text style={{ fontSize: 7, lineHeight: 10 }}>🐾</Text>
+                  </View>
+                )}
               </View>
             </View>
             <Text style={styles.progressNote}>
-              {t('meow.home.storyProgress', { count: diaryCount, total: TOTAL_STORIES })}
+              {isComplete
+                ? t('meow.home.grownUp')
+                : t('meow.home.storyProgress', { count: diaryCount, total: TOTAL_STORIES })}
             </Text>
           </View>
 
           {/* Friends Today */}
-          <View style={styles.friendsBlock}>
+          <View style={styles.friendsRow}>
             <Text style={styles.metaLabel}>{t('meow.home.friendsToday')}</Text>
-            {friends.length === 0 ? (
-              <View style={styles.emptyFriends}>
-                <Text style={styles.emptyText}>{t('meow.home.noFriendsYet')}</Text>
-                <TouchableOpacity style={styles.inviteBtn} activeOpacity={0.7}>
-                  <Text style={styles.inviteText}>{t('meow.home.inviteFriend')}</Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <View style={styles.friendList}>
-                {friends.map((friend, i) => (
-                  <View key={i} style={styles.friendRow}>
-                    <View style={[styles.avatar, { backgroundColor: C.secondaryContainer }]}>
-                      <Text style={styles.avatarText}>{(friend.name ?? '?')[0]}</Text>
-                    </View>
-                    <View style={styles.friendInfo}>
-                      <Text style={styles.friendName}>{friend.name}</Text>
-                      <Text style={styles.friendSub}>
-                        {friend.wroteToday ? t('meow.home.fedToday') : t('meow.home.notYet')}
-                      </Text>
-                    </View>
-                    <View style={[
-                      styles.statusDot,
-                      { backgroundColor: friend.wroteToday ? '#4ade80' : C.outlineVariant },
-                    ]} />
-                  </View>
-                ))}
-              </View>
-            )}
+            <View style={styles.friendsRight}>
+              {friends.length > 0 && friends.map((friend, i) => (
+                <MiniAvatar key={friend.id ?? i} friend={friend} />
+              ))}
+              <TouchableOpacity onPress={async () => { const sent = await sendInvite(); if (sent) loadData(); }} activeOpacity={0.7} style={styles.miniInviteBtn}>
+                <Ionicons name="add" size={16} color={C.outline} />
+              </TouchableOpacity>
+            </View>
           </View>
+        </ScrollView>
 
-          {/* CTA button */}
+        {/* ── Fixed bottom CTA ───────────────────────────────────── */}
+        <View style={styles.ctaWrapper}>
           <TouchableOpacity style={styles.cta} onPress={handleWriteToday} activeOpacity={0.85}>
             <Ionicons name="create-outline" size={22} color={C.primary} />
             <Text style={styles.ctaText}>{t('meow.home.writeCTA')}</Text>
           </TouchableOpacity>
-
-          {/* Subcopy */}
-          <Text style={styles.subcopy}>{t('meow.home.subcopy', { catName: CAT_NAME })}</Text>
-        </ScrollView>
+        </View>
       </SafeAreaView>
 
     </View>
@@ -231,8 +217,8 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingTop: 28,
-    gap: 24,
+    paddingTop: 16,
+    gap: 16,
   },
 
   // Status badge + headline
@@ -260,21 +246,22 @@ const styles = StyleSheet.create({
 
   // Cat image
   catArea: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    height: 210,
+    minHeight: 120,
   },
   catGlow: {
     position: 'absolute',
-    width: 190,
-    height: 190,
-    borderRadius: 95,
+    width: 138,
+    height: 138,
+    borderRadius: 69,
     backgroundColor: 'rgba(255,216,190,0.45)',
   },
   catCircle: {
-    width: 175,
-    height: 175,
-    borderRadius: 88,
+    width: 126,
+    height: 126,
+    borderRadius: 63,
     backgroundColor: C.surface,
     borderWidth: 3,
     borderColor: C.surfaceContainer,
@@ -286,7 +273,7 @@ const styles = StyleSheet.create({
     shadowRadius: 16,
     elevation: 8,
   },
-  catEmoji: { fontSize: 80 },
+  catEmoji: { fontSize: 58 },
 
   // Progress card
   card: {
@@ -355,56 +342,38 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  // Friends
-  friendsBlock: { gap: 10 },
-  emptyFriends: {
-    backgroundColor: 'rgba(188,233,217,0.25)',
-    borderRadius: 16,
-    paddingVertical: 22,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    gap: 14,
-  },
-  emptyText: {
-    fontSize: 14,
-    color: C.onSurfaceVariant,
-    fontWeight: '500',
-  },
-  inviteBtn: {
-    paddingHorizontal: 18,
-    paddingVertical: 8,
-    borderRadius: 99,
-    borderWidth: 1.5,
-    borderColor: C.secondary,
-  },
-  inviteText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: C.secondary,
-  },
-  friendList: { gap: 8 },
-  friendRow: {
+  // Friends compact row
+  friendsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    backgroundColor: C.surfaceContainerLow,
-    borderRadius: 16,
-    padding: 12,
+    justifyContent: 'space-between',
   },
-  avatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+  friendsRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  miniInviteBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: C.outlineVariant,
+    borderStyle: 'dashed',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  avatarText: { fontSize: 14, fontWeight: '700', color: C.secondary },
-  friendInfo: { flex: 1 },
-  friendName: { fontSize: 13, fontWeight: '600', color: C.onSurface },
-  friendSub: { fontSize: 12, color: C.outline },
-  statusDot: { width: 8, height: 8, borderRadius: 4 },
 
-  // CTA
+  // Fixed bottom CTA
+  ctaWrapper: {
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 16,
+    gap: 8,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: 'rgba(211,196,187,0.5)',
+    backgroundColor: C.background,
+  },
   cta: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -431,8 +400,45 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     color: C.outline,
     opacity: 0.75,
-    marginTop: -8,
-    marginBottom: 4,
   },
 
+});
+
+// ── Mini avatar ──────────────────────────────────────────────────────────────
+
+function MiniAvatar({ friend }) {
+  const isInvited = friend.status === 'invited';
+  const active = !isInvited && friend.wroteToday;
+  return (
+    <View style={aStyles.wrapper}>
+      <View style={[aStyles.circle, { borderColor: active ? '#4ade80' : C.outlineVariant }]}>
+        <Text style={aStyles.emoji}>{friend.catEmoji ?? '🐱'}</Text>
+      </View>
+      <View style={[aStyles.dot, { backgroundColor: active ? '#4ade80' : C.surfaceContainer }]} />
+    </View>
+  );
+}
+
+const aStyles = StyleSheet.create({
+  wrapper: { position: 'relative' },
+  circle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 2,
+    backgroundColor: C.surface,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emoji: { fontSize: 16 },
+  dot: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 9,
+    height: 9,
+    borderRadius: 5,
+    borderWidth: 1.5,
+    borderColor: C.background,
+  },
 });

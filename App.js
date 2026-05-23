@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { ActivityIndicator, View, Text, StyleSheet, Animated, Platform } from 'react-native';
+import { ActivityIndicator, View, Text, StyleSheet, Animated, Platform, Alert } from 'react-native';
+import * as Linking from 'expo-linking';
 import { useFonts } from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -11,13 +12,18 @@ import { initI18n } from './i18n';
 import RootNavigator from './navigation/HomeStack';
 import { APP_NAME } from './constants/appConfig';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
+import { CatNameProvider, useCatName } from './context/CatNameContext';
 import LoginScreen from './screens/LoginScreen';
 import SignupScreen from './screens/SignupScreen';
 import PrivacyOnboardingModal from './components/PrivacyOnboardingModal';
+import CatNameSetupScreen from './screens/CatNameSetupScreen';
 import { getToken, removeToken, getMe } from './services/auth';
+import { acceptInvite } from './services/friends';
+import { migrateLocalNotesIfNeeded, createNote, getCachedNotes } from './services/notes';
 import {
   registerForPushNotificationsAsync,
   scheduleMultipleNotifications,
+  scheduleWeeklyNotifications,
   setupNotificationCategories,
   scheduleNotePromptNotification,
   scheduleWriteReminderNotification,
@@ -35,6 +41,7 @@ const KEYWORD_MAP = {
 function AppContent() {
   const { t } = useTranslation();
   const theme = useTheme();
+  const { setCatName } = useCatName();
   const [fontsLoaded] = useFonts({
     ...Ionicons.font,
   });
@@ -45,6 +52,8 @@ function AppContent() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showMain, setShowMain] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [pendingInvite, setPendingInvite] = useState(null);
+  const [showCatNameSetup, setShowCatNameSetup] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -58,7 +67,13 @@ function AppContent() {
           } catch (e) {
             // 타임아웃이나 네트워크 오류 시 토큰은 유지하고 로그인 상태 유지
             // 401 Unauthorized일 때만 토큰 제거
-            if (e.message && (e.message.includes('401') || e.message.includes('Unauthorized'))) {
+            const isAuthError = e.message && (
+              e.message.includes('401') ||
+              e.message.includes('Unauthorized') ||
+              e.message.toLowerCase().includes('invalid token') ||
+              e.message.toLowerCase().includes('could not validate')
+            );
+            if (isAuthError) {
               await removeToken();
             } else {
               // 네트워크/타임아웃 오류: 토큰 유지, 오프라인으로 로그인 유지
@@ -75,6 +90,9 @@ function AppContent() {
         setIsLoading(false);
       }
 
+      // Migrate local notes to server on first login
+      migrateLocalNotesIfNeeded().catch(() => {});
+
       // Restore scheduled notifications on app start
       try {
         await registerForPushNotificationsAsync();
@@ -88,10 +106,16 @@ function AppContent() {
               : settings.reminderTime
                 ? [settings.reminderTime]
                 : ['21:00'];
-            await scheduleMultipleNotifications(
-              times,
-              settings.notificationPreview || 'How was your day?'
-            );
+            if (settings.useAutoPrompts !== false) {
+              await scheduleWeeklyNotifications(times);
+            } else {
+              const oldDefault = 'How was your day?';
+              const defaultMsg = 'Choco is waiting 🐱 오늘 이야기 들려줄래요?';
+              const msg = (settings.notificationPreview && settings.notificationPreview !== oldDefault)
+                ? settings.notificationPreview
+                : defaultMsg;
+              await scheduleMultipleNotifications(times, msg);
+            }
           }
         }
       } catch (e) {
@@ -131,9 +155,7 @@ function AppContent() {
           emoji,
         };
         try {
-          const saved = await AsyncStorage.getItem('diaries');
-          const existing = saved ? JSON.parse(saved) : [];
-          await AsyncStorage.setItem('diaries', JSON.stringify([newDiary, ...existing]));
+          await createNote(newDiary);
           await scheduleNotePromptNotification(newDiary.id);
         } catch (e) {
           console.error('Failed to save keyword diary:', e);
@@ -178,6 +200,62 @@ function AppContent() {
     return () => subscription.remove();
   }, []);
 
+  const processInviteLink = useCallback(async (params) => {
+    if (!params?.code) return;
+    try {
+      const friend = await acceptInvite(params.code);
+      Alert.alert(
+        t('privacy.inviteSuccessTitle'),
+        t('privacy.inviteSuccessMessage', { name: friend.username }),
+        [{ text: t('privacy.inviteConfirm') }]
+      );
+    } catch (e) {
+      const msg = e.message || '';
+      if (msg.includes('Already friends')) return;
+      const isTokenError = msg.toLowerCase().includes('invalid token') || msg.includes('401');
+      Alert.alert(
+        t('privacy.inviteErrorTitle'),
+        isTokenError
+          ? t('privacy.inviteErrorExpired')
+          : (msg || t('privacy.inviteErrorDefault')),
+        [{ text: t('privacy.inviteConfirm') }]
+      );
+    }
+  }, [t]);
+
+  // Deep link handler
+  const handledUrlsRef = useRef(new Set());
+  useEffect(() => {
+    const handleUrl = (url) => {
+      if (!url) return;
+      if (handledUrlsRef.current.has(url)) return;
+      try {
+        const parsed = Linking.parse(url);
+        if (parsed.hostname === 'invite') {
+          const params = parsed.queryParams ?? {};
+          if (params.code) handledUrlsRef.current.add(url);
+          if (isLoggedIn) {
+            processInviteLink(params);
+          } else {
+            setPendingInvite(params);
+          }
+        }
+      } catch (e) {}
+    };
+
+    Linking.getInitialURL().then(url => { if (url) handleUrl(url); });
+    const sub = Linking.addEventListener('url', ({ url }) => handleUrl(url));
+    return () => sub.remove();
+  }, [isLoggedIn, processInviteLink]);
+
+  // Process invite after login
+  useEffect(() => {
+    if (isLoggedIn && pendingInvite) {
+      processInviteLink(pendingInvite);
+      setPendingInvite(null);
+    }
+  }, [isLoggedIn, pendingInvite, processInviteLink]);
+
   const handleLogin = useCallback(async () => {
     setIsTransitioning(true);
     try {
@@ -185,20 +263,32 @@ function AppContent() {
       if (token) {
         const user = await getMe(token);
         setUserName(user.username || '');
+
+        // 서버에 cat_name이 있으면 로컬에 동기화
+        if (user.cat_name) {
+          const raw = await AsyncStorage.getItem('settings');
+          const settings = raw ? JSON.parse(raw) : {};
+          if (!settings.catName) {
+            await AsyncStorage.setItem('settings', JSON.stringify({ ...settings, catName: user.cat_name }));
+          }
+        }
       }
     } catch (e) {
       // ignore
     }
 
-    // Check onboarding only on fresh login
+    // Check privacy onboarding
     try {
       const seen = await AsyncStorage.getItem('hasSeenPrivacyOnboarding');
-      if (seen !== 'true') {
-        setShowOnboarding(true);
-      }
-    } catch (e) {
-      // ignore
-    }
+      if (seen !== 'true') setShowOnboarding(true);
+    } catch (e) {}
+
+    // Check cat name setup (로컬 + 서버 둘 다 없으면 설정 화면)
+    try {
+      const raw = await AsyncStorage.getItem('settings');
+      const settings = raw ? JSON.parse(raw) : {};
+      if (!settings.catName) setShowCatNameSetup(true);
+    } catch (e) {}
 
     setIsLoggedIn(true);
     setIsTransitioning(false);
@@ -219,6 +309,11 @@ function AppContent() {
     setShowOnboarding(false);
   }, []);
 
+  const handleCatNameComplete = useCallback(async (name) => {
+    await setCatName(name);
+    setShowCatNameSetup(false);
+  }, [setCatName]);
+
   if (!fontsLoaded || isLoading || isTransitioning) {
     return (
       <SafeAreaProvider>
@@ -230,7 +325,7 @@ function AppContent() {
               <Text style={loadingStyles.catEmoji}>🐱</Text>
             </View>
           </View>
-          <Text style={loadingStyles.logo}>Meow</Text>
+          <Text style={loadingStyles.logo}>{APP_NAME}</Text>
           <Text style={loadingStyles.sub}>Grow with your cat</Text>
           <ActivityIndicator
             size="small"
@@ -259,6 +354,14 @@ function AppContent() {
             onGoToSignup={() => setAuthScreen('signup')}
           />
         )}
+      </SafeAreaProvider>
+    );
+  }
+
+  if (showCatNameSetup) {
+    return (
+      <SafeAreaProvider>
+        <CatNameSetupScreen onComplete={handleCatNameComplete} />
       </SafeAreaProvider>
     );
   }
@@ -293,7 +396,9 @@ export default function App() {
 
   return (
     <ThemeProvider>
-      <AppContent />
+      <CatNameProvider>
+        <AppContent />
+      </CatNameProvider>
     </ThemeProvider>
   );
 }

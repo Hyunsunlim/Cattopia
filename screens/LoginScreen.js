@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   StyleSheet, Text, View, TextInput,
   TouchableOpacity, ActivityIndicator,
@@ -8,13 +8,21 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Svg, Path } from 'react-native-svg';
 import { useTranslation } from 'react-i18next';
 import { login, googleLogin, saveToken } from '../services/auth';
+import { APP_NAME } from '../constants/appConfig';
 
-// Google Sign-In requires a native dev build — stubbed until activated
-const GoogleSignin = {
-  configure: () => {},
-  hasPlayServices: async () => true,
-  signIn: async () => { throw new Error('Google 로그인은 아직 준비 중이에요.'); },
-};
+const IOS_CLIENT_ID = '989988743907-s01n5q7r87g6c1pduguj6v1ul34ldt6k.apps.googleusercontent.com';
+const WEB_CLIENT_ID = '989988743907-1rb2kb430v789dpsvu47mlpi94lqmm1q.apps.googleusercontent.com';
+
+let GoogleSignin;
+try {
+  GoogleSignin = require('@react-native-google-signin/google-signin').GoogleSignin;
+} catch {
+  GoogleSignin = {
+    configure: () => {},
+    hasPlayServices: async () => true,
+    signIn: async () => { throw new Error('Google 로그인은 개발 빌드에서만 사용할 수 있어요.'); },
+  };
+}
 
 const C = {
   primary: '#755844',
@@ -42,6 +50,13 @@ export default function LoginScreen({ onLogin, onGoToSignup }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    GoogleSignin.configure({
+      iosClientId: IOS_CLIENT_ID,
+      webClientId: WEB_CLIENT_ID,
+    });
+  }, []);
 
   const handleGoogleSignIn = async () => {
     setError('');
@@ -100,7 +115,7 @@ export default function LoginScreen({ onLogin, onGoToSignup }) {
                 <Text style={S.catEmoji}>🐱</Text>
               </View>
             </View>
-            <Text style={S.logoText}>Meow</Text>
+            <Text style={S.logoText}>{APP_NAME}</Text>
             <Text style={S.logoSub}>Grow with your cat</Text>
           </View>
 
