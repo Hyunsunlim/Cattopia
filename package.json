@@ -29,6 +29,7 @@
     "expo-updates": "~29.0.17",
     "expo-web-browser": "~15.0.11",
     "i18next": "^25.10.3",
+    "mixpanel-react-native": "^3.3.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-i18next": "^16.6.0",

@@ -15,6 +15,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { useTranslation } from 'react-i18next';
 import { signup, login, saveToken } from '../services/auth';
+import { trackSignUp } from '../services/analytics';
 import { APP_NAME } from '../constants/appConfig';
 import { useTheme } from '../context/ThemeContext';
 
@@ -45,6 +46,7 @@ export default function SignupScreen({ onLogin, onGoToLogin }) {
       if (typeof token === 'string' && token.length > 0) {
         await saveToken(token);
       }
+      trackSignUp(data.user_id ?? email.trim(), email.trim());
       Alert.alert(
         t('signup.welcomeTitle'),
         t('signup.welcomeMessage', { username: username.trim() }),

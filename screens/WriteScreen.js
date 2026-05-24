@@ -14,6 +14,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
+import { trackWriteEntry } from '../services/analytics';
 
 const C = {
   primary: '#755844',
@@ -64,6 +65,7 @@ export default function WriteScreen({ navigation }) {
         emotion: 'neutral',
       };
       await AsyncStorage.setItem('diaries', JSON.stringify([entry, ...all]));
+      trackWriteEntry();
       navigation.replace('WriteComplete', { count: all.length + 1 });
     } catch (e) {
       console.error('WriteScreen save error:', e);

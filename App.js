@@ -18,6 +18,7 @@ import SignupScreen from './screens/SignupScreen';
 import PrivacyOnboardingModal from './components/PrivacyOnboardingModal';
 import CatNameSetupScreen from './screens/CatNameSetupScreen';
 import { getToken, removeToken, getMe } from './services/auth';
+import { trackLogin } from './services/analytics';
 import { acceptInvite } from './services/friends';
 import { migrateLocalNotesIfNeeded, createNote, getCachedNotes } from './services/notes';
 import {
@@ -263,6 +264,7 @@ function AppContent() {
       if (token) {
         const user = await getMe(token);
         setUserName(user.username || '');
+        trackLogin(user.id ?? user.username, user.email ?? '');
 
         // 서버에 cat_name이 있으면 로컬에 동기화
         if (user.cat_name) {
