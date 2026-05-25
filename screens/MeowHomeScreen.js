@@ -11,7 +11,7 @@ import { useInviteFriend } from '../hooks/useInviteFriend';
 import { APP_NAME } from '../constants/appConfig';
 import { InviteToast } from '../components/InviteFriendUI';
 import { fetchFriends } from '../services/friends';
-import { fetchNotes } from '../services/notes';
+import { fetchNotes, getCachedNotes } from '../services/notes';
 import { useCatName } from '../context/CatNameContext';
 
 const C = {
@@ -41,8 +41,16 @@ export default function MeowHomeScreen({ navigation }) {
 
   const { toastAnim, toastMessage, sendInvite } = useInviteFriend();
 
+  const applyDiaries = (diaries) => {
+    const todayStr = new Date().toDateString();
+    setDiaryCount(diaries.length);
+    setWroteToday(diaries.some(d => new Date(d.timestamp).toDateString() === todayStr));
+  };
+
   useFocusEffect(
     useCallback(() => {
+      // 캐시로 먼저 즉시 렌더, 그다음 서버 동기화
+      getCachedNotes().then(cached => { if (cached.length) applyDiaries(cached); });
       loadData();
     }, [])
   );
@@ -53,10 +61,7 @@ export default function MeowHomeScreen({ navigation }) {
         fetchNotes().catch(() => []),
         fetchFriends().catch(() => []),
       ]);
-
-      setDiaryCount(diaries.length);
-      const todayStr = new Date().toDateString();
-      setWroteToday(diaries.some(d => new Date(d.timestamp).toDateString() === todayStr));
+      applyDiaries(diaries);
       setFriends(friendsData);
     } catch (e) {
       console.error('MeowHomeScreen loadData error:', e);
@@ -109,7 +114,7 @@ export default function MeowHomeScreen({ navigation }) {
             </View>
             <Text style={styles.headline}>
               {wroteToday
-                ? t('meow.home.fedTitle')
+                ? t('meow.home.fedTitle', { catName: CAT_NAME })
                 : t('meow.home.waitingTitle', { catName: CAT_NAME })}
             </Text>
           </View>
