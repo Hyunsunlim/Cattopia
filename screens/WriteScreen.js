@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -42,9 +42,7 @@ function formatDate(date) {
 export default function WriteScreen({ navigation }) {
   const { t } = useTranslation();
   const { catName } = useCatName();
-  const insets = useSafeAreaInsets();
   const [content, setContent] = useState('');
-  const [visibility, setVisibility] = useState('private');
   const [saving, setSaving] = useState(false);
   const inputRef = useRef(null);
 
@@ -62,7 +60,6 @@ export default function WriteScreen({ navigation }) {
         id: Date.now().toString(),
         content: content.trim(),
         timestamp: today.toISOString(),
-        visibility,
         emotion: 'neutral',
       };
       await AsyncStorage.setItem('diaries', JSON.stringify([entry, ...all]));
@@ -137,33 +134,6 @@ export default function WriteScreen({ navigation }) {
           />
         </TouchableOpacity>
 
-        {/* ── Fixed bottom: visibility ──────────────────────────── */}
-        <View style={[styles.visSection, { paddingBottom: insets.bottom + 16 }]}>
-          <Text style={styles.visLabel}>{t('meow.write.visibility')}</Text>
-          <View style={styles.visRow}>
-            <TouchableOpacity
-              style={[styles.visBtn, visibility === 'private' && styles.visBtnActive]}
-              onPress={() => setVisibility('private')}
-              activeOpacity={0.75}
-            >
-              <Text style={[styles.visBtnTitle, visibility === 'private' && styles.visBtnTitleActive]}>
-                {t('meow.write.privateLabel', { catName })}
-              </Text>
-              <Text style={styles.visBtnSub}>{t('meow.write.privateDesc')}</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.visBtn, visibility === 'friends' && styles.visBtnActive]}
-              onPress={() => setVisibility('friends')}
-              activeOpacity={0.75}
-            >
-              <Text style={[styles.visBtnTitle, visibility === 'friends' && styles.visBtnTitleActive]}>
-                {t('meow.write.friendsLabel')}
-              </Text>
-              <Text style={styles.visBtnSub}>{t('meow.write.friendsDesc')}</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
@@ -270,48 +240,4 @@ const styles = StyleSheet.create({
     color: C.onSurface,
   },
 
-  // Visibility
-  visSection: {
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    gap: 10,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: 'rgba(211,196,187,0.5)',
-  },
-  visLabel: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: C.onSurfaceVariant,
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
-  },
-  visRow: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  visBtn: {
-    flex: 1,
-    borderWidth: 2,
-    borderColor: C.outlineVariant,
-    borderRadius: 16,
-    padding: 14,
-    alignItems: 'center',
-    gap: 4,
-  },
-  visBtnActive: {
-    borderColor: C.primary,
-    backgroundColor: 'rgba(255,216,190,0.2)',
-  },
-  visBtnTitle: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: C.onSurfaceVariant,
-  },
-  visBtnTitleActive: {
-    color: C.primary,
-  },
-  visBtnSub: {
-    fontSize: 11,
-    color: C.outline,
-  },
 });
