@@ -111,7 +111,7 @@ export default function WriteScreen({ navigation }) {
               <Text style={{ fontSize: 28 }}>🐱</Text>
             </View>
             <View>
-              <Text style={styles.catBannerTitle}>{t('meow.write.catHungry', { catName: CAT_NAME })}</Text>
+              <Text style={styles.catBannerTitle}>{t('meow.write.catHungry', { catName })}</Text>
               <Text style={styles.catBannerSub}>{t('meow.write.storyIsFood')}</Text>
             </View>
           </View>
@@ -147,7 +147,7 @@ export default function WriteScreen({ navigation }) {
               activeOpacity={0.75}
             >
               <Text style={[styles.visBtnTitle, visibility === 'private' && styles.visBtnTitleActive]}>
-                {t('meow.write.privateLabel', { catName: CAT_NAME })}
+                {t('meow.write.privateLabel', { catName })}
               </Text>
               <Text style={styles.visBtnSub}>{t('meow.write.privateDesc')}</Text>
             </TouchableOpacity>
