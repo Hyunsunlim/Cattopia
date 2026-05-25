@@ -117,3 +117,13 @@ export async function authFetch(url, options = {}, timeoutMs = TIMEOUT_MS) {
   if (token) headers.Authorization = `Bearer ${token}`;
   return fetchWithTimeout(url, { ...options, headers }, timeoutMs);
 }
+
+export async function updateProfile(data) {
+  const res = await authFetch(`${BASE_URL}/auth/profile`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to update profile');
+  return res.json();
+}
