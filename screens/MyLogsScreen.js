@@ -57,13 +57,16 @@ function DiaryItem({ item }) {
         <Text style={S.itemEmpty}>{t('meow.myLogs.noContent')}</Text>
       )}
       <View style={S.itemFooter}>
-        <View style={[S.badge, isPrivate ? S.badgePrivate : S.badgePublic]}>
-          <Text style={[S.badgeText, isPrivate ? S.badgeTextPrivate : S.badgeTextPublic]}>
-            {isPrivate ? t('meow.myLogs.privateLabel', { catName: catName }) : t('meow.myLogs.friendsLabel')}
-          </Text>
-        </View>
-        {item.emotion && item.emotion !== 'neutral' && (
-          <Text style={S.itemEmotion}>{item.emotion}</Text>
+        {item.emotion && item.emotion !== 'neutral' ? (
+          <View style={[S.badge, S.badgePrivate]}>
+            <Text style={[S.badgeText, S.badgeTextPrivate]}>{item.emotion}</Text>
+          </View>
+        ) : (
+          <View style={[S.badge, isPrivate ? S.badgePrivate : S.badgePublic]}>
+            <Text style={[S.badgeText, isPrivate ? S.badgeTextPrivate : S.badgeTextPublic]}>
+              {isPrivate ? '🔒 only me' : '👥 Friends'}
+            </Text>
+          </View>
         )}
       </View>
     </View>
