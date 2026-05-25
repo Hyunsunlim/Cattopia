@@ -303,6 +303,13 @@
       "friendsLabel": "👥 朋友可見",
       "friendsDesc": "朋友可以閱讀"
     },
+    "catSetup": {
+      "title": "幫貓咪取名字吧",
+      "sub": "幫你的貓咪取個名字，之後可以更改。",
+      "placeholder": "例）巧克力、麻糬、邦邦...",
+      "btnFilled": "取名為 {{name}} →",
+      "btnEmpty": "請輸入名字"
+    },
     "complete": {
       "heading": "{{catName}}吃得\n很開心！",
       "subheading": "今天的故事成了{{catName}}的食物",

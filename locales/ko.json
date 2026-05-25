@@ -303,6 +303,13 @@
       "friendsLabel": "👥 친구 공개",
       "friendsDesc": "친구가 읽을 수 있어요"
     },
+    "catSetup": {
+      "title": "고양이 이름을 지어줘요",
+      "sub": "고양이에게 이름을 붙여줘요. 나중에 변경할 수 있어요.",
+      "placeholder": "예) 초코, 모찌, 봉이...",
+      "btnFilled": "{{name}}로 정하기 →",
+      "btnEmpty": "이름을 입력해줘요"
+    },
     "complete": {
       "heading": "{{catName}}가 맛있게\n먹었어요!",
       "subheading": "오늘 이야기가 {{catName}}의 밥이 됐어요",
@@ -426,7 +433,7 @@
       "mixed": "혼합",
       "emotionBubble": "감정 분포",
       "dailyMoodAll": "Daily mood · all history",
-      "emptyNudge": "일기를 쓰면 여기가 채워져요.\nChoco가 기다리고 있어요.",
+      "emptyNudge": "일기를 쓰면 여기가 채워져요.\n{{catName}}가 기다리고 있어요.",
       "emptyWriteCTA": "오늘 일기 쓰러 가기"
     },
     "reminders": {

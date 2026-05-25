@@ -303,6 +303,13 @@
       "friendsLabel": "👥 友達に公開",
       "friendsDesc": "友達が読めます"
     },
+    "catSetup": {
+      "title": "猫の名前をつけよう",
+      "sub": "猫に名前をつけてあげましょう。後で変更できます。",
+      "placeholder": "例）チョコ、モチ、ボン...",
+      "btnFilled": "{{name}}にする →",
+      "btnEmpty": "名前を入力してください"
+    },
     "complete": {
       "heading": "{{catName}}がおいしく\n食べました！",
       "subheading": "今日のお話が{{catName}}のエサになりました",

@@ -303,6 +303,13 @@
       "friendsLabel": "👥 Friends",
       "friendsDesc": "Friends can read this"
     },
+    "catSetup": {
+      "title": "What's your cat's name?",
+      "sub": "Give your cat a name. You can change it later.",
+      "placeholder": "e.g. Choco, Mochi, Bong...",
+      "btnFilled": "Name it {{name}} →",
+      "btnEmpty": "Enter a name"
+    },
     "complete": {
       "heading": "{{catName}} loved\nthe meal!",
       "subheading": "Today's story became {{catName}}'s meal",
@@ -426,7 +433,7 @@
       "mixed": "Mixed",
       "emotionBubble": "Emotion Distribution",
       "dailyMoodAll": "Daily mood · all history",
-      "emptyNudge": "Write a diary to fill this in.\nChoco is waiting for you.",
+      "emptyNudge": "Write a diary to fill this in.\n{{catName}} is waiting for you.",
       "emptyWriteCTA": "Write today's diary"
     },
     "reminders": {

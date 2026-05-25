@@ -19,6 +19,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LineChart, BarChart } from 'react-native-gifted-charts';
 import { Svg, Polygon, Polyline, Line, Circle, G, Text as SvgText } from 'react-native-svg';
 import { useTranslation } from 'react-i18next';
+import { useCatName } from '../context/CatNameContext';
 import { useTheme } from '../context/ThemeContext';
 
 const SERIF = Platform.OS === 'ios' ? 'Georgia' : 'serif';
@@ -345,6 +346,7 @@ function TrendLineChart({ data, series, theme }) {
 // ─────────────────────────────────────────────────────────────────────────────
 export default function InsightScreen({ navigation }) {
   const { t } = useTranslation();
+  const { catName } = useCatName();
   const theme = useTheme();
   const styles = getStyles(theme);
   const insets = useSafeAreaInsets();
@@ -2373,7 +2375,7 @@ export default function InsightScreen({ navigation }) {
           {/* 넛지 카드 */}
           <View style={emptyS.nudgeCard}>
             <Text style={emptyS.nudgeEmoji}>🐱</Text>
-            <Text style={emptyS.nudgeText}>{t('meow.insight.emptyNudge')}</Text>
+            <Text style={emptyS.nudgeText}>{t('meow.insight.emptyNudge', { catName })}</Text>
           </View>
 
           {/* 흐릿한 skeleton */}
