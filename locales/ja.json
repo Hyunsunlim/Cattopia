@@ -325,7 +325,12 @@
       "donationSub": "寄付で実際の猫も助けてあげましょう",
       "headerSub": "一緒に育てています",
       "growTitle": "一緒に育てよう",
-      "growSub": "友達を招待して猫を一緒に育てましょう"
+      "growSub": "友達を招待して猫を一緒に育てましょう",
+      "pendingPlaceholder": "招待済み",
+      "waitingAccept": "承認待ち",
+      "invitedStatus": "招待されました",
+      "today": "今日",
+      "daysAgo": "{{n}}日前"
     },
     "myLogs": {
       "title": "マイログ",

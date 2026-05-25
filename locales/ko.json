@@ -325,7 +325,12 @@
       "donationSub": "유기묘 후원으로 실제 고양이도 도와줘요",
       "headerSub": "함께 키우는 중",
       "growTitle": "함께 키워봐요",
-      "growSub": "친구를 초대하고 고양이를 함께 키워봐요"
+      "growSub": "친구를 초대하고 고양이를 함께 키워봐요",
+      "pendingPlaceholder": "초대됨",
+      "waitingAccept": "수락 대기 중",
+      "invitedStatus": "초대를 보냈어요",
+      "today": "오늘",
+      "daysAgo": "{{n}}일 전"
     },
     "myLogs": {
       "title": "My Logs",

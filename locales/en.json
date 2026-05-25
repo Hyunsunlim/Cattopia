@@ -325,7 +325,12 @@
       "donationSub": "Help real cats through our donation program",
       "headerSub": "Growing together",
       "growTitle": "Grow together",
-      "growSub": "Invite a friend and raise cats together"
+      "growSub": "Invite a friend and raise cats together",
+      "pendingPlaceholder": "Invited",
+      "waitingAccept": "Waiting to accept",
+      "invitedStatus": "Invited you",
+      "today": "Today",
+      "daysAgo": "{{n}}d ago"
     },
     "myLogs": {
       "title": "My Logs",
