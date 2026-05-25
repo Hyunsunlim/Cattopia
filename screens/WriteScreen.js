@@ -59,7 +59,6 @@ export default function WriteScreen({ navigation }) {
         id: Date.now().toString(),
         content: content.trim(),
         timestamp: today.toISOString(),
-        emotion: 'neutral',
       };
       await createNote(entry);
       trackWriteEntry();

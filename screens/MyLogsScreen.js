@@ -10,6 +10,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useCatName } from '../context/CatNameContext';
+import { deleteNote, updateNote } from '../services/notes';
 
 const C = {
   primary: '#755844',
@@ -101,9 +102,13 @@ function DiaryItem({ item, onDelete, onEdit }) {
               {EMOTION_EMOJI[item.emotion] ?? '✨'} {item.emotion}
             </Text>
           </View>
+        ) : item.emotion === 'neutral' ? (
+          <View style={[S.badge, S.badgeNeutral]}>
+            <Text style={[S.badgeText, S.badgeTextNeutral]}>😌 neutral</Text>
+          </View>
         ) : (
           <View style={[S.badge, S.badgeNeutral]}>
-            <Text style={[S.badgeText, S.badgeTextNeutral]}>· analysis failed</Text>
+            <Text style={[S.badgeText, S.badgeTextNeutral]}>· analyzing</Text>
           </View>
         )}
       </View>
@@ -132,9 +137,13 @@ export default function MyLogsScreen({ navigation }) {
   }, []));
 
   const handleDelete = async (id) => {
+    const target = diaries.find(d => d.id === id);
     const updated = diaries.filter(d => d.id !== id);
     setDiaries(updated);
     await AsyncStorage.setItem('diaries', JSON.stringify(updated));
+    if (target?._serverId) {
+      deleteNote(target._serverId).catch(e => console.warn('Server delete failed:', e));
+    }
   };
 
   const handleEdit = (item) => {
@@ -148,6 +157,9 @@ export default function MyLogsScreen({ navigation }) {
     );
     setDiaries(updated);
     await AsyncStorage.setItem('diaries', JSON.stringify(updated));
+    if (editItem._serverId) {
+      updateNote(editItem._serverId, { content: editText }).catch(e => console.warn('Server update failed:', e));
+    }
     setEditItem(null);
   };
 

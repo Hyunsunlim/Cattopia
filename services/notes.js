@@ -14,7 +14,7 @@ function serverToLocal(note) {
     content: note.content,
     title: note.title ?? '',
     tag: note.tag ?? null,
-    emotion: note.emotion ?? 'neutral',
+    emotion: note.emotion ?? null,
     emoji: note.emoji ?? null,
     timestamp: note.timestamp,
     word_count: note.word_count ?? null,
