@@ -60,11 +60,15 @@ export default function WriteScreen({ navigation }) {
         content: content.trim(),
         timestamp: today.toISOString(),
       };
-      await createNote(entry);
+      const saved = await createNote(entry);
       trackWriteEntry();
       const raw = await AsyncStorage.getItem('diaries');
       const all = raw ? JSON.parse(raw) : [];
-      navigation.replace('WriteComplete', { count: all.length });
+      navigation.replace('WriteComplete', {
+        count: all.length,
+        serverId: saved._serverId ?? null,
+        content: entry.content,
+      });
     } catch (e) {
       console.error('WriteScreen save error:', e);
     } finally {

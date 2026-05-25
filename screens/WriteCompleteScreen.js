@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -10,6 +10,16 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useTranslation } from 'react-i18next';
 import { useCatName } from '../context/CatNameContext';
+import { analyzeNote, getCachedNotes } from '../services/notes';
+
+const EMOTION_CAT = {
+  joy: '😸', neutral: '😺', sadness: '😿',
+  anger: '😾', fear: '🙀', surprise: '🙀', disgust: '😼',
+};
+const EMOTION_LABEL = {
+  joy: 'Happy 😊', neutral: 'Calm 😌', sadness: 'Sad 🌧️',
+  anger: 'Grumpy 😾', fear: 'Scared 🙀', surprise: 'Curious 👀', disgust: 'Bleh 😿',
+};
 
 const C = {
   primary: '#755844',
@@ -32,8 +42,13 @@ export default function WriteCompleteScreen({ navigation, route }) {
   const { t } = useTranslation();
   const { catName } = useCatName();
   const count = route?.params?.count ?? 1;
+  const serverId = route?.params?.serverId ?? null;
+  const content = route?.params?.content ?? '';
   const remaining = Math.max(0, TOTAL_STORIES - count);
   const progress = Math.min(1, count / TOTAL_STORIES);
+
+  const [catEmoji, setCatEmoji] = useState('😸');
+  const [emotionLabel, setEmotionLabel] = useState(null);
 
   // Animate progress bar fill
   const barAnim = useRef(new Animated.Value(0)).current;
@@ -43,6 +58,19 @@ export default function WriteCompleteScreen({ navigation, route }) {
   const catScale = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
+    // AI 분석 후 감정 반영
+    if (serverId && content) {
+      analyzeNote(serverId, content).then(async () => {
+        const notes = await getCachedNotes();
+        const note = notes.find(n => String(n._serverId) === String(serverId));
+        const emotion = note?.emotion;
+        if (emotion && EMOTION_CAT[emotion]) {
+          setCatEmoji(EMOTION_CAT[emotion]);
+          setEmotionLabel(EMOTION_LABEL[emotion] ?? null);
+        }
+      }).catch(() => {});
+    }
+  }, []);
     // Rice emoji bounce
     Animated.loop(
       Animated.sequence([
@@ -95,9 +123,15 @@ export default function WriteCompleteScreen({ navigation, route }) {
         <Animated.View style={[styles.catCircle, { transform: [{ scale: catScale }] }]}>
           <View style={styles.catGlow} />
           <View style={styles.catInner}>
-            <Text style={styles.catEmoji}>😸</Text>
+            <Text style={styles.catEmoji}>{catEmoji}</Text>
           </View>
         </Animated.View>
+
+        {emotionLabel && (
+          <View style={styles.emotionBadge}>
+            <Text style={styles.emotionBadgeText}>{emotionLabel}</Text>
+          </View>
+        )}
 
         {/* Progress card */}
         <View style={styles.progressCard}>
@@ -233,6 +267,20 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: C.outline,
     textAlign: 'center',
+  },
+
+  // Emotion badge
+  emotionBadge: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 99,
+    backgroundColor: 'rgba(255,216,190,0.6)',
+    marginTop: -8,
+  },
+  emotionBadgeText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: C.primary,
   },
 
   // Home button
