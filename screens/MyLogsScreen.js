@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import {
   StyleSheet, Text, View, TouchableOpacity,
-  FlatList, Platform,
+  FlatList, Platform, Alert, Modal, TextInput, KeyboardAvoidingView,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -39,17 +39,39 @@ function formatTime(ts) {
 
 // ── Diary item ────────────────────────────────────────────────────────────────
 
-function DiaryItem({ item }) {
+function DiaryItem({ item, onDelete, onEdit }) {
   const { t } = useTranslation();
-  const { catName } = useCatName();
-  const preview = (item.content || item.title || '').slice(0, 90);
   const isPrivate = item.visibility !== 'friends';
 
+  const showMenu = () => {
+    Alert.alert(
+      formatDate(item.timestamp),
+      undefined,
+      [
+        { text: 'Edit', onPress: () => onEdit(item) },
+        { text: 'Delete', style: 'destructive', onPress: () => {
+          Alert.alert('Delete this entry?', undefined, [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Delete', style: 'destructive', onPress: () => onDelete(item.id) },
+          ]);
+        }},
+        { text: 'Cancel', style: 'cancel' },
+      ]
+    );
+  };
+
+  const preview = (item.content || item.title || '').slice(0, 90);
+
   return (
-    <View style={S.item}>
+    <TouchableOpacity style={S.item} onLongPress={showMenu} activeOpacity={0.85}>
       <View style={S.itemHeader}>
         <Text style={S.itemDate}>{formatDate(item.timestamp)}</Text>
-        <Text style={S.itemTime}>{formatTime(item.timestamp)}</Text>
+        <View style={S.itemHeaderRight}>
+          <Text style={S.itemTime}>{formatTime(item.timestamp)}</Text>
+          <TouchableOpacity onPress={showMenu} hitSlop={8}>
+            <Ionicons name="ellipsis-horizontal" size={16} color={C.outlineVariant} />
+          </TouchableOpacity>
+        </View>
       </View>
       {preview ? (
         <Text style={S.itemPreview} numberOfLines={2}>{preview}</Text>
@@ -69,7 +91,7 @@ function DiaryItem({ item }) {
           </View>
         )}
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 
@@ -81,16 +103,37 @@ export default function MyLogsScreen({ navigation }) {
   const insets = useSafeAreaInsets();
   const [diaries, setDiaries] = useState([]);
   const [loaded, setLoaded] = useState(false);
+  const [editItem, setEditItem] = useState(null);
+  const [editText, setEditText] = useState('');
 
   useFocusEffect(useCallback(() => {
     AsyncStorage.getItem('diaries').then(raw => {
       const all = raw ? JSON.parse(raw) : [];
-      // Newest first
       all.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
       setDiaries(all);
       setLoaded(true);
     });
   }, []));
+
+  const handleDelete = async (id) => {
+    const updated = diaries.filter(d => d.id !== id);
+    setDiaries(updated);
+    await AsyncStorage.setItem('diaries', JSON.stringify(updated));
+  };
+
+  const handleEdit = (item) => {
+    setEditItem(item);
+    setEditText(item.content || item.title || '');
+  };
+
+  const handleSaveEdit = async () => {
+    const updated = diaries.map(d =>
+      d.id === editItem.id ? { ...d, content: editText } : d
+    );
+    setDiaries(updated);
+    await AsyncStorage.setItem('diaries', JSON.stringify(updated));
+    setEditItem(null);
+  };
 
   return (
     <View style={S.root}>
@@ -140,10 +183,39 @@ export default function MyLogsScreen({ navigation }) {
               <Text style={S.emptyText}>{t('meow.myLogs.empty')}</Text>
             </View>
           )}
-          renderItem={({ item }) => <DiaryItem item={item} />}
+          renderItem={({ item }) => (
+            <DiaryItem item={item} onDelete={handleDelete} onEdit={handleEdit} />
+          )}
           ItemSeparatorComponent={() => <View style={S.separator} />}
         />
       </SafeAreaView>
+
+      {/* Edit Modal */}
+      <Modal visible={!!editItem} animationType="slide" transparent>
+        <KeyboardAvoidingView
+          style={S.modalOverlay}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+          <View style={S.modalBox}>
+            <Text style={S.modalTitle}>{editItem ? formatDate(editItem.timestamp) : ''}</Text>
+            <TextInput
+              style={S.modalInput}
+              value={editText}
+              onChangeText={setEditText}
+              multiline
+              autoFocus
+            />
+            <View style={S.modalActions}>
+              <TouchableOpacity style={S.modalCancel} onPress={() => setEditItem(null)}>
+                <Text style={S.modalCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={S.modalSave} onPress={handleSaveEdit}>
+                <Text style={S.modalSaveText}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </View>
   );
 }
@@ -187,7 +259,8 @@ const S = StyleSheet.create({
     shadowColor: C.primary, shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04, shadowRadius: 4, elevation: 1,
   },
-  itemHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  itemHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
+  itemHeaderRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   itemDate: { fontSize: 12, fontWeight: '600', color: C.onSurfaceVariant },
   itemTime: { fontSize: 12, color: C.outlineVariant },
   itemPreview: { fontSize: 15, color: C.onSurface, lineHeight: 22 },
@@ -203,6 +276,24 @@ const S = StyleSheet.create({
   badgeTextPublic: { color: C.secondary },
 
   separator: { height: 10 },
+
+  // Edit modal
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
+  modalBox: {
+    backgroundColor: C.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24,
+    padding: 24, gap: 16,
+  },
+  modalTitle: { fontSize: 13, fontWeight: '600', color: C.onSurfaceVariant },
+  modalInput: {
+    backgroundColor: C.surfaceContainerLow, borderRadius: 14,
+    padding: 14, fontSize: 15, color: C.onSurface, minHeight: 140,
+    textAlignVertical: 'top',
+  },
+  modalActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 10 },
+  modalCancel: { paddingHorizontal: 18, paddingVertical: 10, borderRadius: 99 },
+  modalCancelText: { fontSize: 14, color: C.outline, fontWeight: '500' },
+  modalSave: { paddingHorizontal: 22, paddingVertical: 10, borderRadius: 99, backgroundColor: C.primary },
+  modalSaveText: { fontSize: 14, color: '#fff', fontWeight: '700' },
 
   // Empty state
   empty: { alignItems: 'center', paddingTop: 60, gap: 16 },
