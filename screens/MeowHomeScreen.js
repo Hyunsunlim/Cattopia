@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { useInviteFriend } from '../hooks/useInviteFriend';
 import { APP_NAME } from '../constants/appConfig';
 import { InviteToast } from '../components/InviteFriendUI';
-import { fetchFriends } from '../services/friends';
+import { fetchFriends, getCachedFriends } from '../services/friends';
 import { fetchNotes, getCachedNotes } from '../services/notes';
 import { useCatName } from '../context/CatNameContext';
 
@@ -51,6 +51,7 @@ export default function MeowHomeScreen({ navigation }) {
     useCallback(() => {
       // 캐시로 먼저 즉시 렌더, 그다음 서버 동기화
       getCachedNotes().then(cached => { if (cached.length) applyDiaries(cached); });
+      getCachedFriends().then(cached => { if (cached.length) setFriends(cached); });
       loadData();
     }, [])
   );
