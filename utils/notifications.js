@@ -192,8 +192,8 @@ export async function scheduleWeeklyReportNotification() {
   const catName = await getCatName();
   const id = await Notifications.scheduleNotificationAsync({
     content: {
-      title: '이번 주 리포트가 준비됐어요 📊',
-      body: `${catName}와 함께한 이번 주를 돌아봐요`,
+      title: APP_NAME,
+      body: `Your weekly report is ready 📊 See how ${catName} grew this week`,
       sound: true,
       data: { type: 'weekly-report' },
     },
