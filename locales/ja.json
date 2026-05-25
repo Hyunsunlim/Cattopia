@@ -278,6 +278,7 @@
   "meow": {
     "home": {
       "dailyRitual": "デイリールーティン 🍚",
+      "fedTitle": "{{catName}}は今日幸せです 🐾\nもうお話を書いてくれましたね！",
       "waitingTitle": "ニャー！{{catName}}が今日の\nお話を待っています。",
       "remainingStories": "成猫まであと{{n}}話",
       "grownUp": "大人の猫になりました 🎉",

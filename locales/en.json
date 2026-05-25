@@ -278,6 +278,7 @@
   "meow": {
     "home": {
       "dailyRitual": "Daily Ritual 🍚",
+      "fedTitle": "{{catName}} is happy today 🐾\nYou already wrote your story!",
       "waitingTitle": "Meow! {{catName}} is waiting\nfor your story today.",
       "remainingStories": "{{n}} more stories until adulthood",
       "grownUp": "Your cat has grown up 🎉",
