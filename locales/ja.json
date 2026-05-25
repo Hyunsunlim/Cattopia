@@ -322,7 +322,10 @@
       "invite": "友達を招待する →",
       "inviteMessage": "一緒に猫を育てよう！ 🐱\nMeowアプリで毎日お話を書くと猫が育ちます。",
       "donationTitle": "猫が完成しました！",
-      "donationSub": "寄付で実際の猫も助けてあげましょう"
+      "donationSub": "寄付で実際の猫も助けてあげましょう",
+      "headerSub": "一緒に育てています",
+      "growTitle": "一緒に育てよう",
+      "growSub": "友達を招待して猫を一緒に育てましょう"
     },
     "myLogs": {
       "title": "マイログ",

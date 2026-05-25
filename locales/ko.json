@@ -322,7 +322,10 @@
       "invite": "친구 초대하기 →",
       "inviteMessage": "함께 고양이를 키워봐요! 🐱\nMeow 앱에서 매일 이야기를 쓰면 고양이가 자라요.",
       "donationTitle": "고양이를 완성했어요!",
-      "donationSub": "유기묘 후원으로 실제 고양이도 도와줘요"
+      "donationSub": "유기묘 후원으로 실제 고양이도 도와줘요",
+      "headerSub": "함께 키우는 중",
+      "growTitle": "함께 키워봐요",
+      "growSub": "친구를 초대하고 고양이를 함께 키워봐요"
     },
     "myLogs": {
       "title": "My Logs",

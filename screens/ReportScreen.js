@@ -9,6 +9,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import { useCatName } from '../context/CatNameContext';
 
 const C = {
   primary: '#755844',
@@ -30,7 +31,6 @@ const C = {
 
 const SERIF = Platform.OS === 'ios' ? 'Georgia' : 'serif';
 const TOTAL_STORIES = 66;
-const CAT_NAME = 'Choco';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -97,6 +97,7 @@ function generateHeadlineKey(thisWeek, streak, allDiaries) {
 
 export default function ReportScreen({ navigation }) {
   const { t } = useTranslation();
+  const { catName } = useCatName();
   const insets = useSafeAreaInsets();
   const [diaries, setDiaries] = useState([]);
   const [loaded, setLoaded] = useState(false);
@@ -121,7 +122,7 @@ export default function ReportScreen({ navigation }) {
   const thisLabel = getWeekLabel(w0s);
   const lastLabel = getWeekLabel(w1s);
   const headlineKey = generateHeadlineKey(thisWeek, streak, diaries);
-  const headline = t(`meow.report.${headlineKey}`, { catName: CAT_NAME });
+  const headline = t(`meow.report.${headlineKey}`, { catName: catName });
 
   // Week-over-week change
   const weekDelta = thisWeek.length - lastWeek.length;
@@ -162,7 +163,7 @@ export default function ReportScreen({ navigation }) {
             <Text style={S.headline}>{headline}</Text>
             <View style={S.summaryFooter}>
               <View style={S.catIcon}><Text style={{ fontSize: 20 }}>🐱</Text></View>
-              <Text style={S.footerText}>{t('meow.report.catFooter', { catName: CAT_NAME })}</Text>
+              <Text style={S.footerText}>{t('meow.report.catFooter', { catName: catName })}</Text>
             </View>
           </View>
 
@@ -186,14 +187,14 @@ export default function ReportScreen({ navigation }) {
             <View style={S.statCard}>
               <Text style={S.statEmoji}>🐾</Text>
               <Text style={S.statValue}>{total}<Text style={S.statUnit}>/{TOTAL_STORIES}</Text></Text>
-              <Text style={S.statLabel}>{t('meow.report.catGrowth', { catName: CAT_NAME })}</Text>
+              <Text style={S.statLabel}>{t('meow.report.catGrowth', { catName: catName })}</Text>
             </View>
           </View>
 
           {/* Progress bar */}
           <View style={S.progressCard}>
             <View style={S.progressHeader}>
-              <Text style={S.progressLabel}>{CAT_NAME}의 성장</Text>
+              <Text style={S.progressLabel}>{catName}의 성장</Text>
               <Text style={S.progressPct}>{Math.round(progress * 100)}%</Text>
             </View>
             <View style={S.progressTrack}>

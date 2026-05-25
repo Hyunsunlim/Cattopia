@@ -322,7 +322,10 @@
       "invite": "Invite a Friend →",
       "inviteMessage": "Let's raise a cat together! 🐱\nWrite daily stories in Meow and watch your cat grow.",
       "donationTitle": "Your cat has grown up!",
-      "donationSub": "Help real cats through our donation program"
+      "donationSub": "Help real cats through our donation program",
+      "headerSub": "Growing together",
+      "growTitle": "Grow together",
+      "growSub": "Invite a friend and raise cats together"
     },
     "myLogs": {
       "title": "My Logs",

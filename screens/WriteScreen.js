@@ -15,6 +15,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { trackWriteEntry } from '../services/analytics';
+import { useCatName } from '../context/CatNameContext';
 
 const C = {
   primary: '#755844',
@@ -32,7 +33,6 @@ const C = {
   orange: '#f97316',
 };
 
-const CAT_NAME = 'Choco';
 const WEEKDAYS_KO = ['일', '월', '화', '수', '목', '금', '토'];
 
 function formatDate(date) {
@@ -41,6 +41,7 @@ function formatDate(date) {
 
 export default function WriteScreen({ navigation }) {
   const { t } = useTranslation();
+  const { catName } = useCatName();
   const insets = useSafeAreaInsets();
   const [content, setContent] = useState('');
   const [visibility, setVisibility] = useState('private');

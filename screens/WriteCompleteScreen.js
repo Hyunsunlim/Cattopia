@@ -9,6 +9,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useTranslation } from 'react-i18next';
+import { useCatName } from '../context/CatNameContext';
 
 const C = {
   primary: '#755844',
@@ -26,10 +27,10 @@ const C = {
 };
 
 const TOTAL_STORIES = 66;
-const CAT_NAME = 'Choco';
 
 export default function WriteCompleteScreen({ navigation, route }) {
   const { t } = useTranslation();
+  const { catName } = useCatName();
   const count = route?.params?.count ?? 1;
   const remaining = Math.max(0, TOTAL_STORIES - count);
   const progress = Math.min(1, count / TOTAL_STORIES);
@@ -86,8 +87,8 @@ export default function WriteCompleteScreen({ navigation, route }) {
 
         {/* Heading */}
         <View style={styles.headingBlock}>
-          <Text style={styles.heading}>{t('meow.complete.heading', { catName: CAT_NAME })}</Text>
-          <Text style={styles.subheading}>{t('meow.complete.subheading', { catName: CAT_NAME })}</Text>
+          <Text style={styles.heading}>{t('meow.complete.heading', { catName: catName })}</Text>
+          <Text style={styles.subheading}>{t('meow.complete.subheading', { catName: catName })}</Text>
         </View>
 
         {/* Cat circle */}
@@ -101,7 +102,7 @@ export default function WriteCompleteScreen({ navigation, route }) {
         {/* Progress card */}
         <View style={styles.progressCard}>
           <View style={styles.progressCardHeader}>
-            <Text style={styles.progressCardTitle}>{t('meow.complete.catGrowth', { catName: CAT_NAME })}</Text>
+            <Text style={styles.progressCardTitle}>{t('meow.complete.catGrowth', { catName: catName })}</Text>
             <Text style={styles.progressCardCount}>{count} / {TOTAL_STORIES} 🐾</Text>
           </View>
 
@@ -112,7 +113,7 @@ export default function WriteCompleteScreen({ navigation, route }) {
           <Text style={styles.progressNote}>
             {remaining > 0
               ? t('meow.complete.remaining', { n: remaining })
-              : t('meow.complete.grownUp', { catName: CAT_NAME })}
+              : t('meow.complete.grownUp', { catName: catName })}
           </Text>
         </View>
 

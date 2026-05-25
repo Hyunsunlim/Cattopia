@@ -322,7 +322,10 @@
       "invite": "邀請朋友 →",
       "inviteMessage": "一起養貓吧！ 🐱\n在Meow每天寫故事，看貓咪成長。",
       "donationTitle": "貓咪養成了！",
-      "donationSub": "透過捐款幫助真實的流浪貓"
+      "donationSub": "透過捐款幫助真實的流浪貓",
+      "headerSub": "一起養育中",
+      "growTitle": "一起養育吧",
+      "growSub": "邀請朋友一起養貓吧"
     },
     "myLogs": {
       "title": "我的日誌",

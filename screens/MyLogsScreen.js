@@ -9,6 +9,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import { useCatName } from '../context/CatNameContext';
 
 const C = {
   primary: '#755844',
@@ -40,6 +41,7 @@ function formatTime(ts) {
 
 function DiaryItem({ item }) {
   const { t } = useTranslation();
+  const { catName } = useCatName();
   const preview = (item.content || item.title || '').slice(0, 90);
   const isPrivate = item.visibility !== 'friends';
 
@@ -57,7 +59,7 @@ function DiaryItem({ item }) {
       <View style={S.itemFooter}>
         <View style={[S.badge, isPrivate ? S.badgePrivate : S.badgePublic]}>
           <Text style={[S.badgeText, isPrivate ? S.badgeTextPrivate : S.badgeTextPublic]}>
-            {isPrivate ? t('meow.myLogs.privateLabel', { catName: CAT_NAME }) : t('meow.myLogs.friendsLabel')}
+            {isPrivate ? t('meow.myLogs.privateLabel', { catName: catName }) : t('meow.myLogs.friendsLabel')}
           </Text>
         </View>
         {item.emotion && item.emotion !== 'neutral' && (
@@ -70,10 +72,9 @@ function DiaryItem({ item }) {
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 
-const CAT_NAME = 'Choco';
-
 export default function MyLogsScreen({ navigation }) {
   const { t } = useTranslation();
+  const { catName } = useCatName();
   const insets = useSafeAreaInsets();
   const [diaries, setDiaries] = useState([]);
   const [loaded, setLoaded] = useState(false);
@@ -123,7 +124,7 @@ export default function MyLogsScreen({ navigation }) {
             >
               <View style={S.reportCardLeft}>
                 <Text style={S.reportBadge}>{t('meow.myLogs.reportBadge')}</Text>
-                <Text style={S.reportTitle}>{t('meow.myLogs.reportTitle', { catName: CAT_NAME })}</Text>
+                <Text style={S.reportTitle}>{t('meow.myLogs.reportTitle', { catName: catName })}</Text>
               </View>
               <View style={S.reportArrow}>
                 <Ionicons name="chevron-forward" size={20} color={C.secondary} />
