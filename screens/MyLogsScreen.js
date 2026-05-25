@@ -103,7 +103,7 @@ function DiaryItem({ item, onDelete, onEdit }) {
           </View>
         ) : (
           <View style={[S.badge, S.badgeNeutral]}>
-            <Text style={[S.badgeText, S.badgeTextNeutral]}>· analyzing</Text>
+            <Text style={[S.badgeText, S.badgeTextNeutral]}>· analysis failed</Text>
           </View>
         )}
       </View>
