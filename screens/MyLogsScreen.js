@@ -28,6 +28,22 @@ const C = {
 const SERIF = Platform.OS === 'ios' ? 'Georgia' : 'serif';
 const WEEKDAYS_KO = ['일', '월', '화', '수', '목', '금', '토'];
 
+const EMOTION_EMOJI = {
+  joy: '😊',
+  happiness: '😊',
+  sadness: '🌧️',
+  sad: '🌧️',
+  anger: '😤',
+  angry: '😤',
+  fear: '😨',
+  surprise: '😮',
+  disgust: '😣',
+  calm: '😌',
+  anxiety: '😰',
+  love: '🥰',
+  neutral: '·',
+};
+
 function formatDate(ts) {
   const d = new Date(ts);
   return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일 ${WEEKDAYS_KO[d.getDay()]}요일`;
@@ -81,13 +97,13 @@ function DiaryItem({ item, onDelete, onEdit }) {
       <View style={S.itemFooter}>
         {item.emotion && item.emotion !== 'neutral' ? (
           <View style={[S.badge, S.badgePrivate]}>
-            <Text style={[S.badgeText, S.badgeTextPrivate]}>{item.emotion}</Text>
+            <Text style={[S.badgeText, S.badgeTextPrivate]}>
+              {EMOTION_EMOJI[item.emotion] ?? '✨'} {item.emotion}
+            </Text>
           </View>
         ) : (
-          <View style={[S.badge, isPrivate ? S.badgePrivate : S.badgePublic]}>
-            <Text style={[S.badgeText, isPrivate ? S.badgeTextPrivate : S.badgeTextPublic]}>
-              {isPrivate ? '🔒 only me' : '👥 Friends'}
-            </Text>
+          <View style={[S.badge, S.badgeNeutral]}>
+            <Text style={[S.badgeText, S.badgeTextNeutral]}>· analyzing</Text>
           </View>
         )}
       </View>
@@ -271,9 +287,11 @@ const S = StyleSheet.create({
   badge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 99 },
   badgePrivate: { backgroundColor: 'rgba(255,216,190,0.4)' },
   badgePublic: { backgroundColor: 'rgba(188,233,217,0.4)' },
+  badgeNeutral: { backgroundColor: 'rgba(211,196,187,0.25)' },
   badgeText: { fontSize: 11, fontWeight: '600' },
   badgeTextPrivate: { color: C.primary },
   badgeTextPublic: { color: C.secondary },
+  badgeTextNeutral: { color: C.outlineVariant },
 
   separator: { height: 10 },
 
