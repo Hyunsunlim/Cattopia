@@ -342,7 +342,9 @@
       "empty": "まだお話がありません。\n今日初めてのお話を書いてみよう！",
       "privateLabel": "🐱 {{catName}}だけ",
       "friendsLabel": "👥 友達に公開",
-      "noContent": "（内容なし）"
+      "noContent": "（内容なし）",
+      "deleteTitle": "この日記を削除しますか？",
+      "deleteMessage": "削除すると元に戻せません。"
     },
     "report": {
       "title": "週間レポート",

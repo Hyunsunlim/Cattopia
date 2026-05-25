@@ -64,14 +64,14 @@ function DiaryItem({ item, onDelete, onEdit }) {
       formatDate(item.timestamp),
       undefined,
       [
-        { text: 'Edit', onPress: () => onEdit(item) },
-        { text: 'Delete', style: 'destructive', onPress: () => {
-          Alert.alert('Delete this entry?', undefined, [
-            { text: 'Cancel', style: 'cancel' },
-            { text: 'Delete', style: 'destructive', onPress: () => onDelete(item.id) },
+        { text: t('common.edit'), onPress: () => onEdit(item) },
+        { text: t('common.delete'), style: 'destructive', onPress: () => {
+          Alert.alert(t('meow.myLogs.deleteTitle'), t('meow.myLogs.deleteMessage'), [
+            { text: t('common.cancel'), style: 'cancel' },
+            { text: t('common.delete'), style: 'destructive', onPress: () => onDelete(item.id) },
           ]);
         }},
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
       ]
     );
   };
@@ -223,10 +223,10 @@ export default function MyLogsScreen({ navigation }) {
             />
             <View style={S.modalActions}>
               <TouchableOpacity style={S.modalCancel} onPress={() => setEditItem(null)}>
-                <Text style={S.modalCancelText}>Cancel</Text>
+                <Text style={S.modalCancelText}>{t('common.cancel')}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={S.modalSave} onPress={handleSaveEdit}>
-                <Text style={S.modalSaveText}>Save</Text>
+                <Text style={S.modalSaveText}>{t('common.save')}</Text>
               </TouchableOpacity>
             </View>
           </View>

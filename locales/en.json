@@ -342,7 +342,9 @@
       "empty": "No stories yet.\nTell your first story today!",
       "privateLabel": "🐱 {{catName}} only",
       "friendsLabel": "👥 Friends",
-      "noContent": "(no content)"
+      "noContent": "(no content)",
+      "deleteTitle": "Delete this entry?",
+      "deleteMessage": "This action cannot be undone."
     },
     "report": {
       "title": "Weekly Report",

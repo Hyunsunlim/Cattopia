@@ -342,7 +342,9 @@
       "empty": "還沒有故事。\n今天來寫第一篇吧！",
       "privateLabel": "🐱 只有{{catName}}",
       "friendsLabel": "👥 朋友可見",
-      "noContent": "（無內容）"
+      "noContent": "（無內容）",
+      "deleteTitle": "刪除這篇日記？",
+      "deleteMessage": "刪除後無法復原。"
     },
     "report": {
       "title": "週報",

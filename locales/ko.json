@@ -342,7 +342,9 @@
       "empty": "아직 쓴 이야기가 없어요.\n오늘 첫 이야기를 들려줘요!",
       "privateLabel": "🐱 {{catName}}만",
       "friendsLabel": "👥 친구 공개",
-      "noContent": "(내용 없음)"
+      "noContent": "(내용 없음)",
+      "deleteTitle": "이 일기를 삭제할까요?",
+      "deleteMessage": "삭제하면 되돌릴 수 없어요."
     },
     "report": {
       "title": "이번 주 리포트",
