@@ -16,6 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { trackWriteEntry } from '../services/analytics';
 import { useCatName } from '../context/CatNameContext';
+import { createNote } from '../services/notes';
 
 const C = {
   primary: '#755844',
@@ -54,17 +55,17 @@ export default function WriteScreen({ navigation }) {
     if (!canSave || saving) return;
     setSaving(true);
     try {
-      const raw = await AsyncStorage.getItem('diaries');
-      const all = raw ? JSON.parse(raw) : [];
       const entry = {
         id: Date.now().toString(),
         content: content.trim(),
         timestamp: today.toISOString(),
         emotion: 'neutral',
       };
-      await AsyncStorage.setItem('diaries', JSON.stringify([entry, ...all]));
+      await createNote(entry);
       trackWriteEntry();
-      navigation.replace('WriteComplete', { count: all.length + 1 });
+      const raw = await AsyncStorage.getItem('diaries');
+      const all = raw ? JSON.parse(raw) : [];
+      navigation.replace('WriteComplete', { count: all.length });
     } catch (e) {
       console.error('WriteScreen save error:', e);
     } finally {
