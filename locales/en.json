@@ -330,7 +330,9 @@
       "waitingAccept": "Waiting to accept",
       "invitedStatus": "Invited you",
       "today": "Today",
-      "daysAgo": "{{n}}d ago"
+      "daysAgo": "{{n}}d ago",
+      "disconnectTitle": "Remove friend",
+      "disconnectMessage": "Are you sure you want to remove this friend?"
     },
     "myLogs": {
       "title": "My Logs",

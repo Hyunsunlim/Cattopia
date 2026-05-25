@@ -330,7 +330,9 @@
       "waitingAccept": "等待接受",
       "invitedStatus": "邀請了你",
       "today": "今天",
-      "daysAgo": "{{n}}天前"
+      "daysAgo": "{{n}}天前",
+      "disconnectTitle": "移除朋友",
+      "disconnectMessage": "確定要移除這位朋友嗎？"
     },
     "myLogs": {
       "title": "我的日誌",

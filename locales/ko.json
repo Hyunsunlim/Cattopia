@@ -330,7 +330,9 @@
       "waitingAccept": "수락 대기 중",
       "invitedStatus": "초대를 보냈어요",
       "today": "오늘",
-      "daysAgo": "{{n}}일 전"
+      "daysAgo": "{{n}}일 전",
+      "disconnectTitle": "친구 삭제",
+      "disconnectMessage": "이 친구를 삭제하시겠어요?"
     },
     "myLogs": {
       "title": "My Logs",

@@ -330,7 +330,9 @@
       "waitingAccept": "承認待ち",
       "invitedStatus": "招待されました",
       "today": "今日",
-      "daysAgo": "{{n}}日前"
+      "daysAgo": "{{n}}日前",
+      "disconnectTitle": "友達を削除",
+      "disconnectMessage": "この友達を削除しますか？"
     },
     "myLogs": {
       "title": "マイログ",
