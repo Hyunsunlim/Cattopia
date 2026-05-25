@@ -71,6 +71,8 @@ export default function WriteCompleteScreen({ navigation, route }) {
       }).catch(() => {});
     }
   }, []);
+
+  useEffect(() => {
     // Rice emoji bounce
     Animated.loop(
       Animated.sequence([
