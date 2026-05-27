@@ -1134,7 +1134,7 @@ export default function InsightScreen({ navigation }) {
                           }} />
                           <Text style={{ fontSize: 11, fontWeight: '600', color: theme.secondaryText }}>{d.label}</Text>
                           <Text style={{ fontSize: 9, color: theme.tertiaryText }}>
-                            {d.count > 0 ? `${d.count}회` : ''}
+                            {d.count > 0 ? `×${d.count}` : ''}
                           </Text>
                         </View>
                       );
@@ -2021,7 +2021,7 @@ export default function InsightScreen({ navigation }) {
                   <View style={{ gap: 16, paddingVertical: 4 }}>
                     {depthItems.map(({ label, sublabel, pct, color }) => (
                       <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                        <Text style={{ width: 28, fontSize: 13, fontWeight: '600', color: theme.accent }}>{label}</Text>
+                        <Text style={{ width: 64, fontSize: 12, fontWeight: '600', color: theme.accent }}>{label}</Text>
                         <View style={{ flex: 1, height: 40, backgroundColor: theme.border, borderRadius: 8, overflow: 'hidden' }}>
                           <View style={{ width: `${Math.max(pct, 8)}%`, height: '100%', backgroundColor: color, justifyContent: 'center', paddingLeft: 12 }}>
                             {pct >= 15 && <Text style={{ fontSize: 12, fontWeight: '600', color: '#fff' }}>{sublabel}</Text>}
@@ -2041,7 +2041,7 @@ export default function InsightScreen({ navigation }) {
 
         {/* ── 3. 세상을 어떻게 보나요? — pentagon ── */}
         {(() => {
-          const CX = 180, CY = 160, R = 95, LR = 122;
+          const CX = 190, CY = 160, R = 95, LR = 115;
           const lensAll = getLanguageLensData('all');
           const thinkingAll = getThinkingTypeData('all');
           const hasData = lensAll || thinkingAll;
@@ -2075,7 +2075,7 @@ export default function InsightScreen({ navigation }) {
               <Text style={styles.sectionSubtitle}>{t('meow.insight.allAvg')}</Text>
               <View style={styles.card}>
                 {hasData ? (
-                  <Svg width="100%" height={320} viewBox="0 0 360 320">
+                  <Svg width="100%" height={320} viewBox="-10 0 390 320">
                     {[0.25, 0.5, 0.75, 1.0].map(v => (
                       <Polygon key={v} points={gridStr(v)} fill="none" stroke={theme.border} strokeWidth="1" />
                     ))}
@@ -2168,7 +2168,7 @@ export default function InsightScreen({ navigation }) {
             <Ionicons name="analytics-outline" size={20} color={theme.accent} />
             <Text style={styles.sectionTitle}>{t('insight.layerDepth')}</Text>
           </View>
-          <Text style={styles.sectionSubtitle}>최근 7편 기준</Text>
+          <Text style={styles.sectionSubtitle}>{t('meow.insight.last7')}</Text>
           <View style={styles.card}>
             {/* Legend */}
             <View style={[styles.chartLegend, { marginBottom: 16 }]}>
@@ -2220,7 +2220,7 @@ export default function InsightScreen({ navigation }) {
             <Ionicons name="library-outline" size={20} color={theme.accent} />
             <Text style={styles.sectionTitle}>{t('insight.vocabDensity')}</Text>
           </View>
-          <Text style={styles.sectionSubtitle}>최근 7편 기준</Text>
+          <Text style={styles.sectionSubtitle}>{t('meow.insight.last7')}</Text>
           <View style={styles.card}>
             <View style={{ position: 'relative' }}>
               <BarChart
@@ -2287,39 +2287,7 @@ export default function InsightScreen({ navigation }) {
             </View>
           );
 
-          return (
-            <>
-              <View style={styles.section}>
-                <View style={styles.cardHeader}>
-                  <Ionicons name="sparkles-outline" size={20} color={theme.accent} />
-                  <Text style={styles.sectionTitle}>How concrete was my thinking today?</Text>
-                </View>
-                <View style={styles.card}>
-                  <Row label="Causal"        words={thinkingKw.causal_reasoning} bg="#EBF4FF" color="#2D7DD2" />
-                  <View style={[kwS.divider, { backgroundColor: theme.border }]} />
-                  <Row label="Interpretation" words={thinkingKw.interpretation}   bg="#F3E5F5" color="#7B1FA2" />
-                  <View style={[kwS.divider, { backgroundColor: theme.border }]} />
-                  <Row label="Event"          words={thinkingKw.event_listing}    bg="#FCE4EC" color="#C62828" />
-                </View>
-              </View>
-
-              <View style={styles.section}>
-                <View style={styles.cardHeader}>
-                  <Ionicons name="language-outline" size={20} color={theme.accent} />
-                  <Text style={styles.sectionTitle}>How did I see the world today?</Text>
-                </View>
-                <View style={styles.card}>
-                  <Row label="Closed"  words={lensKw.closed}  bg="#FFF3E0" color="#E65100" />
-                  <View style={[kwS.divider, { backgroundColor: theme.border }]} />
-                  <Row label="Rigid"   words={lensKw.rigid}   bg="#FFF8E1" color="#F57F17" />
-                  <View style={[kwS.divider, { backgroundColor: theme.border }]} />
-                  <Row label="Passive" words={lensKw.passive} bg="#F3E5F5" color="#6A1B9A" />
-                  <View style={[kwS.divider, { backgroundColor: theme.border }]} />
-                  <Row label="Open"    words={lensKw.open}    bg="#E8F5E9" color="#2E7D32" />
-                </View>
-              </View>
-            </>
-          );
+          return null;
         })()}
       </>
     );

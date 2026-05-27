@@ -129,38 +129,51 @@ export async function updateNote(serverId, patch) {
   return updated;
 }
 
-export async function analyzeNote(serverId, content) {
+export async function analyzeNote(serverId, content, onEmotion) {
   try {
-    const res = await authFetch(`${BASE_URL}/analyze-note`, {
+    // 두 요청 동시 시작
+    const ePromise = authFetch(`${BASE_URL}/analyze`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text: content }),
     });
-    if (!res.ok) return;
-    const result = await res.json();
+    const fullPromise = authFetch(`${BASE_URL}/analyze-note`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: content }),
+    });
 
-    if (!result.is_diary) {
-      // 짧은 텍스트는 감정만 별도로 분석
-      const eRes = await authFetch(`${BASE_URL}/analyze`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: content }),
-      });
-      if (eRes.ok) {
-        const eResult = await eRes.json();
-        if (eResult.emotion) await updateNote(serverId, { emotion: eResult.emotion });
-      }
-      return;
+    // /analyze 먼저 도착하면 즉시 콜백
+    let emotion = null;
+    const eRes = await ePromise;
+    if (eRes.ok) {
+      const eResult = await eRes.json();
+      emotion = eResult.emotion ?? null;
+      if (emotion) onEmotion?.(emotion);
     }
 
-    await updateNote(serverId, {
-      emotion: result.emotion ?? undefined,
-      structure: result.structure ?? undefined,
-      thinking_type: result.thinking_type ?? undefined,
-      language_lens: result.language_lens ?? undefined,
-    });
+    // /analyze-note는 이미 병렬로 실행 중 — 결과만 기다림
+    const res = await fullPromise;
+    if (res.ok) {
+      const result = await res.json();
+      if (result.emotion && result.emotion !== emotion) {
+        emotion = result.emotion;
+        onEmotion?.(emotion);
+      }
+      await updateNote(serverId, {
+        emotion: emotion ?? undefined,
+        structure: result.structure ?? undefined,
+        thinking_type: result.thinking_type ?? undefined,
+        language_lens: result.language_lens ?? undefined,
+      });
+    } else if (emotion) {
+      await updateNote(serverId, { emotion });
+    }
+
+    return emotion;
   } catch (e) {
     console.warn('analyzeNote error:', e);
+    return null;
   }
 }
 

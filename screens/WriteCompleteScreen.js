@@ -5,12 +5,13 @@ import {
   View,
   TouchableOpacity,
   Animated,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useTranslation } from 'react-i18next';
 import { useCatName } from '../context/CatNameContext';
-import { analyzeNote, getCachedNotes } from '../services/notes';
+import { analyzeNote } from '../services/notes';
 
 const EMOTION_CAT = {
   joy: '😸', neutral: '😺', sadness: '😿',
@@ -49,6 +50,7 @@ export default function WriteCompleteScreen({ navigation, route }) {
 
   const [catEmoji, setCatEmoji] = useState('😸');
   const [emotionLabel, setEmotionLabel] = useState(null);
+  const [analyzing, setAnalyzing] = useState(true);
 
   // Animate progress bar fill
   const barAnim = useRef(new Animated.Value(0)).current;
@@ -58,17 +60,17 @@ export default function WriteCompleteScreen({ navigation, route }) {
   const catScale = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    // AI 분석 후 감정 반영
+    // AI 분석 후 감정 반영 — /analyze 끝나면 즉시 표시, /analyze-note는 백그라운드
     if (serverId && content) {
-      analyzeNote(serverId, content).then(async () => {
-        const notes = await getCachedNotes();
-        const note = notes.find(n => String(n._serverId) === String(serverId));
-        const emotion = note?.emotion;
-        if (emotion && EMOTION_CAT[emotion]) {
+      analyzeNote(serverId, content, (emotion) => {
+        if (EMOTION_CAT[emotion]) {
           setCatEmoji(EMOTION_CAT[emotion]);
           setEmotionLabel(EMOTION_LABEL[emotion] ?? null);
         }
-      }).catch(() => {});
+        setAnalyzing(false);
+      }).catch(() => { setAnalyzing(false); });
+    } else {
+      setAnalyzing(false);
     }
   }, []);
 
@@ -129,11 +131,16 @@ export default function WriteCompleteScreen({ navigation, route }) {
           </View>
         </Animated.View>
 
-        {emotionLabel && (
+        {emotionLabel ? (
           <View style={styles.emotionBadge}>
             <Text style={styles.emotionBadgeText}>{emotionLabel}</Text>
           </View>
-        )}
+        ) : analyzing ? (
+          <View style={styles.analyzingBadge}>
+            <ActivityIndicator size="small" color={C.outline} />
+            <Text style={styles.analyzingText}>analyzing...</Text>
+          </View>
+        ) : null}
 
         {/* Progress card */}
         <View style={styles.progressCard}>
@@ -269,6 +276,22 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: C.outline,
     textAlign: 'center',
+  },
+
+  // Analyzing spinner
+  analyzingBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 99,
+    backgroundColor: C.surfaceContainerLow,
+    marginTop: -8,
+  },
+  analyzingText: {
+    fontSize: 13,
+    color: C.outline,
   },
 
   // Emotion badge

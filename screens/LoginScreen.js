@@ -194,26 +194,36 @@ export default function LoginScreen({ onLogin, onGoToSignup }) {
               <View style={S.dividerLine} />
             </View>
 
-            {/* Google */}
-            <TouchableOpacity
-              style={[S.googleBtn, loading && { opacity: 0.7 }]}
-              onPress={handleGoogleSignIn}
-              disabled={loading}
-              activeOpacity={0.82}
-            >
-              <GoogleIcon />
-              <Text style={S.googleBtnText}>{t('login.googleButton')}</Text>
-            </TouchableOpacity>
-
-            {/* Apple */}
-            {Platform.OS === 'ios' && (
-              <AppleAuthentication.AppleAuthenticationButton
-                buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
-                buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
-                cornerRadius={99}
-                style={S.appleBtn}
-                onPress={handleAppleSignIn}
-              />
+            {/* Social login buttons */}
+            {Platform.OS === 'ios' ? (
+              <View style={S.socialRow}>
+                <TouchableOpacity
+                  style={[S.googleBtn, S.socialHalf, loading && { opacity: 0.7 }]}
+                  onPress={handleGoogleSignIn}
+                  disabled={loading}
+                  activeOpacity={0.82}
+                >
+                  <GoogleIcon />
+                  <Text style={S.googleBtnText}>Google</Text>
+                </TouchableOpacity>
+                <AppleAuthentication.AppleAuthenticationButton
+                  buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+                  buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+                  cornerRadius={99}
+                  style={S.appleHalf}
+                  onPress={handleAppleSignIn}
+                />
+              </View>
+            ) : (
+              <TouchableOpacity
+                style={[S.googleBtn, loading && { opacity: 0.7 }]}
+                onPress={handleGoogleSignIn}
+                disabled={loading}
+                activeOpacity={0.82}
+              >
+                <GoogleIcon />
+                <Text style={S.googleBtnText}>{t('login.googleButton')}</Text>
+              </TouchableOpacity>
             )}
 
             {/* Signup link */}
@@ -315,7 +325,9 @@ const S = StyleSheet.create({
   },
   googleBtnText: { fontSize: 15, fontWeight: '600', color: C.onSurface },
 
-  appleBtn: { height: 52 },
+  socialRow: { flexDirection: 'row', gap: 10 },
+  socialHalf: { flex: 1, height: 52, paddingVertical: 0 },
+  appleHalf: { flex: 1, height: 52 },
 
   // Link
   linkBtn: { alignItems: 'center', marginTop: 6, paddingVertical: 4 },
