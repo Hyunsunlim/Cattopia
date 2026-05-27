@@ -47,11 +47,12 @@ function getWeekBounds(weeksAgo) {
   return { start: monday, end: weeksAgo === 0 ? today : end };
 }
 
-function getWeekLabel(date) {
-  const m = date.getMonth() + 1;
+function getWeekLabel(date, locale) {
+  const lang = (locale || 'en').split('-')[0];
   const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
   const w = Math.ceil((date.getDate() + firstDay.getDay()) / 7);
-  return `${m}월 ${w}주차`;
+  const monthStr = date.toLocaleDateString(lang, { month: 'long' });
+  return lang === 'ko' ? `${monthStr} ${w}주차` : `${monthStr} W${w}`;
 }
 
 function filterByRange(diaries, start, end) {
@@ -96,7 +97,7 @@ function generateHeadlineKey(thisWeek, streak, allDiaries) {
 // ── Screen ────────────────────────────────────────────────────────────────────
 
 export default function ReportScreen({ navigation }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { catName } = useCatName();
   const insets = useSafeAreaInsets();
   const [diaries, setDiaries] = useState([]);
@@ -119,8 +120,8 @@ export default function ReportScreen({ navigation }) {
   const streak = streakDays(diaries);
   const total = diaries.length;
   const progress = Math.min(1, total / TOTAL_STORIES);
-  const thisLabel = getWeekLabel(w0s);
-  const lastLabel = getWeekLabel(w1s);
+  const thisLabel = getWeekLabel(w0s, i18n.language);
+  const lastLabel = getWeekLabel(w1s, i18n.language);
   const headlineKey = generateHeadlineKey(thisWeek, streak, diaries);
   const headline = t(`meow.report.${headlineKey}`, { catName: catName });
 
@@ -194,7 +195,7 @@ export default function ReportScreen({ navigation }) {
           {/* Progress bar */}
           <View style={S.progressCard}>
             <View style={S.progressHeader}>
-              <Text style={S.progressLabel}>{catName}의 성장</Text>
+              <Text style={S.progressLabel}>{t('meow.report.catGrowth', { catName })}</Text>
               <Text style={S.progressPct}>{Math.round(progress * 100)}%</Text>
             </View>
             <View style={S.progressTrack}>

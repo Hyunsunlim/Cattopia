@@ -9,20 +9,35 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import MaskedView from '@react-native-masked-view/masked-view';
 import { useTranslation } from 'react-i18next';
 import { signup, login, saveToken } from '../services/auth';
 import { trackSignUp } from '../services/analytics';
 import { APP_NAME } from '../constants/appConfig';
-import { useTheme } from '../context/ThemeContext';
+
+const C = {
+  primary: '#755844',
+  primaryContainer: '#ffd8be',
+  secondary: '#3d665a',
+  secondaryContainer: '#bce9d9',
+  background: '#fbf9f8',
+  surface: '#ffffff',
+  surfaceContainerLow: '#f6f3f2',
+  surfaceContainer: '#f0eded',
+  onSurface: '#1b1c1c',
+  onSurfaceVariant: '#4f453e',
+  outline: '#81756d',
+  outlineVariant: '#d3c4bb',
+  error: '#ba1a1a',
+  errorContainer: '#ffdad6',
+};
+
+const SERIF = Platform.OS === 'ios' ? 'Georgia' : 'serif';
 
 export default function SignupScreen({ onLogin, onGoToLogin }) {
   const { t } = useTranslation();
-  const theme = useTheme();
-  const styles = getStyles(theme);
 
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -60,166 +75,150 @@ export default function SignupScreen({ onLogin, onGoToLogin }) {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={S.root} edges={['top', 'bottom']}>
       <KeyboardAvoidingView
-        style={styles.inner}
+        style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <View style={styles.logoContainer}>
-          {Platform.OS === 'android' ? (
-            <Text style={[styles.logoText, { color: '#6366f1' }]}>{APP_NAME}</Text>
-          ) : (
-            <MaskedView
-              maskElement={
-                <Text style={styles.logoText}>{APP_NAME}</Text>
-              }
-            >
-              <LinearGradient
-                colors={['#5A6CFF', '#8B3DFF']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-              >
-                <Text style={[styles.logoText, { opacity: 0 }]}>{APP_NAME}</Text>
-              </LinearGradient>
-            </MaskedView>
-          )}
-          <Text style={styles.subtitle}>{t('signup.subtitle')}</Text>
-        </View>
-
-        <View style={styles.form}>
-          {error !== '' && (
-            <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>{error}</Text>
+        <ScrollView
+          contentContainerStyle={S.scroll}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          {/* ── Logo ── */}
+          <View style={S.logoSection}>
+            <View style={S.catWrap}>
+              <View style={S.catGlow} />
+              <View style={S.catCircle}>
+                <Text style={S.catEmoji}>🐱</Text>
+              </View>
             </View>
-          )}
+            <Text style={S.logoText}>{APP_NAME}</Text>
+            <Text style={S.logoSub}>{t('signup.subtitle')}</Text>
+          </View>
 
-          <TextInput
-            style={styles.input}
-            placeholder={t('signup.usernamePlaceholder')}
-            placeholderTextColor={theme.placeholderText}
-            value={username}
-            onChangeText={setUsername}
-            autoCapitalize="none"
-            autoCorrect={false}
-            editable={!loading}
-          />
-
-          <TextInput
-            style={styles.input}
-            placeholder={t('signup.emailPlaceholder')}
-            placeholderTextColor={theme.placeholderText}
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-            editable={!loading}
-          />
-
-          <TextInput
-            style={styles.input}
-            placeholder={t('signup.passwordPlaceholder')}
-            placeholderTextColor={theme.placeholderText}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={true}
-            editable={!loading}
-          />
-
-          <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
-            onPress={handleSignup}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="white" />
-            ) : (
-              <Text style={styles.buttonText}>{t('signup.signupButton')}</Text>
+          {/* ── Form ── */}
+          <View style={S.form}>
+            {error !== '' && (
+              <View style={S.errorBox}>
+                <Text style={S.errorText}>{error}</Text>
+              </View>
             )}
-          </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.linkButton}
-            onPress={onGoToLogin}
-            disabled={loading}
-          >
-            <Text style={styles.linkText}>
-              {t('signup.loginLink')}
-            </Text>
-          </TouchableOpacity>
-        </View>
+            <TextInput
+              style={S.input}
+              placeholder={t('signup.usernamePlaceholder')}
+              placeholderTextColor={C.outlineVariant}
+              value={username}
+              onChangeText={setUsername}
+              autoCapitalize="none"
+              autoCorrect={false}
+              editable={!loading}
+            />
+
+            <TextInput
+              style={S.input}
+              placeholder={t('signup.emailPlaceholder')}
+              placeholderTextColor={C.outlineVariant}
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              editable={!loading}
+            />
+
+            <TextInput
+              style={S.input}
+              placeholder={t('signup.passwordPlaceholder')}
+              placeholderTextColor={C.outlineVariant}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              editable={!loading}
+            />
+
+            <TouchableOpacity
+              style={[S.primaryBtn, loading && { opacity: 0.7 }]}
+              onPress={handleSignup}
+              disabled={loading}
+              activeOpacity={0.85}
+            >
+              {loading
+                ? <ActivityIndicator color="#fff" />
+                : <Text style={S.primaryBtnText}>{t('signup.signupButton')}</Text>
+              }
+            </TouchableOpacity>
+
+            <TouchableOpacity style={S.linkBtn} onPress={onGoToLogin} activeOpacity={0.7}>
+              <Text style={S.linkText}>{t('signup.loginLink')}</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
-const getStyles = (theme) => StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.background,
-  },
-  inner: {
-    flex: 1,
+const S = StyleSheet.create({
+  root: { flex: 1, backgroundColor: C.background },
+  scroll: {
+    flexGrow: 1,
     justifyContent: 'center',
-    paddingHorizontal: 32,
+    paddingHorizontal: 28,
+    paddingVertical: 32,
   },
-  logoContainer: {
-    alignItems: 'center',
-    marginBottom: 48,
+
+  logoSection: { alignItems: 'center', marginBottom: 40 },
+  catWrap: { alignItems: 'center', justifyContent: 'center', width: 130, height: 130, marginBottom: 20 },
+  catGlow: {
+    position: 'absolute',
+    width: 120, height: 120, borderRadius: 60,
+    backgroundColor: 'rgba(255,216,190,0.5)',
   },
+  catCircle: {
+    width: 108, height: 108, borderRadius: 54,
+    backgroundColor: C.surface,
+    borderWidth: 2.5, borderColor: C.surfaceContainer,
+    justifyContent: 'center', alignItems: 'center',
+    shadowColor: C.primary,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12, shadowRadius: 14, elevation: 6,
+  },
+  catEmoji: { fontSize: 52 },
   logoText: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: theme.primaryText,
+    fontFamily: SERIF,
+    fontSize: 34, fontWeight: '700',
+    color: C.onSurface, letterSpacing: -0.5,
   },
-  subtitle: {
-    fontSize: 15,
-    color: theme.secondaryText,
-    marginTop: 8,
+  logoSub: {
+    fontSize: 14, color: C.outline,
+    marginTop: 6, fontStyle: 'italic',
   },
-  form: {
-    gap: 14,
+
+  form: { gap: 12 },
+  errorBox: {
+    backgroundColor: C.errorContainer,
+    padding: 12, borderRadius: 12,
   },
-  errorContainer: {
-    backgroundColor: theme.dangerBackground,
-    padding: 12,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: theme.dangerBorder,
-  },
-  errorText: {
-    color: theme.danger,
-    fontSize: 14,
-    textAlign: 'center',
-  },
+  errorText: { color: C.error, fontSize: 13, textAlign: 'center' },
   input: {
-    backgroundColor: theme.inputBackground,
-    padding: 16,
-    borderRadius: 12,
-    fontSize: 16,
-    color: theme.primaryText,
+    backgroundColor: C.surfaceContainerLow,
+    paddingHorizontal: 16, paddingVertical: 15,
+    borderRadius: 14, fontSize: 15, color: C.onSurface,
+    borderWidth: 1, borderColor: C.outlineVariant,
   },
-  button: {
-    backgroundColor: '#6366f1',
-    padding: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginTop: 4,
+
+  primaryBtn: {
+    backgroundColor: C.primary,
+    paddingVertical: 17, borderRadius: 99,
+    alignItems: 'center', marginTop: 4,
+    shadowColor: C.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2, shadowRadius: 10, elevation: 4,
   },
-  buttonDisabled: {
-    opacity: 0.7,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 17,
-    fontWeight: '600',
-  },
-  linkButton: {
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  linkText: {
-    fontSize: 14,
-    color: theme.secondaryText,
-  },
+  primaryBtnText: { color: '#fff', fontSize: 16, fontWeight: '700', fontFamily: SERIF },
+
+  linkBtn: { alignItems: 'center', marginTop: 6, paddingVertical: 4 },
+  linkText: { fontSize: 14, color: C.secondary, fontWeight: '500' },
 });

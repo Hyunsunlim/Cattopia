@@ -100,7 +100,13 @@
     "analyzingEmotions": "正在分析情緒…",
     "addTag": "新增標籤",
     "previousTags": "之前的標籤",
-    "deleteNote": "刪除筆記"
+    "deleteNote": "刪除筆記",
+    "saveErrorTitle": "請輸入內容",
+    "saveErrorMsg": "儲存前請輸入一些內容。",
+    "deleteConfirmTitle": "刪除筆記",
+    "deleteConfirmMsg": "確定要刪除這則筆記嗎？",
+    "deleteSuccessTitle": "已刪除",
+    "deleteSuccessMsg": "筆記已刪除。"
   },
   "insight": {
     "noteTab": "筆記",
@@ -255,7 +261,23 @@
     "step3Title": "準備就緒！",
     "step3Desc": "開始寫您的筆記吧。AI 設定隨時可以在設定中更改。",
     "getStarted": "開始使用",
-    "policyLink": "隱私政策"
+    "policyLink": "隱私政策",
+    "policyTitle": "隱私政策",
+    "policyClose": "關閉",
+    "screenTitle": "資料與隱私",
+    "aiAnalysisTitle": "AI 情緒分析",
+    "aiEnabledDesc": "傳送文字至 AI 進行分析",
+    "aiDisabledDesc": "裝置內關鍵字分析（本地端）",
+    "aiEnabledAlertTitle": "AI 分析已啟用",
+    "aiEnabledAlertMsg": "使用更準確的情緒偵測。筆記內容將傳送至分析伺服器。",
+    "aiDisabledAlertTitle": "AI 分析已停用",
+    "aiDisabledAlertMsg": "使用本地關鍵字分析。資料將留在您的裝置上。",
+    "inviteSuccessTitle": "成功新增朋友！",
+    "inviteSuccessMessage": "{{name}} 已加入。現在可以看到彼此的進度了。",
+    "inviteConfirm": "確定",
+    "inviteErrorTitle": "邀請失敗",
+    "inviteErrorExpired": "邀請連結已過期，請請朋友重新發送。",
+    "inviteErrorDefault": "發生錯誤，請再試一次。"
   },
   "notifications": {
     "sunday": "週末快結束了 — 今天注意到了什麼？",

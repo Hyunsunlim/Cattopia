@@ -280,9 +280,9 @@ export default function RemindersScreen({ navigation }) {
         {/* ── 주간 리포트 알림 ── */}
         <View style={styles.settingItem}>
           <View style={styles.settingInfo}>
-            <Text style={styles.settingTitle}>주간 리포트 알림</Text>
+            <Text style={styles.settingTitle}>{t('meow.reminders.weeklyReportTitle')}</Text>
             <Text style={styles.settingDescription}>
-              매주 월요일 오전 9시 · 이번 주 리포트 알림
+              {t('meow.reminders.weeklyReportDesc')}
             </Text>
           </View>
           <Switch

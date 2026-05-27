@@ -1039,10 +1039,10 @@ export default function InsightScreen({ navigation }) {
     // 3. 감정 다양성 (기록된 고유 감정 종류 수)
     const uniqueEmotionCount = new Set(diaries.map(d => d.emotion || 'neutral')).size;
     const diversityLabel = uniqueEmotionCount === 0 ? '—'
-      : uniqueEmotionCount <= 2 ? '좁음'
-      : uniqueEmotionCount <= 4 ? '보통'
-      : uniqueEmotionCount <= 6 ? '다양성'
-      : '매우 다양';
+      : uniqueEmotionCount <= 2 ? t('meow.insight.diversityNarrow')
+      : uniqueEmotionCount <= 4 ? t('meow.insight.diversityModerate')
+      : uniqueEmotionCount <= 6 ? t('meow.insight.diversityRich')
+      : t('meow.insight.diversityVeryRich');
 
     return (
       <>
@@ -1054,7 +1054,7 @@ export default function InsightScreen({ navigation }) {
               <Text style={kpiS.cardEmoji}>{dominantEmoji}</Text>
             </View>
             <Text style={[kpiS.cardValue, { color: theme.primaryText }]}>{dominantLabel}</Text>
-            <Text style={[kpiS.cardLabel, { color: theme.secondaryText }]}>지배 감정</Text>
+            <Text style={[kpiS.cardLabel, { color: theme.secondaryText }]}>{t('meow.insight.dominantEmotion')}</Text>
           </View>
 
           {/* 긍정 비율 */}
@@ -1067,7 +1067,7 @@ export default function InsightScreen({ navigation }) {
             <Text style={[kpiS.cardValue, { color: theme.primaryText }]}>
               {positivityRatio !== null ? `${positivityRatio}%` : '—'}
             </Text>
-            <Text style={[kpiS.cardLabel, { color: theme.secondaryText }]}>긍정 비율</Text>
+            <Text style={[kpiS.cardLabel, { color: theme.secondaryText }]}>{t('meow.insight.positivityRate')}</Text>
           </View>
 
           {/* 감정 다양성 */}
@@ -1078,7 +1078,7 @@ export default function InsightScreen({ navigation }) {
               </Text>
             </View>
             <Text style={[kpiS.cardValue, { color: theme.primaryText }]}>{diversityLabel}</Text>
-            <Text style={[kpiS.cardLabel, { color: theme.secondaryText }]}>감정 다양성</Text>
+            <Text style={[kpiS.cardLabel, { color: theme.secondaryText }]}>{t('meow.insight.emotionDiversity')}</Text>
           </View>
         </View>
 
@@ -1109,9 +1109,9 @@ export default function InsightScreen({ navigation }) {
             <View style={styles.section}>
               <View style={styles.cardHeader}>
                 <Ionicons name="calendar-outline" size={20} color={theme.accent} />
-                <Text style={styles.sectionTitle}>요일 패턴</Text>
+                <Text style={styles.sectionTitle}>{t('meow.insight.dayPattern')}</Text>
               </View>
-              <Text style={styles.sectionSubtitle}>요일별 평균 감정 · 전체 기록 기준</Text>
+              <Text style={styles.sectionSubtitle}>{t('meow.insight.dayPatternSub')}</Text>
               <View style={styles.card}>
                 {hasAny ? (
                   <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-around', height: 168, paddingBottom: 2 }}>
@@ -1180,7 +1180,7 @@ export default function InsightScreen({ navigation }) {
             <View style={styles.section}>
               <View style={styles.cardHeader}>
                 <Ionicons name="ellipsis-horizontal-circle-outline" size={20} color={theme.accent} />
-                <Text style={styles.sectionTitle}>감정 분포</Text>
+                <Text style={styles.sectionTitle}>{t('meow.insight.emotionBubble')}</Text>
               </View>
               <View style={[styles.card, { padding: 4 }]}>
                 <Svg width="100%" height={VH} viewBox={`0 0 ${VW} ${VH}`}>
@@ -1958,34 +1958,34 @@ export default function InsightScreen({ navigation }) {
           const allText = diaries.map(d => d.content || '').join(' ');
 
           // 사고 방식
-          let thinking = { emoji: '❓', label: '분석 중', q: '나는 어떻게 생각하나?' };
+          let thinking = { emoji: '❓', label: t('meow.insight.analyzing'), q: t('meow.insight.thinkingQ') };
           if (thinkingAll) {
             const dom = Object.entries(thinkingAll).sort((a,b) => b[1]-a[1])[0][0];
-            if (dom === 'causal_reasoning') thinking = { emoji: '🔗', label: '논리 탐구형', q: '나는 어떻게 생각하나?' };
-            else if (dom === 'interpretation') thinking = { emoji: '💭', label: '의미 해석형', q: '나는 어떻게 생각하나?' };
-            else thinking = { emoji: '📋', label: '사실 기록형', q: '나는 어떻게 생각하나?' };
+            if (dom === 'causal_reasoning') thinking = { emoji: '🔗', label: t('meow.insight.logicalType'), q: t('meow.insight.thinkingQ') };
+            else if (dom === 'interpretation') thinking = { emoji: '💭', label: t('meow.insight.interpretiveType'), q: t('meow.insight.thinkingQ') };
+            else thinking = { emoji: '📋', label: t('meow.insight.narrativeType'), q: t('meow.insight.thinkingQ') };
           }
 
           // 세상을 보는 시선
-          let worldView = { emoji: '❓', label: '분석 중', q: '나는 어떤 눈으로 보나?' };
+          let worldView = { emoji: '❓', label: t('meow.insight.analyzing'), q: t('meow.insight.worldViewQ') };
           if (lensAll) {
             const scores = { open: lensAll.open, 단정: Math.max(lensAll.closed, lensAll.rigid), passive: lensAll.passive };
             const dom = Object.entries(scores).sort((a,b) => b[1]-a[1])[0][0];
-            if (dom === 'open') worldView = { emoji: '🔭', label: '탐색하는', q: '나는 어떤 눈으로 보나?' };
-            else if (dom === '단정') worldView = { emoji: '🧱', label: '단정하는', q: '나는 어떤 눈으로 보나?' };
-            else worldView = { emoji: '🌿', label: '흘려보내는', q: '나는 어떤 눈으로 보나?' };
+            if (dom === 'open') worldView = { emoji: '🔭', label: t('meow.insight.exploringView'), q: t('meow.insight.worldViewQ') };
+            else if (dom === '단정') worldView = { emoji: '🧱', label: t('meow.insight.definitiveView'), q: t('meow.insight.worldViewQ') };
+            else worldView = { emoji: '🌿', label: t('meow.insight.flowingView'), q: t('meow.insight.worldViewQ') };
           }
 
           // 언어 습관 (시제·질문 빈도로 판단)
           const pastCount    = (allText.match(/했|었|았|지난|어제|예전/g) || []).length;
           const futureCount  = (allText.match(/겠|것이다|할 거|앞으로|내일|계획|하려|하고 싶/g) || []).length;
           const questionCount= (allText.match(/\?|일까|않을까|어떨까|할까|ㄹ까/g) || []).length;
-          let langHabit = { emoji: '❓', label: '분석 중', q: '어떤 언어를 쓰나?' };
+          let langHabit = { emoji: '❓', label: t('meow.insight.analyzing'), q: t('meow.insight.langHabitQ') };
           if (pastCount || futureCount || questionCount) {
             const maxVal = Math.max(pastCount, futureCount, questionCount);
-            if (questionCount === maxVal)  langHabit = { emoji: '❓', label: '질문을 던지는 편', q: '어떤 언어를 쓰나?' };
-            else if (futureCount === maxVal) langHabit = { emoji: '🌱', label: '앞을 내다보는 편', q: '어떤 언어를 쓰나?' };
-            else langHabit = { emoji: '🕰️', label: '되돌아보는 편', q: '어떤 언어를 쓰나?' };
+            if (questionCount === maxVal)  langHabit = { emoji: '❓', label: t('meow.insight.questioning'), q: t('meow.insight.langHabitQ') };
+            else if (futureCount === maxVal) langHabit = { emoji: '🌱', label: t('meow.insight.lookingForward'), q: t('meow.insight.langHabitQ') };
+            else langHabit = { emoji: '🕰️', label: t('meow.insight.lookingBack'), q: t('meow.insight.langHabitQ') };
           }
 
           return (
@@ -2004,18 +2004,18 @@ export default function InsightScreen({ navigation }) {
         {/* ── 2. 생각의 깊이 ── */}
         {(() => {
           const depthItems = [
-            { label: '관찰', sublabel: '사실과 상황', pct: structureData.obs, color: '#C8B89A' },
-            { label: '사고', sublabel: '느끼고 해석', pct: structureData.feel, color: '#A89078' },
-            { label: '통찰', sublabel: '의미 찾기',   pct: structureData.ins,  color: '#7A5230' },
+            { label: t('meow.insight.observation'), sublabel: t('meow.insight.observationDesc'), pct: structureData.obs, color: '#C8B89A' },
+            { label: t('meow.insight.thinking'),    sublabel: t('meow.insight.thinkingDesc'),    pct: structureData.feel, color: '#A89078' },
+            { label: t('meow.insight.insight'),     sublabel: t('meow.insight.insightDesc'),     pct: structureData.ins,  color: '#7A5230' },
           ];
           const hasAny = depthItems.some(d => d.pct > 0);
           return (
             <View style={[styles.section, { marginTop: 8 }]}>
               <View style={styles.cardHeader}>
                 <Ionicons name="filter-outline" size={20} color={theme.accent} />
-                <Text style={styles.sectionTitle}>생각의 깊이</Text>
+                <Text style={styles.sectionTitle}>{t('meow.insight.thoughtDepth')}</Text>
               </View>
-              <Text style={styles.sectionSubtitle}>전체 기록 평균</Text>
+              <Text style={styles.sectionSubtitle}>{t('meow.insight.allAvg')}</Text>
               <View style={styles.card}>
                 {hasAny ? (
                   <View style={{ gap: 16, paddingVertical: 4 }}>
@@ -2060,19 +2060,19 @@ export default function InsightScreen({ navigation }) {
           ];
           const dataStr = vals.map((v, i) => { const p = pt(v, i); return `${p.x},${p.y}`; }).join(' ');
           const axisLabels = [
-            { text: '감정 표현', anchor: 'middle', dy: -6 },
-            { text: '논리적 사고', anchor: 'start', dy: 4 },
-            { text: '미래 지향', anchor: 'start', dy: 4 },
-            { text: '관계 중심', anchor: 'end', dy: 4 },
-            { text: '자기 성찰', anchor: 'end', dy: 4 },
+            { text: t('meow.insight.emotionExpression'),    anchor: 'middle', dy: -6 },
+            { text: t('meow.insight.logicalThinking'),      anchor: 'start',  dy: 4 },
+            { text: t('meow.insight.futureOriented'),       anchor: 'start',  dy: 4 },
+            { text: t('meow.insight.relationshipCentered'), anchor: 'end',    dy: 4 },
+            { text: t('meow.insight.selfReflection'),       anchor: 'end',    dy: 4 },
           ];
           return (
             <View style={styles.section}>
               <View style={styles.cardHeader}>
                 <Ionicons name="eye-outline" size={20} color={theme.accent} />
-                <Text style={styles.sectionTitle}>세상을 어떻게 보나요?</Text>
+                <Text style={styles.sectionTitle}>{t('meow.insight.worldViewTitle')}</Text>
               </View>
-              <Text style={styles.sectionSubtitle}>전체 기록 평균</Text>
+              <Text style={styles.sectionSubtitle}>{t('meow.insight.allAvg')}</Text>
               <View style={styles.card}>
                 {hasData ? (
                   <Svg width="100%" height={320} viewBox="0 0 360 320">
@@ -2111,42 +2111,42 @@ export default function InsightScreen({ navigation }) {
           const future = (allText.match(/겠|것이다|할 거|앞으로|내일|계획|하려|하고 싶/g) || []).length;
           const present= (allText.match(/이다|있다|한다|지금/g) || []).length;
           const tenseTotal = past + future + present || 1;
-          const tenseLabel = past >= future && past >= present ? '과거형' : future >= present ? '미래형' : '현재형';
+          const tenseLabel = past >= future && past >= present ? t('meow.insight.pastTense') : future >= present ? t('meow.insight.futureTense') : t('meow.insight.presentTense');
           const tenseBar = past >= future && past >= present ? past/tenseTotal : future >= present ? future/tenseTotal : present/tenseTotal;
 
           // 문장 태도
           const openScore   = lensAll?.open ?? null;
           const closedScore = lensAll ? Math.max(lensAll.closed, lensAll.rigid) : null;
-          const attitudeLabel = openScore === null ? '분석 중' : openScore > (closedScore ?? 0) ? '탐색형' : '단정형';
+          const attitudeLabel = openScore === null ? t('meow.insight.analyzing') : openScore > (closedScore ?? 0) ? t('meow.insight.exploringType') : t('meow.insight.definitiveType');
           const attitudeBar   = openScore !== null ? openScore : 0;
 
           // 질문 빈도
           const qCount   = (allText.match(/\?|일까|않을까|어떨까|할까/g) || []).length;
           const sentCount= (allText.match(/[.!?\n]/g) || []).length || 1;
           const qRate    = Math.min(1, (qCount / sentCount) * 8);
-          const qLabel   = qRate > 0.5 ? '많이' : qRate > 0.15 ? '가끔' : '거의 없음';
+          const qLabel   = qRate > 0.5 ? t('meow.insight.often') : qRate > 0.15 ? t('meow.insight.sometimes') : t('meow.insight.rarely');
 
           // 주어
           const selfCount = (allText.match(/나는|나도|내가|저는|제가|나를/g) || []).length;
           const otherCount= (allText.match(/친구|가족|그는|그녀|사람들|다들/g) || []).length;
           const subTotal  = selfCount + otherCount || 1;
           const subRatio  = selfCount / subTotal;
-          const subLabel  = subRatio > 0.7 ? '나 중심' : subRatio < 0.3 ? '타인 중심' : '혼합';
+          const subLabel  = subRatio > 0.7 ? t('meow.insight.selfCentered') : subRatio < 0.3 ? t('meow.insight.otherCentered') : t('meow.insight.mixed');
 
           const habits = [
-            { label: '시제',     type: tenseLabel,    bar: tenseBar,    desc: '주로 쓰는 시제' },
-            { label: '문장 태도', type: attitudeLabel,  bar: attitudeBar,  desc: '표현 방식' },
-            { label: '질문 빈도', type: qLabel,         bar: qRate,        desc: '의문문 빈도' },
-            { label: '주어',     type: subLabel,       bar: subRatio,     desc: '이야기의 중심' },
+            { label: t('meow.insight.tense'),           type: tenseLabel,    bar: tenseBar,    desc: t('meow.insight.pastTense') },
+            { label: t('meow.insight.sentenceAttitude'), type: attitudeLabel, bar: attitudeBar, desc: t('meow.insight.exploringType') },
+            { label: t('meow.insight.questionFreq'),     type: qLabel,        bar: qRate,       desc: t('meow.insight.often') },
+            { label: t('meow.insight.subject'),          type: subLabel,      bar: subRatio,    desc: t('meow.insight.selfCentered') },
           ];
 
           return (
             <View style={styles.section}>
               <View style={styles.cardHeader}>
                 <Ionicons name="chatbubble-ellipses-outline" size={20} color={theme.accent} />
-                <Text style={styles.sectionTitle}>나의 언어 습관</Text>
+                <Text style={styles.sectionTitle}>{t('meow.insight.langHabits')}</Text>
               </View>
-              <Text style={styles.sectionSubtitle}>전체 기록 분석</Text>
+              <Text style={styles.sectionSubtitle}>{t('meow.insight.allAnalysis')}</Text>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
                 {habits.map(({ label, type, bar, desc }) => (
                   <View key={label} style={[styles.card, { width: '47.5%', gap: 8 }]}>

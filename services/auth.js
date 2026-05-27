@@ -72,6 +72,27 @@ export async function googleLogin(idToken) {
   return data;
 }
 
+export async function appleLogin(identityToken, fullName) {
+  const response = await fetchWithTimeout(`${BASE_URL}/auth/apple`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      identity_token: identityToken,
+      full_name: fullName,
+    }),
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    const detail = data.detail;
+    const msg = typeof detail === 'string' ? detail
+      : Array.isArray(detail) ? detail.map(d => d.msg || JSON.stringify(d)).join(', ')
+      : data.message || 'Apple login failed';
+    throw new Error(msg);
+  }
+  return data;
+}
+
 export async function getMe(token) {
   const response = await fetchWithTimeout(`${BASE_URL}/auth/me`, {
     headers: { Authorization: `Bearer ${token}` },

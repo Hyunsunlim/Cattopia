@@ -100,7 +100,13 @@
     "analyzingEmotions": "Analyzing emotions…",
     "addTag": "Add tag",
     "previousTags": "Previous Tags",
-    "deleteNote": "Delete note"
+    "deleteNote": "Delete note",
+    "saveErrorTitle": "Write something",
+    "saveErrorMsg": "Please enter some content before saving.",
+    "deleteConfirmTitle": "Delete Note",
+    "deleteConfirmMsg": "Are you sure you want to delete this note?",
+    "deleteSuccessTitle": "Deleted",
+    "deleteSuccessMsg": "Note has been deleted."
   },
   "insight": {
     "noteTab": "Note",
@@ -255,7 +261,23 @@
     "step3Title": "You're All Set!",
     "step3Desc": "Start writing your notes. You can change AI settings anytime in Settings.",
     "getStarted": "Get Started",
-    "policyLink": "Privacy Policy"
+    "policyLink": "Privacy Policy",
+    "policyTitle": "Privacy Policy",
+    "policyClose": "Close",
+    "screenTitle": "Data & Privacy",
+    "aiAnalysisTitle": "AI Emotion Analysis",
+    "aiEnabledDesc": "Sends text to AI for analysis",
+    "aiDisabledDesc": "Local keyword analysis (on device)",
+    "aiEnabledAlertTitle": "AI Analysis Enabled",
+    "aiEnabledAlertMsg": "More accurate emotion detection. Note content will be sent to our analysis server.",
+    "aiDisabledAlertTitle": "AI Analysis Disabled",
+    "aiDisabledAlertMsg": "Using local keyword analysis. Your data stays on your device.",
+    "inviteSuccessTitle": "Friend Added!",
+    "inviteSuccessMessage": "{{name}} has joined. You can now see each other's progress.",
+    "inviteConfirm": "OK",
+    "inviteErrorTitle": "Invite Failed",
+    "inviteErrorExpired": "This invite link has expired. Ask your friend to send a new one.",
+    "inviteErrorDefault": "Something went wrong. Please try again."
   },
   "notifications": {
     "sunday": "Before the week ends — what did you notice?",

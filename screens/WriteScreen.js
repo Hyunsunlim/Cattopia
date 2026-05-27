@@ -34,21 +34,20 @@ const C = {
   orange: '#f97316',
 };
 
-const WEEKDAYS_KO = ['일', '월', '화', '수', '목', '금', '토'];
-
-function formatDate(date) {
-  return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일 · ${WEEKDAYS_KO[date.getDay()]}요일`;
+function formatDate(date, locale) {
+  const lang = (locale || 'en').split('-')[0];
+  return date.toLocaleDateString(lang, { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
 }
 
 export default function WriteScreen({ navigation }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { catName } = useCatName();
   const [content, setContent] = useState('');
   const [saving, setSaving] = useState(false);
   const inputRef = useRef(null);
 
   const today = new Date();
-  const dateStr = formatDate(today);
+  const dateStr = formatDate(today, i18n.language);
   const canSave = content.trim().length > 0;
 
   const handleComplete = async () => {

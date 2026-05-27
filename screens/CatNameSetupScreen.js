@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import {
   StyleSheet, Text, View, TextInput, TouchableOpacity,
-  Platform, Animated, KeyboardAvoidingView,
+  Platform, Animated, KeyboardAvoidingView, ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -48,8 +48,13 @@ export default function CatNameSetupScreen({ onComplete }) {
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
-        <View style={S.inner}>
+        <ScrollView
+          contentContainerStyle={S.inner}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
 
           {/* Cat illustration */}
           <View style={S.catWrap}>
@@ -105,7 +110,7 @@ export default function CatNameSetupScreen({ onComplete }) {
             </Text>
           </TouchableOpacity>
 
-        </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -114,10 +119,11 @@ export default function CatNameSetupScreen({ onComplete }) {
 const S = StyleSheet.create({
   root: { flex: 1, backgroundColor: C.background },
   inner: {
-    flex: 1,
+    flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 28,
+    paddingVertical: 48,
     gap: 16,
   },
 

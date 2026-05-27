@@ -100,7 +100,13 @@
     "analyzingEmotions": "感情を分析中…",
     "addTag": "タグを追加",
     "previousTags": "以前のタグ",
-    "deleteNote": "ノートを削除"
+    "deleteNote": "ノートを削除",
+    "saveErrorTitle": "内容を入力してください",
+    "saveErrorMsg": "保存する前に内容を入力してください。",
+    "deleteConfirmTitle": "ノートを削除",
+    "deleteConfirmMsg": "このノートを削除しますか？",
+    "deleteSuccessTitle": "削除しました",
+    "deleteSuccessMsg": "ノートが削除されました。"
   },
   "insight": {
     "noteTab": "ノート",
@@ -255,7 +261,23 @@
     "step3Title": "準備完了！",
     "step3Desc": "ノートを書き始めましょう。AI設定はいつでも設定から変更できます。",
     "getStarted": "はじめる",
-    "policyLink": "プライバシーポリシー"
+    "policyLink": "プライバシーポリシー",
+    "policyTitle": "プライバシーポリシー",
+    "policyClose": "閉じる",
+    "screenTitle": "データとプライバシー",
+    "aiAnalysisTitle": "AI感情分析",
+    "aiEnabledDesc": "テキストをAIで分析して送信",
+    "aiDisabledDesc": "デバイス内キーワード分析（ローカル）",
+    "aiEnabledAlertTitle": "AI分析を有効化",
+    "aiEnabledAlertMsg": "より正確な感情検出を使用します。メモの内容が分析サーバーに送信されます。",
+    "aiDisabledAlertTitle": "AI分析を無効化",
+    "aiDisabledAlertMsg": "ローカルキーワード分析を使用します。データはデバイスに保存されます。",
+    "inviteSuccessTitle": "フレンド追加完了！",
+    "inviteSuccessMessage": "{{name}}さんが参加しました。お互いの成長を確認できます。",
+    "inviteConfirm": "OK",
+    "inviteErrorTitle": "招待に失敗しました",
+    "inviteErrorExpired": "招待リンクの有効期限が切れています。新しいリンクをお願いしてください。",
+    "inviteErrorDefault": "エラーが発生しました。もう一度お試しください。"
   },
   "notifications": {
     "sunday": "週末が終わる前に — 今日気づいたことは？",

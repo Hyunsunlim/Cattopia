@@ -12,9 +12,11 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { PRIVACY_POLICY } from '../constants/privacyPolicy';
 
 export default function DataPrivacyScreen({ navigation }) {
+  const { t } = useTranslation();
   const [useAIAnalysis, setUseAIAnalysis] = useState(false);
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
 
@@ -35,10 +37,8 @@ export default function DataPrivacyScreen({ navigation }) {
     setUseAIAnalysis(value);
     await AsyncStorage.setItem('useAIAnalysis', value.toString());
     Alert.alert(
-      value ? 'AI Analysis Enabled' : 'AI Analysis Disabled',
-      value
-        ? 'More accurate emotion detection. Note content will be sent to our analysis server.'
-        : 'Using local keyword analysis. Your data stays on your device. (Accuracy may be lower)'
+      value ? t('privacy.aiEnabledAlertTitle') : t('privacy.aiDisabledAlertTitle'),
+      value ? t('privacy.aiEnabledAlertMsg') : t('privacy.aiDisabledAlertMsg')
     );
   };
 
@@ -48,7 +48,7 @@ export default function DataPrivacyScreen({ navigation }) {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="chevron-back" size={28} color="#333" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Data & Privacy</Text>
+        <Text style={styles.headerTitle}>{t('privacy.screenTitle')}</Text>
         <View style={{ width: 28 }} />
       </View>
 
@@ -56,9 +56,9 @@ export default function DataPrivacyScreen({ navigation }) {
         {/* AI Analysis Toggle */}
         <View style={styles.settingItem}>
           <View style={styles.settingInfo}>
-            <Text style={styles.settingTitle}>AI Emotion Analysis</Text>
+            <Text style={styles.settingTitle}>{t('privacy.aiAnalysisTitle')}</Text>
             <Text style={styles.settingDescription}>
-              {useAIAnalysis ? 'Sends text to AI for analysis' : 'Local keyword analysis (on device)'}
+              {useAIAnalysis ? t('privacy.aiEnabledDesc') : t('privacy.aiDisabledDesc')}
             </Text>
           </View>
           <Switch
@@ -75,7 +75,7 @@ export default function DataPrivacyScreen({ navigation }) {
           onPress={() => setShowPrivacyPolicy(true)}
         >
           <View style={styles.settingInfo}>
-            <Text style={styles.settingTitle}>Privacy Policy</Text>
+            <Text style={styles.settingTitle}>{t('privacy.policyLink')}</Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color="#999" />
         </TouchableOpacity>
@@ -91,9 +91,9 @@ export default function DataPrivacyScreen({ navigation }) {
         <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }} edges={['top']}>
           <View style={styles.policyHeader}>
             <TouchableOpacity onPress={() => setShowPrivacyPolicy(false)}>
-              <Text style={styles.policyClose}>Close</Text>
+              <Text style={styles.policyClose}>{t('privacy.policyClose')}</Text>
             </TouchableOpacity>
-            <Text style={styles.policyTitle}>Privacy Policy</Text>
+            <Text style={styles.policyTitle}>{t('privacy.policyTitle')}</Text>
             <View style={{ width: 50 }} />
           </View>
           <ScrollView style={styles.policyContent}>

@@ -6,8 +6,9 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Svg, Path } from 'react-native-svg';
+import * as AppleAuthentication from 'expo-apple-authentication';
 import { useTranslation } from 'react-i18next';
-import { login, googleLogin, saveToken } from '../services/auth';
+import { login, googleLogin, appleLogin, saveToken } from '../services/auth';
 import { APP_NAME } from '../constants/appConfig';
 
 const IOS_CLIENT_ID = '989988743907-s01n5q7r87g6c1pduguj6v1ul34ldt6k.apps.googleusercontent.com';
@@ -57,6 +58,32 @@ export default function LoginScreen({ onLogin, onGoToSignup }) {
       webClientId: WEB_CLIENT_ID,
     });
   }, []);
+
+  const handleAppleSignIn = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+      const fullName = credential.fullName?.givenName
+        ? `${credential.fullName.givenName} ${credential.fullName.familyName ?? ''}`.trim()
+        : null;
+      const data = await appleLogin(credential.identityToken, fullName);
+      const token = data.access_token || data.token || '';
+      if (token) await saveToken(token);
+      onLogin();
+    } catch (err) {
+      if (err.code !== 'ERR_REQUEST_CANCELED') {
+        setError(err.message || t('login.loginFailed'));
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleGoogleSignIn = async () => {
     setError('');
@@ -178,6 +205,17 @@ export default function LoginScreen({ onLogin, onGoToSignup }) {
               <Text style={S.googleBtnText}>{t('login.googleButton')}</Text>
             </TouchableOpacity>
 
+            {/* Apple */}
+            {Platform.OS === 'ios' && (
+              <AppleAuthentication.AppleAuthenticationButton
+                buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+                buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+                cornerRadius={99}
+                style={S.appleBtn}
+                onPress={handleAppleSignIn}
+              />
+            )}
+
             {/* Signup link */}
             <TouchableOpacity style={S.linkBtn} onPress={onGoToSignup} activeOpacity={0.7}>
               <Text style={S.linkText}>{t('login.signupLink')}</Text>
@@ -276,6 +314,8 @@ const S = StyleSheet.create({
     borderWidth: 1.5, borderColor: C.outlineVariant,
   },
   googleBtnText: { fontSize: 15, fontWeight: '600', color: C.onSurface },
+
+  appleBtn: { height: 52 },
 
   // Link
   linkBtn: { alignItems: 'center', marginTop: 6, paddingVertical: 4 },
