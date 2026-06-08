@@ -138,7 +138,7 @@ export default function WriteCompleteScreen({ navigation, route }) {
         ) : analyzing ? (
           <View style={styles.analyzingBadge}>
             <ActivityIndicator size="small" color={C.outline} />
-            <Text style={styles.analyzingText}>analyzing...</Text>
+            <Text style={styles.analyzingText}>{t('meow.insight.analyzing')}</Text>
           </View>
         ) : null}
 

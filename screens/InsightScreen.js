@@ -2355,7 +2355,7 @@ export default function InsightScreen({ navigation }) {
           <View style={emptyS.ctaWrap}>
             <TouchableOpacity
               style={emptyS.ctaBtn}
-              onPress={() => navigation.navigate('Write')}
+              onPress={() => navigation.navigate('MainTabs', { screen: 'Home', params: { screen: 'Write' } })}
               activeOpacity={0.85}
             >
               <Text style={emptyS.ctaBtnText}>{t('meow.insight.emptyWriteCTA')}</Text>
@@ -2394,7 +2394,7 @@ export default function InsightScreen({ navigation }) {
 
             {selectedEntries.length === 0 ? (
               <View style={actS.sheetEmpty}>
-                <Text style={[actS.sheetEmptyText, { color: theme.tertiaryText }]}>No notes on this day</Text>
+                <Text style={[actS.sheetEmptyText, { color: theme.tertiaryText }]}>{t('insight.nothingToday')}</Text>
               </View>
             ) : (
               <FlatList

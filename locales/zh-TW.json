@@ -14,6 +14,7 @@
   },
   "login": {
     "subtitle": "AI 情緒筆記",
+    "tagline": "與你的貓一起成長",
     "emailPlaceholder": "電子郵件或使用者名稱",
     "passwordPlaceholder": "密碼",
     "loginButton": "登入",
@@ -248,7 +249,12 @@
     "headerTitle": "個人資料",
     "defaultName": "使用者",
     "tapToEdit": "點擊編輯",
-    "startedDate": "從 {{date}} 開始"
+    "startedDate": "從 {{date}} 開始",
+    "accountSection": "帳號資訊",
+    "userId": "帳號",
+    "joinDate": "加入日期",
+    "catSection": "我的貓",
+    "catName": "Cat name"
   },
   "privacy": {
     "step1Title": "您的隱私很重要",
@@ -362,7 +368,8 @@
       "today": "今天",
       "daysAgo": "{{n}}天前",
       "disconnectTitle": "移除朋友",
-      "disconnectMessage": "確定要移除這位朋友嗎？"
+      "disconnectMessage": "確定要移除這位朋友嗎？",
+      "catGrowth": "貓咪成長"
     },
     "myLogs": {
       "title": "我的日誌",
@@ -386,7 +393,8 @@
       "detailButton": "查看詳情",
       "remaining": "距離成貓還差{{n}}篇",
       "grownUp": "貓咪長大了 🎉",
-      "shareText": "📊 Meow週報 — {{week}}\n\"{{headline}}\"\n連續{{streak}}天 🔥 | 共{{total}}篇 🐾",
+      "shareComingSoonTitle": "敬請期待 🐾",
+      "shareComingSoonMessage": "分享功能還在準備中,\n請再稍等一下喔!",
       "improving": "每天都餵了{{catName}} 🎉",
       "consistent": "持之以恆的一週",
       "causal": "邏輯思維變得更清晰了",
@@ -394,10 +402,19 @@
       "hardWorking": "努力寫作的一週 ✨",
       "decent": "穩紮穩打的一週",
       "quiet": "安靜休息的一週 🌿",
-      "waiting": "{{catName}}下週也在等你 🐱"
+      "waiting": "{{catName}}下週也在等你 🐱",
+      "streakUnit": "天",
+      "entryUnit": "篇"
     },
     "insight": {
       "fullHistoryTitle": "完整歷史",
+      "title": "洞察",
+      "thisMonth": "本月",
+      "statsTitle": "寫作統計",
+      "totalWords": "總字數",
+      "uniqueVocab": "{{n}} 個獨特詞彙",
+      "noDataYet": "累積更多記錄後顯示",
+      "dailyProgress": "今日進度",
       "emotionsTab": "情緒",
       "languageTab": "語言",
       "allAvg": "全部記錄平均",
@@ -456,7 +473,7 @@
       "mixed": "混合",
       "emotionBubble": "情緒分佈",
       "dailyMoodAll": "每日心情 · 完整歷史",
-      "emptyNudge": "寫日記後這裡就會填滿。\n貓咪正在等待你。",
+      "emptyNudge": "寫日記後這裡就會填滿。\n{{catName}}正在等待你。",
       "emptyWriteCTA": "去寫今天的日記"
     },
     "reminders": {
@@ -471,6 +488,12 @@
     "prompt4": "今天您最需要什麼？",
     "prompt5": "今天過得怎麼樣？出現了哪些情緒？ 🌙",
     "prompt6": "今天哪些需求得到了滿足？哪些沒有？",
-    "customPlaceholder": "輸入通知訊息"
+    "customPlaceholder": "輸入通知訊息",
+    "sectionTitle": "通知訊息",
+    "sectionDesc": "選擇提醒訊息的方式",
+    "mindfulTitle": "正念提示",
+    "mindfulDesc": "早晚NVC啟發式問題",
+    "customTitle": "自訂訊息",
+    "customDesc": "輸入您自己的提醒文字"
   }
 }

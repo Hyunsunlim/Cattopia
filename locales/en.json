@@ -14,6 +14,7 @@
   },
   "login": {
     "subtitle": "Your AI Emotion Note",
+    "tagline": "Grow with your cat",
     "emailPlaceholder": "Email or Username",
     "passwordPlaceholder": "Password",
     "loginButton": "Login",
@@ -248,7 +249,12 @@
     "headerTitle": "Profile",
     "defaultName": "User",
     "tapToEdit": "Tap to edit",
-    "startedDate": "Started {{date}}"
+    "startedDate": "Started {{date}}",
+    "accountSection": "Account Info",
+    "userId": "ID",
+    "joinDate": "Join Date",
+    "catSection": "My Cat",
+    "catName": "Cat name"
   },
   "privacy": {
     "step1Title": "Your Privacy Matters",
@@ -362,7 +368,8 @@
       "today": "Today",
       "daysAgo": "{{n}}d ago",
       "disconnectTitle": "Remove friend",
-      "disconnectMessage": "Are you sure you want to remove this friend?"
+      "disconnectMessage": "Are you sure you want to remove this friend?",
+      "catGrowth": "Cat's Growth"
     },
     "myLogs": {
       "title": "My Logs",
@@ -386,7 +393,8 @@
       "detailButton": "See Details",
       "remaining": "{{n}} more stories until adulthood",
       "grownUp": "Your cat has grown up 🎉",
-      "shareText": "📊 Meow Weekly Report — {{week}}\n\"{{headline}}\"\n{{streak}}-day streak 🔥 | {{total}} stories total 🐾",
+      "shareComingSoonTitle": "Coming soon 🐾",
+      "shareComingSoonMessage": "Sharing isn't available just yet.\nHang tight a little longer!",
       "improving": "Fed {{catName}} every day 🎉",
       "consistent": "A shining week of consistency",
       "causal": "Your logical thinking became clearer",
@@ -394,10 +402,19 @@
       "hardWorking": "A week of hard writing ✨",
       "decent": "A solid week of writing",
       "quiet": "A quiet, restful week 🌿",
-      "waiting": "{{catName}} will be waiting next week 🐱"
+      "waiting": "{{catName}} will be waiting next week 🐱",
+      "streakUnit": "",
+      "entryUnit": ""
     },
     "insight": {
       "fullHistoryTitle": "Full History",
+      "title": "Insight",
+      "thisMonth": "This Month",
+      "statsTitle": "Writing Stats",
+      "totalWords": "Total Words",
+      "uniqueVocab": "{{n}} unique words",
+      "noDataYet": "More data needed",
+      "dailyProgress": "Daily Progress",
       "emotionsTab": "Emotions",
       "languageTab": "Language",
       "allAvg": "All-time average",
@@ -471,6 +488,12 @@
     "prompt4": "What do you need most today?",
     "prompt5": "How was your day? What emotions came up? 🌙",
     "prompt6": "What needs were met today? What needs weren't?",
-    "customPlaceholder": "Enter notification message"
+    "customPlaceholder": "Enter notification message",
+    "sectionTitle": "Notification Message",
+    "sectionDesc": "Choose how your reminders speak to you",
+    "mindfulTitle": "Mindful prompts",
+    "mindfulDesc": "Morning & evening NVC-inspired questions",
+    "customTitle": "Custom message",
+    "customDesc": "Write your own reminder text"
   }
 }

@@ -9,9 +9,21 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import {
   scheduleMultipleNotifications,
 } from '../utils/notifications';
+
+const C = {
+  primary: '#755844',
+  primaryContainer: '#ffd8be',
+  background: '#fbf9f8',
+  surface: '#ffffff',
+  surfaceContainerLow: '#f6f3f2',
+  onSurface: '#1b1c1c',
+  outline: '#81756d',
+  outlineVariant: '#d3c4bb',
+};
 
 const MORNING_PROMPTS = [
   "Good morning \u{1F305} What are you feeling right now?",
@@ -26,6 +38,7 @@ const EVENING_PROMPTS = [
 ];
 
 export default function MessagesScreen({ navigation }) {
+  const { t } = useTranslation();
   const [useAutoPrompts, setUseAutoPrompts] = useState(true);
   const [notificationPreview, setNotificationPreview] = useState('How was your day?');
   const [reminderEnabled, setReminderEnabled] = useState(false);
@@ -91,19 +104,17 @@ export default function MessagesScreen({ navigation }) {
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="chevron-back" size={28} color="#333" />
+          <Ionicons name="chevron-back" size={28} color={C.onSurface} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Messages</Text>
+        <Text style={styles.headerTitle}>{t('settings.messages')}</Text>
         <View style={{ width: 28 }} />
       </View>
 
       <View style={styles.content}>
         <View style={styles.settingItemColumn}>
           <View style={styles.settingInfo}>
-            <Text style={styles.settingTitle}>Notification Message</Text>
-            <Text style={styles.settingDescription}>
-              Choose how your reminders speak to you
-            </Text>
+            <Text style={styles.settingTitle}>{t('messages.sectionTitle')}</Text>
+            <Text style={styles.settingDescription}>{t('messages.sectionDesc')}</Text>
           </View>
 
           <View style={styles.messageOptions}>
@@ -125,11 +136,11 @@ export default function MessagesScreen({ navigation }) {
                   styles.messageOptionTitle,
                   useAutoPrompts && styles.messageOptionTitleSelected,
                 ]}>
-                  Mindful prompts
+                  {t('messages.mindfulTitle')}
                 </Text>
               </View>
               <Text style={styles.messageOptionSubtitle}>
-                Morning & evening NVC-inspired questions
+                {t('messages.mindfulDesc')}
               </Text>
             </TouchableOpacity>
 
@@ -151,11 +162,11 @@ export default function MessagesScreen({ navigation }) {
                   styles.messageOptionTitle,
                   !useAutoPrompts && styles.messageOptionTitleSelected,
                 ]}>
-                  Custom message
+                  {t('messages.customTitle')}
                 </Text>
               </View>
               <Text style={styles.messageOptionSubtitle}>
-                Write your own reminder text
+                {t('messages.customDesc')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -165,7 +176,7 @@ export default function MessagesScreen({ navigation }) {
               style={styles.previewInput}
               value={notificationPreview}
               onChangeText={handlePreviewChange}
-              placeholder="Enter notification message"
+              placeholder={t('messages.customPlaceholder')}
               placeholderTextColor="#999"
             />
           )}
@@ -178,7 +189,7 @@ export default function MessagesScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9f5f5',
+    backgroundColor: C.background,
   },
   header: {
     flexDirection: 'row',
@@ -190,15 +201,15 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
+    color: C.onSurface,
   },
   content: {
     padding: 16,
   },
   settingItemColumn: {
-    backgroundColor: 'white',
+    backgroundColor: C.surface,
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     marginBottom: 12,
   },
   settingInfo: {
@@ -207,12 +218,12 @@ const styles = StyleSheet.create({
   settingTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: C.onSurface,
     marginBottom: 4,
   },
   settingDescription: {
     fontSize: 13,
-    color: '#999',
+    color: C.outline,
   },
   messageOptions: {
     marginTop: 14,
@@ -221,13 +232,13 @@ const styles = StyleSheet.create({
   messageOption: {
     padding: 14,
     borderRadius: 10,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: C.surfaceContainerLow,
     borderWidth: 1.5,
     borderColor: 'transparent',
   },
   messageOptionSelected: {
-    backgroundColor: '#f0f0ff',
-    borderColor: '#6366f1',
+    backgroundColor: C.primaryContainer,
+    borderColor: C.primary,
   },
   messageOptionHeader: {
     flexDirection: 'row',
@@ -240,38 +251,38 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: '#ccc',
+    borderColor: C.outlineVariant,
     justifyContent: 'center',
     alignItems: 'center',
   },
   radioOuterSelected: {
-    borderColor: '#6366f1',
+    borderColor: C.primary,
   },
   radioInner: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#6366f1',
+    backgroundColor: C.primary,
   },
   messageOptionTitle: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#666',
+    color: C.outline,
   },
   messageOptionTitleSelected: {
-    color: '#333',
+    color: C.onSurface,
   },
   messageOptionSubtitle: {
     fontSize: 13,
-    color: '#999',
+    color: C.outline,
     marginLeft: 30,
   },
   previewInput: {
-    backgroundColor: '#f9f9f9',
+    backgroundColor: C.surfaceContainerLow,
     padding: 12,
     borderRadius: 8,
     fontSize: 15,
     marginTop: 12,
-    color: '#333',
+    color: C.onSurface,
   },
 });

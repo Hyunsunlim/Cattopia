@@ -26,6 +26,8 @@ function mapFriend(f) {
     wroteToday: f.wrote_today ?? false,
     todayEmotion: f.today_emotion ?? null,
     lastEmotion: f.last_emotion ?? null,
+    todayWordCount: f.today_word_count ?? 0,
+    noteCount: f.note_count ?? 0,
   };
 }
 

@@ -14,6 +14,7 @@
   },
   "login": {
     "subtitle": "AI 감정 일기",
+    "tagline": "고양이와 함께 성장해요",
     "emailPlaceholder": "이메일 또는 사용자명",
     "passwordPlaceholder": "비밀번호",
     "loginButton": "로그인",
@@ -248,7 +249,12 @@
     "headerTitle": "프로필",
     "defaultName": "사용자",
     "tapToEdit": "탭하여 편집",
-    "startedDate": "{{date}}부터 시작"
+    "startedDate": "{{date}}부터 시작",
+    "accountSection": "계정 정보",
+    "userId": "아이디",
+    "joinDate": "가입일",
+    "catSection": "나의 고양이",
+    "catName": "Cat name"
   },
   "privacy": {
     "step1Title": "개인정보 보호",
@@ -362,7 +368,8 @@
       "today": "오늘",
       "daysAgo": "{{n}}일 전",
       "disconnectTitle": "친구 삭제",
-      "disconnectMessage": "이 친구를 삭제하시겠어요?"
+      "disconnectMessage": "이 친구를 삭제하시겠어요?",
+      "catGrowth": "고양이 성장"
     },
     "myLogs": {
       "title": "My Logs",
@@ -386,7 +393,8 @@
       "detailButton": "자세히 보기",
       "remaining": "성묘까지 {{n}}편 남았어요",
       "grownUp": "어른 고양이가 됐어요 🎉",
-      "shareText": "📊 Meow 주간 리포트 — {{week}}\n\"{{headline}}\"\n연속 {{streak}}일 🔥 | 총 {{total}}편 🐾",
+      "shareComingSoonTitle": "곧 만나요 🐾",
+      "shareComingSoonMessage": "공유 기능은 아직 준비 중이에요.\n조금만 기다려 주세요!",
       "improving": "매일 {{catName}}에게 밥을 줬어요 🎉",
       "consistent": "꾸준함이 빛나는 한 주였어요",
       "causal": "인과의 맥락이 또렷해졌어요",
@@ -394,10 +402,19 @@
       "hardWorking": "열심히 기록한 한 주였어요 ✨",
       "decent": "잘 기록한 한 주였어요",
       "quiet": "이번 주는 조용히 쉬었군요 🌿",
-      "waiting": "이번 주에도 기다리고 있을게요 🐱"
+      "waiting": "이번 주에도 기다리고 있을게요 🐱",
+      "streakUnit": "일",
+      "entryUnit": "편"
     },
     "insight": {
       "fullHistoryTitle": "전체 기록",
+      "title": "인사이트",
+      "thisMonth": "이번 달",
+      "statsTitle": "기록 통계",
+      "totalWords": "총 단어",
+      "uniqueVocab": "고유 단어 {{n}}개",
+      "noDataYet": "기록이 쌓이면 보여요",
+      "dailyProgress": "오늘의 기록",
       "emotionsTab": "감정",
       "languageTab": "언어",
       "allAvg": "전체 기록 평균",
@@ -456,7 +473,7 @@
       "mixed": "혼합",
       "emotionBubble": "감정 분포",
       "dailyMoodAll": "Daily mood · all history",
-      "emptyNudge": "일기를 쓰면 여기가 채워져요.\n{{catName}}가 기다리고 있어요.",
+      "emptyNudge": "일기를 쓰면 여기가 채워져요.\n{{catName}}이(가) 기다리고 있어요.",
       "emptyWriteCTA": "오늘 일기 쓰러 가기"
     },
     "reminders": {
@@ -471,6 +488,12 @@
     "prompt4": "오늘 가장 필요한 것은 무엇인가요?",
     "prompt5": "오늘 하루 어땠나요? 어떤 감정이 올라왔나요? 🌙",
     "prompt6": "오늘 충족된 필요와 충족되지 않은 필요는?",
-    "customPlaceholder": "알림 메시지 입력"
+    "customPlaceholder": "알림 메시지 입력",
+    "sectionTitle": "알림 메시지",
+    "sectionDesc": "리마인더가 어떻게 말할지 선택해요",
+    "mindfulTitle": "마음챙김 문구",
+    "mindfulDesc": "아침&저녁 NVC 기반 질문",
+    "customTitle": "직접 작성",
+    "customDesc": "나만의 알림 문구를 입력해요"
   }
 }

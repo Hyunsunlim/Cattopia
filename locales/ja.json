@@ -14,6 +14,7 @@
   },
   "login": {
     "subtitle": "AI感情ノート",
+    "tagline": "猫と一緒に育てよう",
     "emailPlaceholder": "メールまたはユーザー名",
     "passwordPlaceholder": "パスワード",
     "loginButton": "ログイン",
@@ -248,7 +249,12 @@
     "headerTitle": "プロフィール",
     "defaultName": "ユーザー",
     "tapToEdit": "タップして編集",
-    "startedDate": "{{date}}から開始"
+    "startedDate": "{{date}}から開始",
+    "accountSection": "アカウント情報",
+    "userId": "ID",
+    "joinDate": "登録日",
+    "catSection": "マイキャット",
+    "catName": "Cat name"
   },
   "privacy": {
     "step1Title": "プライバシーを大切に",
@@ -362,7 +368,8 @@
       "today": "今日",
       "daysAgo": "{{n}}日前",
       "disconnectTitle": "友達を削除",
-      "disconnectMessage": "この友達を削除しますか？"
+      "disconnectMessage": "この友達を削除しますか？",
+      "catGrowth": "猫の成長"
     },
     "myLogs": {
       "title": "マイログ",
@@ -386,7 +393,8 @@
       "detailButton": "詳しく見る",
       "remaining": "成猫まであと{{n}}話",
       "grownUp": "大人の猫になりました 🎉",
-      "shareText": "📊 Meow週間レポート — {{week}}\n\"{{headline}}\"\n{{streak}}日連続 🔥 | 合計{{total}}話 🐾",
+      "shareComingSoonTitle": "近日公開予定 🐾",
+      "shareComingSoonMessage": "シェア機能は只今準備中です。\nもう少しお待ちくださいね!",
       "improving": "毎日{{catName}}にエサをあげました 🎉",
       "consistent": "輝く一週間でした",
       "causal": "論理的思考が明確になりました",
@@ -394,10 +402,19 @@
       "hardWorking": "頑張って書いた一週間でした ✨",
       "decent": "しっかり書いた一週間でした",
       "quiet": "静かに休んだ一週間でした 🌿",
-      "waiting": "来週も{{catName}}が待っています 🐱"
+      "waiting": "来週も{{catName}}が待っています 🐱",
+      "streakUnit": "日",
+      "entryUnit": "話"
     },
     "insight": {
       "fullHistoryTitle": "全履歴",
+      "title": "インサイト",
+      "thisMonth": "今月",
+      "statsTitle": "記録統計",
+      "totalWords": "総単語数",
+      "uniqueVocab": "固有語彙 {{n}}語",
+      "noDataYet": "記録が増えると表示されます",
+      "dailyProgress": "今日の記録",
       "emotionsTab": "感情",
       "languageTab": "言語",
       "allAvg": "全記録の平均",
@@ -456,7 +473,7 @@
       "mixed": "混合",
       "emotionBubble": "感情分布",
       "dailyMoodAll": "毎日の気分 · 全履歴",
-      "emptyNudge": "日記を書くとここが埋まります。\n猫があなたを待っています。",
+      "emptyNudge": "日記を書くとここが埋まります。\n{{catName}}があなたを待っています。",
       "emptyWriteCTA": "今日の日記を書く"
     },
     "reminders": {
@@ -471,6 +488,12 @@
     "prompt4": "今日一番必要なことは何ですか？",
     "prompt5": "今日はどうでしたか？どんな感情が生まれましたか？ 🌙",
     "prompt6": "今日満たされたニーズと、満たされなかったニーズは？",
-    "customPlaceholder": "通知メッセージを入力"
+    "customPlaceholder": "通知メッセージを入力",
+    "sectionTitle": "通知メッセージ",
+    "sectionDesc": "リマインダーのメッセージを選んでください",
+    "mindfulTitle": "マインドフルなプロンプト",
+    "mindfulDesc": "朝夕のNVC質問",
+    "customTitle": "カスタムメッセージ",
+    "customDesc": "独自のリマインダーテキストを入力"
   }
 }

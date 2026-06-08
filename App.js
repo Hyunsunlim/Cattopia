@@ -328,7 +328,7 @@ function AppContent() {
             </View>
           </View>
           <Text style={loadingStyles.logo}>{APP_NAME}</Text>
-          <Text style={loadingStyles.sub}>Grow with your cat</Text>
+          <Text style={loadingStyles.sub}>{t('login.tagline')}</Text>
           <ActivityIndicator
             size="small"
             color="#755844"

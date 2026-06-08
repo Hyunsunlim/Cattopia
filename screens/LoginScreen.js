@@ -143,7 +143,7 @@ export default function LoginScreen({ onLogin, onGoToSignup }) {
               </View>
             </View>
             <Text style={S.logoText}>{APP_NAME}</Text>
-            <Text style={S.logoSub}>Grow with your cat</Text>
+            <Text style={S.logoSub}>{t('login.tagline')}</Text>
           </View>
 
           {/* ── Form ── */}

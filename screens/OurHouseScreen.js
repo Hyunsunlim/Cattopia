@@ -137,7 +137,7 @@ export default function OurHouseScreen() {
               <Text style={{ fontSize: 18 }}>🐱</Text>
             </View>
             <View>
-              <Text style={styles.headerTitle}>Our House</Text>
+              <Text style={styles.headerTitle}>{t('meow.ourHouse.title')}</Text>
               <Text style={styles.headerSub}>{t('meow.ourHouse.headerSub')}</Text>
             </View>
           </View>
@@ -169,11 +169,13 @@ export default function OurHouseScreen() {
 
 // ── Sub-components ───────────────────────────────────────────────────────────
 
+const TOTAL_STORIES = 66;
+
 function ActiveFriendCard({ friend, onRemove, t }) {
   const emotion = EMOTION_DISPLAY[friend.todayEmotion] ?? EMOTION_DISPLAY[friend.lastEmotion] ?? null;
   const wroteToday = friend.wroteToday ?? false;
-  const wordCount = friend.todayWordCount ?? 0;
-  const fillPct = `${Math.min(100, Math.round((wordCount / DAILY_WORDS_MAX) * 100))}%`;
+  const noteCount = friend.noteCount ?? 0;
+  const fillPct = `${Math.min(100, Math.round((noteCount / TOTAL_STORIES) * 100))}%`;
 
   return (
     <TouchableOpacity
@@ -212,16 +214,14 @@ function ActiveFriendCard({ friend, onRemove, t }) {
         </TouchableOpacity>
       </View>
 
-      {wroteToday && (
-        <View style={styles.progressSection}>
-          <Text style={styles.progressLabel}>Daily Progress</Text>
-          <View style={styles.progressTrack}>
-            <View style={[styles.progressFill, { width: fillPct }]}>
-              <Text style={styles.pawOnFill}>🐾</Text>
-            </View>
+      <View style={[styles.progressSection, { opacity: wroteToday ? 1 : 0.4 }]}>
+        <Text style={styles.progressLabel}>{noteCount} / {TOTAL_STORIES}</Text>
+        <View style={styles.progressTrack}>
+          <View style={[styles.progressFill, { width: fillPct }]}>
+            <Text style={styles.pawOnFill}>🐾</Text>
           </View>
         </View>
-      )}
+      </View>
     </TouchableOpacity>
   );
 }

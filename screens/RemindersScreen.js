@@ -8,6 +8,7 @@ import {
   Alert,
   ScrollView,
   Animated,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -21,12 +22,24 @@ import {
   scheduleWeeklyReportNotification,
   cancelWeeklyReportNotification,
 } from '../utils/notifications';
-import { useTheme } from '../context/ThemeContext';
+const C = {
+  primary: '#755844',
+  primaryContainer: '#ffd8be',
+  secondary: '#3d665a',
+  secondaryContainer: '#bce9d9',
+  background: '#fbf9f8',
+  surface: '#ffffff',
+  surfaceContainer: '#f0eded',
+  surfaceContainerLow: '#f6f3f2',
+  onSurface: '#1b1c1c',
+  outline: '#81756d',
+  outlineVariant: '#d3c4bb',
+};
+
+const SERIF = Platform.OS === 'ios' ? 'Georgia' : 'serif';
 
 export default function RemindersScreen({ navigation }) {
   const { t } = useTranslation();
-  const theme = useTheme();
-  const styles = getStyles(theme);
 
   const [reminderEnabled, setReminderEnabled] = useState(false);
   const [reminderTimes, setReminderTimes] = useState(['21:00']);
@@ -154,122 +167,88 @@ export default function RemindersScreen({ navigation }) {
   const minutes = Array.from({ length: 60 }, (_, i) => i);
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="chevron-back" size={28} color={theme.primaryText} />
+    <SafeAreaView style={S.root} edges={['top']}>
+      <View style={S.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={8} activeOpacity={0.7}>
+          <Ionicons name="arrow-back" size={22} color={C.outline} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('reminders.headerTitle')}</Text>
-        <View style={{ width: 28 }} />
+        <Text style={S.headerTitle}>{t('reminders.headerTitle')}</Text>
+        <View style={{ width: 30 }} />
       </View>
 
-      <ScrollView style={styles.content}>
-        <View style={styles.settingItem}>
-          <View style={styles.settingInfo}>
-            <Text style={styles.settingTitle}>{t('reminders.dailyReminderTitle')}</Text>
-            <Text style={styles.settingDescription}>{t('reminders.dailyReminderDesc')}</Text>
+      <ScrollView style={S.scroll} contentContainerStyle={S.content} showsVerticalScrollIndicator={false}>
+        {/* Daily reminder toggle */}
+        <View style={S.card}>
+          <View style={S.cardRow}>
+            <View style={S.cardInfo}>
+              <Text style={S.cardTitle}>{t('reminders.dailyReminderTitle')}</Text>
+              <Text style={S.cardDesc}>{t('reminders.dailyReminderDesc')}</Text>
+            </View>
+            <Switch
+              value={reminderEnabled}
+              onValueChange={handleReminderToggle}
+              trackColor={{ false: C.surfaceContainer, true: C.primaryContainer }}
+              thumbColor={reminderEnabled ? C.primary : C.outline}
+            />
           </View>
-          <Switch
-            value={reminderEnabled}
-            onValueChange={handleReminderToggle}
-            trackColor={{ false: theme.switchTrackOff, true: theme.switchTrackOn }}
-            thumbColor={theme.card}
-          />
         </View>
 
-        <View style={[styles.settingItemColumn, !reminderEnabled && styles.disabled]}>
-          <View style={styles.settingInfo}>
-            <Text style={styles.settingTitle}>{t('reminders.reminderTimesTitle')}</Text>
-            <Text style={styles.settingDescription}>
-              {reminderTimes.length} {t('reminders.reminderTimesDesc')}
-            </Text>
-          </View>
+        {/* Reminder times */}
+        <View style={[S.card, !reminderEnabled && S.disabled]}>
+          <Text style={S.cardTitle}>{t('reminders.reminderTimesTitle')}</Text>
+          <Text style={S.cardDesc}>{reminderTimes.length} {t('reminders.reminderTimesDesc')}</Text>
 
-          <View style={styles.timeChipsContainer}>
+          <View style={S.chipsRow}>
             {reminderTimes.map((time) => (
-              <View key={time} style={styles.timeChip}>
-                <Ionicons name="time-outline" size={14} color={theme.accent} />
-                <Text style={styles.timeChipText}>{time}</Text>
+              <View key={time} style={S.chip}>
+                <Ionicons name="time-outline" size={14} color={C.primary} />
+                <Text style={S.chipText}>{time}</Text>
                 {reminderEnabled && (
-                  <TouchableOpacity
-                    onPress={() => removeTime(time)}
-                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                  >
-                    <Ionicons name="close-circle" size={18} color={theme.inactiveTab} />
+                  <TouchableOpacity onPress={() => removeTime(time)} hitSlop={8}>
+                    <Ionicons name="close-circle" size={18} color={C.outlineVariant} />
                   </TouchableOpacity>
                 )}
               </View>
             ))}
-
             {reminderEnabled && (
-              <TouchableOpacity style={styles.addTimeButton} onPress={openPicker}>
-                <Ionicons name="add" size={18} color={theme.accent} />
-                <Text style={styles.addTimeText}>{t('reminders.addTime')}</Text>
+              <TouchableOpacity style={S.addChip} onPress={openPicker}>
+                <Ionicons name="add" size={18} color={C.primary} />
+                <Text style={S.addChipText}>{t('reminders.addTime')}</Text>
               </TouchableOpacity>
             )}
           </View>
 
           {showTimePicker && reminderEnabled && (
-            <Animated.View style={[
-              styles.pickerContainer,
-              {
-                maxHeight: pickerAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0, 250],
-                }),
-                opacity: pickerAnim,
-              },
-            ]}>
-              <Text style={styles.pickerLabel}>{t('reminders.hour')}</Text>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={styles.pickerScroll}
-                contentContainerStyle={styles.pickerScrollContent}
-              >
+            <Animated.View style={[S.picker, {
+              maxHeight: pickerAnim.interpolate({ inputRange: [0, 1], outputRange: [0, 260] }),
+              opacity: pickerAnim,
+            }]}>
+              <Text style={S.pickerLabel}>{t('reminders.hour')}</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={S.pickerScroll} contentContainerStyle={S.pickerScrollContent}>
                 {hours.map((h) => (
-                  <TouchableOpacity
-                    key={h}
-                    style={[styles.pickerChip, pickerHour === h && styles.pickerChipSelected]}
-                    onPress={() => setPickerHour(h)}
-                  >
-                    <Text style={[styles.pickerChipText, pickerHour === h && styles.pickerChipTextSelected]}>
-                      {String(h).padStart(2, '0')}
-                    </Text>
+                  <TouchableOpacity key={h} style={[S.pickerChip, pickerHour === h && S.pickerChipOn]} onPress={() => setPickerHour(h)}>
+                    <Text style={[S.pickerChipText, pickerHour === h && S.pickerChipTextOn]}>{String(h).padStart(2, '0')}</Text>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
 
-              <Text style={styles.pickerLabel}>{t('reminders.minute')}</Text>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={styles.pickerScroll}
-                contentContainerStyle={styles.pickerScrollContent}
-              >
+              <Text style={S.pickerLabel}>{t('reminders.minute')}</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={S.pickerScroll} contentContainerStyle={S.pickerScrollContent}>
                 {minutes.map((m) => (
-                  <TouchableOpacity
-                    key={m}
-                    style={[styles.pickerChip, pickerMinute === m && styles.pickerChipSelected]}
-                    onPress={() => setPickerMinute(m)}
-                  >
-                    <Text style={[styles.pickerChipText, pickerMinute === m && styles.pickerChipTextSelected]}>
-                      {String(m).padStart(2, '0')}
-                    </Text>
+                  <TouchableOpacity key={m} style={[S.pickerChip, pickerMinute === m && S.pickerChipOn]} onPress={() => setPickerMinute(m)}>
+                    <Text style={[S.pickerChipText, pickerMinute === m && S.pickerChipTextOn]}>{String(m).padStart(2, '0')}</Text>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
 
-              <View style={styles.pickerActions}>
-                <Text style={styles.pickerPreview}>
-                  {String(pickerHour).padStart(2, '0')}:{String(pickerMinute).padStart(2, '0')}
-                </Text>
-                <View style={styles.pickerButtons}>
-                  <TouchableOpacity style={styles.pickerCancelBtn} onPress={closePicker}>
-                    <Text style={styles.pickerCancelText}>{t('common.cancel')}</Text>
+              <View style={S.pickerActions}>
+                <Text style={S.pickerPreview}>{String(pickerHour).padStart(2, '0')}:{String(pickerMinute).padStart(2, '0')}</Text>
+                <View style={S.pickerBtns}>
+                  <TouchableOpacity style={S.cancelBtn} onPress={closePicker}>
+                    <Text style={S.cancelBtnText}>{t('common.cancel')}</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.pickerDoneBtn} onPress={addTime}>
-                    <Text style={styles.pickerDoneText}>{t('reminders.addTime')}</Text>
+                  <TouchableOpacity style={S.doneBtn} onPress={addTime}>
+                    <Text style={S.doneBtnText}>{t('reminders.addTime')}</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -277,200 +256,102 @@ export default function RemindersScreen({ navigation }) {
           )}
         </View>
 
-        {/* ── 주간 리포트 알림 ── */}
-        <View style={styles.settingItem}>
-          <View style={styles.settingInfo}>
-            <Text style={styles.settingTitle}>{t('meow.reminders.weeklyReportTitle')}</Text>
-            <Text style={styles.settingDescription}>
-              {t('meow.reminders.weeklyReportDesc')}
-            </Text>
+        {/* Weekly report */}
+        <View style={S.card}>
+          <View style={S.cardRow}>
+            <View style={S.cardInfo}>
+              <Text style={S.cardTitle}>{t('meow.reminders.weeklyReportTitle')}</Text>
+              <Text style={S.cardDesc}>{t('meow.reminders.weeklyReportDesc')}</Text>
+            </View>
+            <Switch
+              value={weeklyReportEnabled}
+              onValueChange={async (value) => {
+                setWeeklyReportEnabled(value);
+                saveSettings({ weeklyReportEnabled: value });
+                if (value) {
+                  await registerForPushNotificationsAsync();
+                  const id = await scheduleWeeklyReportNotification();
+                  saveSettings({ weeklyReportNotificationId: id });
+                } else {
+                  await cancelWeeklyReportNotification();
+                  saveSettings({ weeklyReportNotificationId: null });
+                }
+              }}
+              trackColor={{ false: C.surfaceContainer, true: C.secondaryContainer }}
+              thumbColor={weeklyReportEnabled ? C.secondary : C.outline}
+            />
           </View>
-          <Switch
-            value={weeklyReportEnabled}
-            onValueChange={async (value) => {
-              setWeeklyReportEnabled(value);
-              saveSettings({ weeklyReportEnabled: value });
-              if (value) {
-                await registerForPushNotificationsAsync();
-                const id = await scheduleWeeklyReportNotification();
-                saveSettings({ weeklyReportNotificationId: id });
-              } else {
-                await cancelWeeklyReportNotification();
-                saveSettings({ weeklyReportNotificationId: null });
-              }
-            }}
-            trackColor={{ false: theme.switchTrackOff, true: '#3d665a' }}
-            thumbColor={theme.card}
-          />
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-const getStyles = (theme) => StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.background,
-  },
+const S = StyleSheet.create({
+  root: { flex: 1, backgroundColor: C.background },
+
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    paddingHorizontal: 16, paddingVertical: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(211,196,187,0.6)',
   },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: theme.primaryText,
+  headerTitle: { fontSize: 17, fontWeight: '700', color: C.onSurface, fontFamily: SERIF },
+
+  scroll: { flex: 1 },
+  content: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 40, gap: 16 },
+
+  card: {
+    backgroundColor: C.surface, borderRadius: 16, padding: 16,
+    shadowColor: C.primary, shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05, shadowRadius: 4, elevation: 1,
   },
-  content: {
-    padding: 16,
+  cardRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  cardInfo: { flex: 1, marginRight: 12 },
+  cardTitle: { fontSize: 15, fontWeight: '600', color: C.onSurface, marginBottom: 3 },
+  cardDesc: { fontSize: 13, color: C.outline },
+
+  disabled: { opacity: 0.45 },
+
+  chipsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 14 },
+  chip: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    backgroundColor: C.surfaceContainerLow,
+    paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20,
   },
-  settingItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: theme.card,
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
+  chipText: { fontSize: 15, fontWeight: '600', color: C.primary },
+  addChip: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    backgroundColor: C.surfaceContainerLow,
+    paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20,
+    borderWidth: 1, borderColor: C.outlineVariant, borderStyle: 'dashed',
   },
-  settingItemColumn: {
-    backgroundColor: theme.card,
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-  settingInfo: {
-    flex: 1,
-  },
-  settingTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: theme.primaryText,
-    marginBottom: 4,
-  },
-  settingDescription: {
-    fontSize: 13,
-    color: theme.secondaryText,
-  },
-  disabled: {
-    opacity: 0.5,
-  },
-  timeChipsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginTop: 14,
-  },
-  timeChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.background,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    gap: 6,
-  },
-  timeChipText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: theme.accent,
-  },
-  addTimeButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.background,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: theme.separator,
-    borderStyle: 'dashed',
-    gap: 4,
-  },
-  addTimeText: {
-    fontSize: 14,
-    color: theme.accent,
-    fontWeight: '500',
-  },
-  pickerContainer: {
-    marginTop: 14,
-    backgroundColor: theme.background,
-    borderRadius: 12,
-    padding: 12,
-    overflow: 'hidden',
+  addChipText: { fontSize: 14, fontWeight: '500', color: C.primary },
+
+  picker: {
+    marginTop: 14, backgroundColor: C.surfaceContainerLow,
+    borderRadius: 14, padding: 12, overflow: 'hidden',
   },
   pickerLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: theme.secondaryText,
-    marginBottom: 6,
-    marginTop: 4,
+    fontSize: 11, fontWeight: '700', color: C.outline,
+    letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 6, marginTop: 4,
   },
-  pickerScroll: {
-    marginBottom: 8,
-  },
-  pickerScrollContent: {
-    gap: 6,
-    paddingRight: 12,
-  },
+  pickerScroll: { marginBottom: 8 },
+  pickerScrollContent: { gap: 6, paddingRight: 12 },
   pickerChip: {
-    width: 42,
-    height: 36,
-    borderRadius: 10,
-    backgroundColor: theme.border,
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: 42, height: 36, borderRadius: 10,
+    backgroundColor: C.surfaceContainer, justifyContent: 'center', alignItems: 'center',
   },
-  pickerChipSelected: {
-    backgroundColor: theme.accent,
-  },
-  pickerChipText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: theme.secondaryText,
-  },
-  pickerChipTextSelected: {
-    color: theme.card,
-    fontWeight: '700',
-  },
+  pickerChipOn: { backgroundColor: C.primary },
+  pickerChipText: { fontSize: 14, fontWeight: '500', color: C.outline },
+  pickerChipTextOn: { color: '#fff', fontWeight: '700' },
+
   pickerActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 8,
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10,
   },
-  pickerPreview: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: theme.accent,
-  },
-  pickerButtons: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  pickerCancelBtn: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  pickerCancelText: {
-    fontSize: 14,
-    color: theme.secondaryText,
-    fontWeight: '500',
-  },
-  pickerDoneBtn: {
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    borderRadius: 8,
-    backgroundColor: theme.accent,
-  },
-  pickerDoneText: {
-    fontSize: 14,
-    color: theme.card,
-    fontWeight: '600',
-  },
+  pickerPreview: { fontSize: 24, fontWeight: '700', color: C.primary, fontFamily: SERIF },
+  pickerBtns: { flexDirection: 'row', gap: 8 },
+  cancelBtn: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8 },
+  cancelBtnText: { fontSize: 14, color: C.outline, fontWeight: '500' },
+  doneBtn: { paddingHorizontal: 20, paddingVertical: 8, borderRadius: 10, backgroundColor: C.primary },
+  doneBtnText: { fontSize: 14, color: '#fff', fontWeight: '600' },
 });

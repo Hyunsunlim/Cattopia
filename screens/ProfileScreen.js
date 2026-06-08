@@ -1,164 +1,209 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  TextInput,
+  StyleSheet, Text, View, TouchableOpacity,
+  Alert, TextInput, Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { useTheme } from '../context/ThemeContext';
+import { useFocusEffect } from '@react-navigation/native';
+import { getToken } from '../services/auth';
+import { getMe } from '../services/auth';
+import { useCatName } from '../context/CatNameContext';
+
+const C = {
+  primary: '#755844',
+  primaryContainer: '#ffd8be',
+  secondary: '#3d665a',
+  background: '#fbf9f8',
+  surface: '#ffffff',
+  surfaceContainer: '#f0eded',
+  surfaceContainerLow: '#f6f3f2',
+  onSurface: '#1b1c1c',
+  onSurfaceVariant: '#4f453e',
+  outline: '#81756d',
+  outlineVariant: '#d3c4bb',
+};
+
+const SERIF = Platform.OS === 'ios' ? 'Georgia' : 'serif';
 
 export default function ProfileScreen({ navigation }) {
-  const { t } = useTranslation();
-  const theme = useTheme();
-  const styles = getStyles(theme);
+  const { t, i18n } = useTranslation();
+  const { catName, setCatName } = useCatName();
 
-  const [userName, setUserName] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [isEditingName, setIsEditingName] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
+  const [joinDate, setJoinDate] = useState('');
+  const [editingCatName, setEditingCatName] = useState(false);
+  const [catNameDraft, setCatNameDraft] = useState('');
 
-  useEffect(() => {
-    loadSettings();
-  }, []);
+  useFocusEffect(useCallback(() => {
+    loadUser();
+  }, []));
 
-  const loadSettings = async () => {
+  const loadUser = async () => {
     try {
-      const settings = await AsyncStorage.getItem('settings');
-      if (settings) {
-        const parsed = JSON.parse(settings);
-        setUserName(String(parsed.userName ?? ''));
-        setStartDate(String(parsed.startDate ?? ''));
+      const token = await getToken();
+      if (!token) return;
+      const user = await getMe(token);
+      setUserEmail(user.email || user.username || '');
+      if (user.created_at) {
+        const lang = i18n.language.split('-')[0];
+        const d = new Date(user.created_at);
+        setJoinDate(d.toLocaleDateString(lang === 'ko' ? 'ko-KR' : lang === 'ja' ? 'ja-JP' : lang === 'zh' ? 'zh-TW' : 'en-US'));
       }
-    } catch (error) {
-      console.error('Failed to load settings:', error);
+    } catch {
+      // offline — leave blank
     }
   };
 
-  const saveSettings = async (newSettings) => {
-    try {
-      const raw = await AsyncStorage.getItem('settings');
-      const existing = raw ? JSON.parse(raw) : {};
-      const settings = { ...existing, ...newSettings };
-      await AsyncStorage.setItem('settings', JSON.stringify(settings));
-    } catch (error) {
-      console.error('Failed to save settings:', error);
-    }
+  const handleEditCatName = () => {
+    setCatNameDraft(catName);
+    setEditingCatName(true);
   };
 
-  const handleNameSubmit = () => {
-    setIsEditingName(false);
-    saveSettings({ userName });
+  const handleSaveCatName = async () => {
+    const name = catNameDraft.trim();
+    if (!name) return;
+    await setCatName(name);
+    setEditingCatName(false);
   };
 
-  const displayName = userName || t('profile.defaultName');
+  const handleCancelCatName = () => {
+    setEditingCatName(false);
+  };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="chevron-back" size={28} color={theme.primaryText} />
+    <SafeAreaView style={S.root} edges={['top']}>
+      {/* Header */}
+      <View style={S.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={8} activeOpacity={0.7}>
+          <Ionicons name="arrow-back" size={22} color={C.onSurfaceVariant} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('profile.headerTitle')}</Text>
-        <View style={{ width: 28 }} />
+        <Text style={S.headerTitle}>{t('profile.headerTitle')}</Text>
+        <View style={{ width: 30 }} />
       </View>
 
-      <View style={styles.content}>
-        <View style={styles.profileCard}>
-          <View style={styles.profileIcon}>
-            <Ionicons name="person" size={32} color={theme.accent} />
-          </View>
-          <View style={styles.profileInfo}>
-            {isEditingName ? (
-              <TextInput
-                style={styles.profileNameInput}
-                value={userName}
-                onChangeText={setUserName}
-                onBlur={handleNameSubmit}
-                onSubmitEditing={handleNameSubmit}
-                autoFocus
-              />
-            ) : (
-              <TouchableOpacity onPress={() => setIsEditingName(true)}>
-                <Text style={styles.profileName}>{displayName}</Text>
-                <Text style={styles.tapToEdit}>{t('profile.tapToEdit')}</Text>
-              </TouchableOpacity>
-            )}
-            {startDate ? (
-              <Text style={styles.profileDate}>{t('profile.startedDate', { date: startDate })}</Text>
-            ) : null}
-          </View>
+      <View style={S.content}>
+        {/* Account Info */}
+        <SectionLabel label={t('profile.accountSection')} />
+        <View style={S.group}>
+          <InfoRow label={t('profile.userId')} value={userEmail || '—'} />
+          {joinDate ? (
+            <>
+              <Separator />
+              <InfoRow label={t('profile.joinDate')} value={joinDate} />
+            </>
+          ) : null}
+        </View>
+
+        {/* Cat */}
+        <SectionLabel label={t('profile.catSection')} />
+        <View style={S.group}>
+          {editingCatName ? (
+            <View style={S.editRow}>
+              <Text style={S.rowLabel}>{t('profile.catName')}</Text>
+              <View style={S.editRight}>
+                <TextInput
+                  style={S.catInput}
+                  value={catNameDraft}
+                  onChangeText={setCatNameDraft}
+                  autoFocus
+                  returnKeyType="done"
+                  onSubmitEditing={handleSaveCatName}
+                  selectionColor={C.primary}
+                />
+                <TouchableOpacity onPress={handleSaveCatName} hitSlop={8}>
+                  <Ionicons name="checkmark" size={20} color={C.primary} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleCancelCatName} hitSlop={8}>
+                  <Ionicons name="close" size={20} color={C.outline} />
+                </TouchableOpacity>
+              </View>
+            </View>
+          ) : (
+            <TouchableOpacity style={S.row} onPress={handleEditCatName} activeOpacity={0.65}>
+              <Text style={S.rowLabel}>{t('profile.catName')}</Text>
+              <View style={S.rowRight}>
+                <Text style={S.rowValue}>{catName}</Text>
+                <Ionicons name="chevron-forward" size={18} color={C.outlineVariant} />
+              </View>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </SafeAreaView>
   );
 }
 
-const getStyles = (theme) => StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.background,
-  },
+function SectionLabel({ label }) {
+  return (
+    <View style={S.sectionLabel}>
+      <Text style={S.sectionLabelText}>{label}</Text>
+    </View>
+  );
+}
+
+function InfoRow({ label, value }) {
+  return (
+    <View style={S.row}>
+      <Text style={S.rowLabel}>{label}</Text>
+      <Text style={S.rowValue}>{value}</Text>
+    </View>
+  );
+}
+
+function Separator() {
+  return <View style={S.separator} />;
+}
+
+const S = StyleSheet.create({
+  root: { flex: 1, backgroundColor: C.background },
+
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    paddingHorizontal: 16, paddingVertical: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: 'rgba(211,196,187,0.6)',
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: theme.primaryText,
+    fontSize: 17, fontWeight: '700', color: C.onSurface, fontFamily: SERIF,
   },
-  content: {
-    padding: 16,
+
+  content: { paddingHorizontal: 20, paddingTop: 24 },
+
+  sectionLabel: { marginBottom: 8, marginLeft: 4, marginTop: 4 },
+  sectionLabelText: {
+    fontSize: 11, fontWeight: '700', color: C.outline,
+    letterSpacing: 0.6, textTransform: 'uppercase',
   },
-  profileCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.card,
-    padding: 16,
-    borderRadius: 12,
+
+  group: {
+    backgroundColor: C.surface, borderRadius: 16, marginBottom: 24, overflow: 'hidden',
+    shadowColor: C.primary, shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05, shadowRadius: 4, elevation: 1,
   },
-  profileIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: theme.background,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 14,
+
+  row: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: 16, paddingVertical: 16,
   },
-  profileInfo: {
-    flex: 1,
+  rowLabel: { fontSize: 15, fontWeight: '500', color: C.onSurface },
+  rowRight: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  rowValue: { fontSize: 15, color: C.outline },
+
+  separator: {
+    height: StyleSheet.hairlineWidth, backgroundColor: C.outlineVariant,
+    marginLeft: 16, opacity: 0.5,
   },
-  profileName: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: theme.primaryText,
-    marginBottom: 2,
+
+  editRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: 16, paddingVertical: 12,
   },
-  profileNameInput: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: theme.primaryText,
-    marginBottom: 2,
-    padding: 0,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.accent,
-  },
-  tapToEdit: {
-    fontSize: 12,
-    color: theme.tertiaryText,
-    marginBottom: 4,
-  },
-  profileDate: {
-    fontSize: 13,
-    color: theme.secondaryText,
-    marginTop: 4,
+  editRight: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  catInput: {
+    fontSize: 15, color: C.onSurface,
+    borderBottomWidth: 1.5, borderBottomColor: C.primary,
+    paddingVertical: 2, minWidth: 80, textAlign: 'right',
   },
 });

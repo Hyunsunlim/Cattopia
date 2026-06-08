@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import {
   StyleSheet, Text, View, TouchableOpacity,
-  ScrollView, Share, Platform,
+  ScrollView, Alert, Platform,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -130,13 +130,8 @@ export default function ReportScreen({ navigation }) {
   const deltaColor = weekDelta > 0 ? C.green : weekDelta < 0 ? C.red : C.outline;
   const deltaText = weekDelta > 0 ? `+${weekDelta}` : `${weekDelta}`;
 
-  const handleShare = async () => {
-    try {
-      await Share.share({
-        message: t('meow.report.shareText', { week: thisLabel, headline, streak, total }),
-        title: t('meow.report.title'),
-      });
-    } catch (e) {}
+  const handleShare = () => {
+    Alert.alert(t('meow.report.shareComingSoonTitle'), t('meow.report.shareComingSoonMessage'));
   };
 
   return (
@@ -172,13 +167,13 @@ export default function ReportScreen({ navigation }) {
           <View style={S.statsRow}>
             <View style={S.statCard}>
               <Text style={S.statEmoji}>🔥</Text>
-              <Text style={S.statValue}>{streak}<Text style={S.statUnit}>일</Text></Text>
+              <Text style={S.statValue}>{streak}<Text style={S.statUnit}>{t('meow.report.streakUnit')}</Text></Text>
               <Text style={S.statLabel}>{t('meow.report.streak')}</Text>
             </View>
             <View style={S.statCard}>
               <Text style={S.statEmoji}>✍️</Text>
               <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4 }}>
-                <Text style={S.statValue}>{thisWeek.length}<Text style={S.statUnit}>편</Text></Text>
+                <Text style={S.statValue}>{thisWeek.length}<Text style={S.statUnit}>{t('meow.report.entryUnit')}</Text></Text>
                 {lastWeek.length > 0 && (
                   <Text style={[S.deltaText, { color: deltaColor }]}>{deltaText}</Text>
                 )}

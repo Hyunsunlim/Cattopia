@@ -27,7 +27,6 @@ const C = {
 };
 
 const SERIF = Platform.OS === 'ios' ? 'Georgia' : 'serif';
-const WEEKDAYS_KO = ['일', '월', '화', '수', '목', '금', '토'];
 
 const EMOTION_EMOJI = {
   joy: '😊',
@@ -45,9 +44,10 @@ const EMOTION_EMOJI = {
   neutral: '·',
 };
 
-function formatDate(ts) {
+function formatDate(ts, lang) {
   const d = new Date(ts);
-  return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일 ${WEEKDAYS_KO[d.getDay()]}요일`;
+  const locale = lang === 'ko' ? 'ko-KR' : lang === 'ja' ? 'ja-JP' : lang === 'zh' ? 'zh-TW' : 'en-US';
+  return d.toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
 }
 function formatTime(ts) {
   const d = new Date(ts);
@@ -57,12 +57,13 @@ function formatTime(ts) {
 // ── Diary item ────────────────────────────────────────────────────────────────
 
 function DiaryItem({ item, onDelete, onEdit }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language.split('-')[0];
   const isPrivate = item.visibility !== 'friends';
 
   const showMenu = () => {
     Alert.alert(
-      formatDate(item.timestamp),
+      formatDate(item.timestamp, lang),
       undefined,
       [
         { text: t('common.edit'), onPress: () => onEdit(item) },
@@ -82,7 +83,7 @@ function DiaryItem({ item, onDelete, onEdit }) {
   return (
     <TouchableOpacity style={S.item} onLongPress={showMenu} activeOpacity={0.85}>
       <View style={S.itemHeader}>
-        <Text style={S.itemDate}>{formatDate(item.timestamp)}</Text>
+        <Text style={S.itemDate}>{formatDate(item.timestamp, lang)}</Text>
         <View style={S.itemHeaderRight}>
           <Text style={S.itemTime}>{formatTime(item.timestamp)}</Text>
           <TouchableOpacity onPress={showMenu} hitSlop={8}>
@@ -104,11 +105,11 @@ function DiaryItem({ item, onDelete, onEdit }) {
           </View>
         ) : item.emotion === 'neutral' ? (
           <View style={[S.badge, S.badgeNeutral]}>
-            <Text style={[S.badgeText, S.badgeTextNeutral]}>😌 neutral</Text>
+            <Text style={[S.badgeText, S.badgeTextNeutral]}>😌</Text>
           </View>
         ) : (
           <View style={[S.badge, S.badgeNeutral]}>
-            <Text style={[S.badgeText, S.badgeTextNeutral]}>· analyzing</Text>
+            <Text style={[S.badgeText, S.badgeTextNeutral]}>· {t('meow.insight.analyzing')}</Text>
           </View>
         )}
       </View>
@@ -119,7 +120,8 @@ function DiaryItem({ item, onDelete, onEdit }) {
 // ── Screen ────────────────────────────────────────────────────────────────────
 
 export default function MyLogsScreen({ navigation }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language.split('-')[0];
   const { catName } = useCatName();
   const insets = useSafeAreaInsets();
   const [diaries, setDiaries] = useState([]);
@@ -225,7 +227,7 @@ export default function MyLogsScreen({ navigation }) {
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
           <View style={S.modalBox}>
-            <Text style={S.modalTitle}>{editItem ? formatDate(editItem.timestamp) : ''}</Text>
+            <Text style={S.modalTitle}>{editItem ? formatDate(editItem.timestamp, lang) : ''}</Text>
             <TextInput
               style={S.modalInput}
               value={editText}

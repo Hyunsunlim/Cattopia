@@ -8,6 +8,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 
 const C = {
   primary: '#755844',
@@ -86,6 +87,7 @@ function structureRates(list) {
 // ── Bar row component ─────────────────────────────────────────────────────────
 
 function MetricRow({ label, value, color = C.secondaryFixedDim }) {
+  const { t } = useTranslation();
   const pct = value !== null && value !== undefined ? Math.round(value * 100) : null;
   return (
     <View style={row.wrap}>
@@ -93,13 +95,14 @@ function MetricRow({ label, value, color = C.secondaryFixedDim }) {
       <View style={row.track}>
         {pct !== null
           ? <View style={[row.fill, { width: `${pct}%`, backgroundColor: color }]} />
-          : <Text style={row.noData}>기록이 쌓이면 보여요</Text>
+          : <Text style={row.noData}>{t('meow.insight.noDataYet')}</Text>
         }
       </View>
       {pct !== null && <Text style={row.pct}>{pct}%</Text>}
     </View>
   );
 }
+
 
 const row = StyleSheet.create({
   wrap: { flexDirection: 'row', alignItems: 'center', gap: 10 },
@@ -117,6 +120,7 @@ const row = StyleSheet.create({
 // ── Main ─────────────────────────────────────────────────────────────────────
 
 export default function MeowInsightScreen({ navigation }) {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [period, setPeriod] = useState('weekly');
   const [diaries, setDiaries] = useState([]);
@@ -145,7 +149,7 @@ export default function MeowInsightScreen({ navigation }) {
           <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={8} activeOpacity={0.7}>
             <Ionicons name="arrow-back" size={22} color={C.onSurfaceVariant} />
           </TouchableOpacity>
-          <Text style={S.headerTitle}>Insight</Text>
+          <Text style={S.headerTitle}>{t('meow.insight.title')}</Text>
           <View style={{ width: 30 }} />
         </View>
 
@@ -159,7 +163,7 @@ export default function MeowInsightScreen({ navigation }) {
               activeOpacity={0.75}
             >
               <Text style={[S.toggleText, period === p && S.toggleTextActive]}>
-                {p === 'weekly' ? '이번 주' : '이번 달'}
+                {p === 'weekly' ? t('meow.report.thisWeek') : t('meow.insight.thisMonth')}
               </Text>
             </TouchableOpacity>
           ))}
@@ -172,46 +176,46 @@ export default function MeowInsightScreen({ navigation }) {
         >
           {/* Writing Stats */}
           <View style={S.card}>
-            <Text style={S.cardTitle}>기록 통계</Text>
+            <Text style={S.cardTitle}>{t('meow.insight.statsTitle')}</Text>
             <View style={S.statsRow}>
-              <StatChip emoji="🔥" value={`${streak}일`} label="연속 기록" />
-              <StatChip emoji="✍️" value={`${subset.length}편`} label={period === 'weekly' ? '이번 주' : '이번 달'} />
-              <StatChip emoji="📖" value={totalWords.toLocaleString()} label="총 단어" />
+              <StatChip emoji="🔥" value={`${streak}${t('meow.report.streakUnit')}`} label={t('meow.report.streak')} />
+              <StatChip emoji="✍️" value={`${subset.length}${t('meow.report.entryUnit')}`} label={period === 'weekly' ? t('meow.report.thisWeek') : t('meow.insight.thisMonth')} />
+              <StatChip emoji="📖" value={totalWords.toLocaleString()} label={t('meow.insight.totalWords')} />
             </View>
             <View style={S.vocabRow}>
               <Ionicons name="text-outline" size={14} color={C.outline} />
-              <Text style={S.vocabText}>고유 단어 {uniqueVocab.toLocaleString()}개</Text>
+              <Text style={S.vocabText}>{t('meow.insight.uniqueVocab', { n: uniqueVocab.toLocaleString() })}</Text>
             </View>
           </View>
 
           {/* Thinking type */}
           <View style={S.card}>
-            <Text style={S.cardTitle}>사고방식</Text>
+            <Text style={S.cardTitle}>{t('insight.thinkingStyle')}</Text>
             <View style={S.barList}>
-              <MetricRow label="인과 추론" value={thinking?.causal_reasoning} color="#2D7DD2" />
-              <MetricRow label="해석" value={thinking?.interpretation} color="#7B1FA2" />
-              <MetricRow label="사건 나열" value={thinking?.event_listing} color="#C62828" />
+              <MetricRow label={t('insight.causalReasoning')} value={thinking?.causal_reasoning} color="#2D7DD2" />
+              <MetricRow label={t('insight.interpretation')} value={thinking?.interpretation} color="#7B1FA2" />
+              <MetricRow label={t('insight.eventListing')} value={thinking?.event_listing} color="#C62828" />
             </View>
           </View>
 
           {/* Language lens */}
           <View style={S.card}>
-            <Text style={S.cardTitle}>세계관</Text>
+            <Text style={S.cardTitle}>{t('meow.insight.worldViewTitle')}</Text>
             <View style={S.barList}>
-              <MetricRow label="탐색" value={lens?.open} color={C.secondaryFixedDim} />
-              <MetricRow label="단정" value={lens?.closed} color="#64748b" />
-              <MetricRow label="절대화" value={lens?.rigid} color="#9CA3AF" />
-              <MetricRow label="수동" value={lens?.passive} color="#D1D5DB" />
+              <MetricRow label={t('insight.openThinking')} value={lens?.open} color={C.secondaryFixedDim} />
+              <MetricRow label={t('insight.closedThinking')} value={lens?.closed} color="#64748b" />
+              <MetricRow label={t('insight.rigidThinking')} value={lens?.rigid} color="#9CA3AF" />
+              <MetricRow label={t('insight.passive')} value={lens?.passive} color="#D1D5DB" />
             </View>
           </View>
 
           {/* Structure */}
           <View style={S.card}>
-            <Text style={S.cardTitle}>글쓰기 구조</Text>
+            <Text style={S.cardTitle}>{t('insight.writingStructure')}</Text>
             <View style={S.barList}>
-              <MetricRow label="관찰" value={structure?.observation} color="#007AFF" />
-              <MetricRow label="생각" value={structure?.thought} color="#AF52DE" />
-              <MetricRow label="통찰" value={structure?.insight} color="#FF9F0A" />
+              <MetricRow label={t('insight.observation')} value={structure?.observation} color="#007AFF" />
+              <MetricRow label={t('insight.thinking')} value={structure?.thought} color="#AF52DE" />
+              <MetricRow label={t('meow.insight.insight')} value={structure?.insight} color="#FF9F0A" />
             </View>
           </View>
         </ScrollView>
