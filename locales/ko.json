@@ -408,6 +408,7 @@
     },
     "insight": {
       "fullHistoryTitle": "전체 기록",
+      "diaryCount": "{{n}}편",
       "title": "인사이트",
       "thisMonth": "이번 달",
       "statsTitle": "기록 통계",
@@ -419,7 +420,7 @@
       "languageTab": "언어",
       "allAvg": "전체 기록 평균",
       "allAnalysis": "전체 기록 분석",
-      "last7": "최근 7편 기준",
+      "last7": "최근 7일 기준",
       "thinkingQ": "나는 어떻게 생각하나?",
       "worldViewQ": "나는 어떤 눈으로 보나?",
       "langHabitQ": "어떤 언어를 쓰나?",

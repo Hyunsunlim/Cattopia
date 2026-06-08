@@ -408,6 +408,7 @@
     },
     "insight": {
       "fullHistoryTitle": "完整歷史",
+      "diaryCount": "{{n}}篇",
       "title": "洞察",
       "thisMonth": "本月",
       "statsTitle": "寫作統計",
@@ -419,7 +420,7 @@
       "languageTab": "語言",
       "allAvg": "全部記錄平均",
       "allAnalysis": "全部記錄分析",
-      "last7": "最近7篇為基準",
+      "last7": "最近7天為基準",
       "thinkingQ": "我如何思考？",
       "worldViewQ": "我用什麼眼光看世界？",
       "langHabitQ": "我用什麼語言？",

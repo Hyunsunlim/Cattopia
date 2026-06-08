@@ -408,6 +408,7 @@
     },
     "insight": {
       "fullHistoryTitle": "Full History",
+      "diaryCount": "{{n}} stories",
       "title": "Insight",
       "thisMonth": "This Month",
       "statsTitle": "Writing Stats",
@@ -419,7 +420,7 @@
       "languageTab": "Language",
       "allAvg": "All-time average",
       "allAnalysis": "All-time analysis",
-      "last7": "Based on last 7 entries",
+      "last7": "Based on the last 7 days",
       "thinkingQ": "How do I think?",
       "worldViewQ": "How do I see the world?",
       "langHabitQ": "What language do I use?",

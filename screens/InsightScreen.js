@@ -1839,17 +1839,26 @@ export default function InsightScreen({ navigation }) {
 
   // ── 최근 7편 기반 데이터 ─────────────────────────────────────────────────────
 
-  const getLast7 = () =>
-    [...diaries]
-      .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
-      .slice(-7);
+  // 같은 날짜에 여러 편을 쓴 경우 하나의 막대로 묶어서 평균을 보여줌
+  const getLast7 = () => {
+    const sorted = [...diaries].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    const byDate = new Map();
+    sorted.forEach(d => {
+      const date = new Date(d.timestamp);
+      const key = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+      if (!byDate.has(key)) byDate.set(key, []);
+      byDate.get(key).push(d);
+    });
+    return [...byDate.values()].slice(-7);
+  };
 
   const getLast7ThoughtDepth = () =>
-    getLast7().map(d => {
-      const date = new Date(d.timestamp);
-      const obs  = d.structure?.observation ? 1 : 0;
-      const feel = d.structure?.thought ? 1 : 0;
-      const ins  = d.structure?.insight ? 1 : 0;
+    getLast7().map(entries => {
+      const date = new Date(entries[0].timestamp);
+      const avg = (key) => entries.reduce((s, d) => s + (d.structure?.[key] ? 1 : 0), 0) / entries.length;
+      const obs  = avg('observation');
+      const feel = avg('thought');
+      const ins  = avg('insight');
       return {
         label: `${date.getMonth() + 1}/${date.getDate()}`,
         stacks: [
@@ -1861,16 +1870,20 @@ export default function InsightScreen({ navigation }) {
     });
 
   const getLast7VocabDensity = () =>
-    getLast7().map(d => {
-      const date = new Date(d.timestamp);
-      const words = (d.content || '').split(/\s+/).filter(Boolean);
-      const unique   = new Set(words.map(w => w.toLowerCase())).size;
-      const repeated = Math.max(0, words.length - unique);
+    getLast7().map(entries => {
+      const date = new Date(entries[0].timestamp);
+      const stats = entries.map(d => {
+        const words  = (d.content || '').split(/\s+/).filter(Boolean);
+        const unique = new Set(words.map(w => w.toLowerCase())).size;
+        return { unique, repeated: Math.max(0, words.length - unique) };
+      });
+      const avgUnique   = stats.reduce((s, x) => s + x.unique,   0) / stats.length;
+      const avgRepeated = stats.reduce((s, x) => s + x.repeated, 0) / stats.length;
       return {
         label: `${date.getMonth() + 1}/${date.getDate()}`,
         stacks: [
-          { value: Math.max(unique,   0.01), color: unique   > 0 ? '#007AFF' : theme.background, marginBottom: 1 },
-          { value: Math.max(repeated, 0.01), color: repeated > 0 ? '#FF9F0A' : theme.background },
+          { value: Math.max(avgUnique,   0.01), color: avgUnique   > 0 ? '#007AFF' : theme.background, marginBottom: 1 },
+          { value: Math.max(avgRepeated, 0.01), color: avgRepeated > 0 ? '#FF9F0A' : theme.background },
         ],
       };
     });
@@ -1976,10 +1989,10 @@ export default function InsightScreen({ navigation }) {
             else worldView = { emoji: '🌿', label: t('meow.insight.flowingView'), q: t('meow.insight.worldViewQ') };
           }
 
-          // 언어 습관 (시제·질문 빈도로 판단)
-          const pastCount    = (allText.match(/했|었|았|지난|어제|예전/g) || []).length;
-          const futureCount  = (allText.match(/겠|것이다|할 거|앞으로|내일|계획|하려|하고 싶/g) || []).length;
-          const questionCount= (allText.match(/\?|일까|않을까|어떨까|할까|ㄹ까/g) || []).length;
+          // 언어 습관 (시제·질문 빈도로 판단, 한국어/영어 표현 모두 인식)
+          const pastCount    = (allText.match(/했|었|았|지난|어제|예전|\bwas\b|\bwere\b|\bdid\b|\bhad\b|\bwent\b|\byesterday\b|\blast (?:night|week|month|year)\b|\b\d+ (?:days?|weeks?|months?|years?) ago\b/gi) || []).length;
+          const futureCount  = (allText.match(/겠|것이다|할 거|앞으로|내일|계획|하려|하고 싶|\bwill\b|\bgoing to\b|\bgonna\b|\btomorrow\b|\bnext (?:week|month|year)\b|\bplan(?:ning)? to\b|\bhope to\b|\bwant to\b|\bwould like to\b|\blooking forward\b/gi) || []).length;
+          const questionCount= (allText.match(/\?|일까|않을까|어떨까|할까|ㄹ까|\bwonder\b|\bwhat if\b|\bshould i\b/gi) || []).length;
           let langHabit = { emoji: '❓', label: t('meow.insight.analyzing'), q: t('meow.insight.langHabitQ') };
           if (pastCount || futureCount || questionCount) {
             const maxVal = Math.max(pastCount, futureCount, questionCount);
@@ -2310,7 +2323,7 @@ export default function InsightScreen({ navigation }) {
           <Text style={[styles.headerTitle, { color: '#1b1c1c', fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif' }]}>
             {t('meow.insight.fullHistoryTitle')}
           </Text>
-          <Text style={[styles.diaryCountText, { color: '#81756d' }]}>{diaries.length}편</Text>
+          <Text style={[styles.diaryCountText, { color: '#81756d' }]}>{t('meow.insight.diaryCount', { n: diaries.length })}</Text>
         </View>
 
 

@@ -408,6 +408,7 @@
     },
     "insight": {
       "fullHistoryTitle": "全履歴",
+      "diaryCount": "{{n}}話",
       "title": "インサイト",
       "thisMonth": "今月",
       "statsTitle": "記録統計",
@@ -419,7 +420,7 @@
       "languageTab": "言語",
       "allAvg": "全記録の平均",
       "allAnalysis": "全記録の分析",
-      "last7": "直近7件を基準",
+      "last7": "直近7日間を基準",
       "thinkingQ": "私はどう考えるか？",
       "worldViewQ": "私はどんな目で見るか？",
       "langHabitQ": "どんな言葉を使うか？",
