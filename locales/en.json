@@ -415,6 +415,7 @@
       "totalWords": "Total Words",
       "uniqueVocab": "{{n}} unique words",
       "noDataYet": "More data needed",
+      "noData": "No data",
       "dailyProgress": "Daily Progress",
       "emotionsTab": "Emotions",
       "languageTab": "Language",
@@ -476,6 +477,17 @@
       "dailyMoodAll": "Daily mood · all history",
       "emptyNudge": "Write a diary to fill this in.\n{{catName}} is waiting for you.",
       "emptyWriteCTA": "Write today's diary"
+    },
+    "emotion": {
+      "joy": "Joy",
+      "sadness": "Sadness",
+      "anger": "Anger",
+      "fear": "Fear",
+      "surprise": "Surprise",
+      "disgust": "Disgust",
+      "neutral": "Neutral",
+      "uncertain": "Uncertain",
+      "calm": "Calm"
     },
     "reminders": {
       "weeklyReportTitle": "Weekly Report Alert",

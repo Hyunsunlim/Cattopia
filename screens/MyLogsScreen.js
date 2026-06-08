@@ -100,12 +100,12 @@ function DiaryItem({ item, onDelete, onEdit }) {
         {item.emotion && item.emotion !== 'neutral' ? (
           <View style={[S.badge, S.badgePrivate]}>
             <Text style={[S.badgeText, S.badgeTextPrivate]}>
-              {EMOTION_EMOJI[item.emotion] ?? '✨'} {item.emotion}
+              {EMOTION_EMOJI[item.emotion] ?? '✨'} {t(`meow.emotion.${item.emotion}`, { defaultValue: item.emotion })}
             </Text>
           </View>
         ) : item.emotion === 'neutral' ? (
           <View style={[S.badge, S.badgeNeutral]}>
-            <Text style={[S.badgeText, S.badgeTextNeutral]}>😌 calm</Text>
+            <Text style={[S.badgeText, S.badgeTextNeutral]}>😌 {t('meow.emotion.calm')}</Text>
           </View>
         ) : (
           <View style={[S.badge, S.badgeNeutral]}>

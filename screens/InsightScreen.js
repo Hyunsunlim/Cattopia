@@ -1027,8 +1027,8 @@ export default function InsightScreen({ navigation }) {
       : null;
     const dominantEmoji = dominantEmotion ? (EMOJI_MAP[dominantEmotion] ?? '😐') : '—';
     const dominantLabel = dominantEmotion
-      ? dominantEmotion.charAt(0).toUpperCase() + dominantEmotion.slice(1)
-      : 'No data';
+      ? t(`meow.emotion.${dominantEmotion}`, { defaultValue: dominantEmotion.charAt(0).toUpperCase() + dominantEmotion.slice(1) })
+      : t('meow.insight.noData');
 
     // 2. 긍정 비율 (joy + surprise / 전체)
     const positiveCount = diaries.filter(d => d.emotion === 'joy' || d.emotion === 'surprise').length;
@@ -1189,7 +1189,7 @@ export default function InsightScreen({ navigation }) {
                     const r = Math.max(38, Math.sqrt(pct / 100) * 118);
                     const { cx, cy } = POSITIONS[i] || { cx: 180, cy: 135 };
                     const { fill, text } = BUBBLE_COLORS[emotion] || { fill: 'rgba(211,196,187,0.65)', text: '#4f453e' };
-                    const label = emotion.charAt(0).toUpperCase() + emotion.slice(1);
+                    const label = t(`meow.emotion.${emotion}`, { defaultValue: emotion.charAt(0).toUpperCase() + emotion.slice(1) });
                     return (
                       <G key={emotion}>
                         <Circle cx={cx} cy={cy} r={r} fill={fill} />
@@ -2426,7 +2426,7 @@ export default function InsightScreen({ navigation }) {
                         ) : (
                           <Text style={[actS.noteNoTag, { color: theme.tertiaryText }]}>no tag</Text>
                         )}
-                        <Text style={[actS.noteEmotion, { color: theme.tertiaryText }]}>{item.emoji} {item.emotion}</Text>
+                        <Text style={[actS.noteEmotion, { color: theme.tertiaryText }]}>{item.emoji} {t(`meow.emotion.${item.emotion}`, { defaultValue: item.emotion })}</Text>
                       </View>
                       <Text style={[actS.noteTitle, { color: theme.primaryText }]}>{item.title}</Text>
                       <Text style={[actS.noteContent, { color: theme.secondaryText }]} numberOfLines={2}>{item.content}</Text>

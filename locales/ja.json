@@ -415,6 +415,7 @@
       "totalWords": "総単語数",
       "uniqueVocab": "固有語彙 {{n}}語",
       "noDataYet": "記録が増えると表示されます",
+      "noData": "データなし",
       "dailyProgress": "今日の記録",
       "emotionsTab": "感情",
       "languageTab": "言語",
@@ -476,6 +477,17 @@
       "dailyMoodAll": "毎日の気分 · 全履歴",
       "emptyNudge": "日記を書くとここが埋まります。\n{{catName}}があなたを待っています。",
       "emptyWriteCTA": "今日の日記を書く"
+    },
+    "emotion": {
+      "joy": "喜び",
+      "sadness": "悲しみ",
+      "anger": "怒り",
+      "fear": "恐れ",
+      "surprise": "驚き",
+      "disgust": "嫌悪",
+      "neutral": "普通",
+      "uncertain": "不確か",
+      "calm": "穏やか"
     },
     "reminders": {
       "weeklyReportTitle": "週間レポート通知",

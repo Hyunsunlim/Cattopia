@@ -415,6 +415,7 @@
       "totalWords": "총 단어",
       "uniqueVocab": "고유 단어 {{n}}개",
       "noDataYet": "기록이 쌓이면 보여요",
+      "noData": "데이터 없음",
       "dailyProgress": "오늘의 기록",
       "emotionsTab": "감정",
       "languageTab": "언어",
@@ -476,6 +477,17 @@
       "dailyMoodAll": "Daily mood · all history",
       "emptyNudge": "일기를 쓰면 여기가 채워져요.\n{{catName}}이(가) 기다리고 있어요.",
       "emptyWriteCTA": "오늘 일기 쓰러 가기"
+    },
+    "emotion": {
+      "joy": "기쁨",
+      "sadness": "슬픔",
+      "anger": "분노",
+      "fear": "두려움",
+      "surprise": "놀람",
+      "disgust": "혐오",
+      "neutral": "보통",
+      "uncertain": "불확실",
+      "calm": "평온"
     },
     "reminders": {
       "weeklyReportTitle": "주간 리포트 알림",

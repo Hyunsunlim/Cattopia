@@ -415,6 +415,7 @@
       "totalWords": "總字數",
       "uniqueVocab": "{{n}} 個獨特詞彙",
       "noDataYet": "累積更多記錄後顯示",
+      "noData": "尚無資料",
       "dailyProgress": "今日進度",
       "emotionsTab": "情緒",
       "languageTab": "語言",
@@ -476,6 +477,17 @@
       "dailyMoodAll": "每日心情 · 完整歷史",
       "emptyNudge": "寫日記後這裡就會填滿。\n{{catName}}正在等待你。",
       "emptyWriteCTA": "去寫今天的日記"
+    },
+    "emotion": {
+      "joy": "喜悅",
+      "sadness": "悲傷",
+      "anger": "憤怒",
+      "fear": "恐懼",
+      "surprise": "驚訝",
+      "disgust": "厭惡",
+      "neutral": "普通",
+      "uncertain": "不確定",
+      "calm": "平靜"
     },
     "reminders": {
       "weeklyReportTitle": "週報通知",
