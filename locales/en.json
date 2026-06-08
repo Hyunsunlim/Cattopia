@@ -300,8 +300,17 @@
     "promptNow": "Now",
     "promptFiveMin": "In 5 min",
     "promptOneHour": "In 1 hour",
-    "notePromptBody": "Want to write a note? 📝",
-    "writeReminderBody": "How about writing a bit more about that feeling? ✍️"
+    "notePromptBody": "{{catName}} is hungry 🐱 Want to write something?",
+    "writeReminderBody": "{{catName}} wants more 🐾 How about writing a little more?",
+    "autoPromptSun": "{{catName}} is hungry 🐱 What happened this week?",
+    "autoPromptMon": "New week! Feed {{catName}} your first story 🍚",
+    "autoPromptTue": "{{catName}} is waiting... anything on your mind today? 🐾",
+    "autoPromptWed": "{{catName}} hasn't eaten yet today 😿 What's going on?",
+    "autoPromptThu": "Did something surprise you? {{catName}} wants to hear 🐱",
+    "autoPromptFri": "Almost weekend — feed {{catName}} before the day ends 🍚",
+    "autoPromptSat": "Weekend~ {{catName}} loves weekend stories 😺",
+    "weeklyReportReadyBody": "Your weekly report is ready 📊 See how {{catName}} grew this week",
+    "reminderDefaultBody": "{{catName}} is waiting 🐱 Got a story to tell today?"
   },
   "meow": {
     "home": {

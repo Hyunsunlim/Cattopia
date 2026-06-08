@@ -300,8 +300,17 @@
     "promptNow": "現在",
     "promptFiveMin": "5 分鐘後",
     "promptOneHour": "1 小時後",
-    "notePromptBody": "要寫筆記嗎？ 📝",
-    "writeReminderBody": "再多寫一點關於那個感受吧？ ✍️"
+    "notePromptBody": "{{catName}}肚子餓了 🐱 要不要寫點什麼？",
+    "writeReminderBody": "{{catName}}還想聽更多 🐾 要不要再多寫一點關於那種感受？",
+    "autoPromptSun": "{{catName}}肚子餓了 🐱 這週發生了什麼事？",
+    "autoPromptMon": "新的一週！跟{{catName}}分享你的第一個故事吧 🍚",
+    "autoPromptTue": "{{catName}}在等你… 今天有什麼想法嗎？ 🐾",
+    "autoPromptWed": "{{catName}}今天還沒吃東西 😿 發生什麼事了？",
+    "autoPromptThu": "今天有什麼讓你驚訝的事嗎？{{catName}}想聽你說 🐱",
+    "autoPromptFri": "週末快到了 — 在今天結束前餵餵{{catName}}吧 🍚",
+    "autoPromptSat": "週末到啦〜 {{catName}}最喜歡週末的故事了 😺",
+    "weeklyReportReadyBody": "您的週報已經準備好了 📊 看看{{catName}}這週是如何成長的",
+    "reminderDefaultBody": "{{catName}}在等你 🐱 今天有什麼故事要分享嗎？"
   },
   "meow": {
     "home": {
@@ -415,7 +424,7 @@
       "totalWords": "總字數",
       "uniqueVocab": "{{n}} 個獨特詞彙",
       "noDataYet": "累積更多記錄後顯示",
-      "noData": "尚無資料",
+      "noData": "沒有資料",
       "dailyProgress": "今日進度",
       "emotionsTab": "情緒",
       "languageTab": "語言",

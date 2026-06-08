@@ -110,9 +110,14 @@ function AppContent() {
             if (settings.useAutoPrompts !== false) {
               await scheduleWeeklyNotifications(times);
             } else {
-              const oldDefault = 'How was your day?';
-              const defaultMsg = 'Choco is waiting 🐱 오늘 이야기 들려줄래요?';
-              const msg = (settings.notificationPreview && settings.notificationPreview !== oldDefault)
+              const catName = settings.catName || 'Choco';
+              const oldDefaults = [
+                'How was your day?',
+                'Choco is waiting 🐱 오늘 이야기 들려줄래요?',
+                `${catName} is waiting 🐱 오늘 이야기 들려줄래요?`,
+              ];
+              const defaultMsg = t('notifications.reminderDefaultBody', { catName });
+              const msg = (settings.notificationPreview && !oldDefaults.includes(settings.notificationPreview))
                 ? settings.notificationPreview
                 : defaultMsg;
               await scheduleMultipleNotifications(times, msg);

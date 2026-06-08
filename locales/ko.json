@@ -300,8 +300,17 @@
     "promptNow": "지금",
     "promptFiveMin": "5분 후",
     "promptOneHour": "1시간 후",
-    "notePromptBody": "메모를 작성해볼까요? 📝",
-    "writeReminderBody": "그 감정에 대해 조금 더 써볼까요? ✍️"
+    "notePromptBody": "{{catName}}이(가) 배고파해요 🐱 무언가 써보지 않을래요?",
+    "writeReminderBody": "{{catName}}이(가) 더 듣고 싶어해요 🐾 그 감정에 대해 조금 더 써볼까요?",
+    "autoPromptSun": "{{catName}}이(가) 배고파해요 🐱 이번 주는 어땠나요?",
+    "autoPromptMon": "새로운 한 주! {{catName}}에게 첫 이야기를 들려주세요 🍚",
+    "autoPromptTue": "{{catName}}이(가) 기다리고 있어요... 오늘 무슨 생각을 하고 있나요? 🐾",
+    "autoPromptWed": "{{catName}}이(가) 아직 오늘 못 먹었어요 😿 무슨 일이 있었나요?",
+    "autoPromptThu": "오늘 놀라운 일이 있었나요? {{catName}}이(가) 듣고 싶어해요 🐱",
+    "autoPromptFri": "주말이 다가와요 — 하루가 끝나기 전에 {{catName}}에게 먹이를 주세요 🍚",
+    "autoPromptSat": "주말이에요~ {{catName}}은(는) 주말 이야기를 좋아해요 😺",
+    "weeklyReportReadyBody": "주간 리포트가 준비됐어요 📊 이번 주 {{catName}}이(가) 어떻게 성장했는지 확인해보세요",
+    "reminderDefaultBody": "{{catName}}이(가) 기다리고 있어요 🐱 오늘 이야기 들려줄래요?"
   },
   "meow": {
     "home": {

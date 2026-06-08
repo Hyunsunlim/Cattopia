@@ -250,7 +250,7 @@ function InvitedFriendCard({ friend, onRemove, t }) {
         <Text style={styles.invitedTime}>{timeLabel}</Text>
         <View style={styles.pendingBadge}>
           <Ionicons name="time-outline" size={11} color={C.primary} />
-          <Text style={styles.pendingText}>Invited</Text>
+          <Text style={styles.pendingText}>{t('meow.ourHouse.pendingPlaceholder')}</Text>
         </View>
       </View>
       <TouchableOpacity onPress={onRemove} hitSlop={8} style={styles.moreBtn}>

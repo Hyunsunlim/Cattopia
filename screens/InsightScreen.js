@@ -127,56 +127,6 @@ function getTagColor(tag, allTags) {
   return TAG_COLORS[idx % TAG_COLORS.length];
 }
 
-// ── Keyword extraction patterns ──────────────────────────────────────────────
-const THINKING_KW = {
-  causal_reasoning: [
-    /[\uAC00-\uD7A3]+(?:으니까|니까|기때문에|때문에|이라서|라서|아서|어서|으므로|이므로|므로|탓에|덕분에)/g,
-    /그래서인지|그러니까|그래서|따라서|그러므로|그런데도/g,
-    /\b(?:because|since|therefore|thus|hence|so that|as a result|which is why)\b/gi,
-  ],
-  interpretation: [
-    /[\uAC00-\uD7A3]+(?:것 같|것같|인 듯|인듯|느낌|느껴|생각이|이해가|보인|보여)/g,
-    /\b(?:I think|I feel|it seems|I believe|I realize|I notice|feels like|looks like|means)\b/gi,
-  ],
-  event_listing: [
-    /[\uAC00-\uD7A3]+(?:했고|이었고|았고|었고|그렇고|그랬고)/g,
-    /그리고|또한|이후에|다음에|이후|그다음/g,
-    /\b(?:then|after that|next|and then|first|finally|later|afterwards)\b/gi,
-  ],
-};
-
-const LENS_KW = {
-  closed: [
-    /어차피|당연히|무조건|절대로?|확실히|분명히|틀림없이|반드시/g,
-    /\b(?:obviously|definitely|certainly|absolutely|clearly|of course|without doubt)\b/gi,
-  ],
-  rigid: [
-    /항상|늘|매번|원래|여전히|맨날|언제나/g,
-    /\b(?:always|every time|never|as usual|once again|still|keeps happening)\b/gi,
-  ],
-  passive: [
-    /[\uAC00-\uD7A3]+(?:됐잖아|게 됐|하게 됐|되어버렸)/g,
-    /어쩔 수 없|저절로/g,
-    /\b(?:it happened|ended up|couldn't help|things turned out|happened to|somehow)\b/gi,
-  ],
-  open: [
-    /혹시|어쩌면|아마도?|일까|할까|아닐까|모르겠|궁금/g,
-    /\b(?:maybe|perhaps|wonder|curious|what if|might be|could be|possibly)\b/gi,
-  ],
-};
-
-function extractKeywords(text, patterns) {
-  const results = {};
-  Object.entries(patterns).forEach(([cat, pats]) => {
-    const found = new Set();
-    pats.forEach(pat => {
-      (text.match(new RegExp(pat.source, pat.flags)) || []).forEach(m => found.add(m.trim()));
-    });
-    results[cat] = [...found].slice(0, 5);
-  });
-  return results;
-}
-
 // ── Reusable trend line chart ─────────────────────────────────────────────────
 // ── Insight 빈 상태 skeleton ──────────────────────────────────────────────────
 
@@ -477,10 +427,10 @@ export default function InsightScreen({ navigation }) {
   // ── Daily Patterns ─────────────────────────────────────────────────────────
   const getDailyPatterns = () => {
     const periods = [
-      { label: 'Morning', icon: '🌅', bg: '#FFF8EE', start: 5, end: 12 },
-      { label: 'Afternoon', icon: '☀️', bg: '#FFFBF0', start: 12, end: 17 },
-      { label: 'Evening', icon: '🏙️', bg: '#EEF0FF', start: 17, end: 21 },
-      { label: 'Night', icon: '🌙', bg: '#F0EEFF', start: 21, end: 29 },
+      { label: t('insight.morning'), icon: '🌅', bg: '#FFF8EE', start: 5, end: 12 },
+      { label: t('insight.afternoon'), icon: '☀️', bg: '#FFFBF0', start: 12, end: 17 },
+      { label: t('insight.evening'), icon: '🏙️', bg: '#EEF0FF', start: 17, end: 21 },
+      { label: t('insight.night'), icon: '🌙', bg: '#F0EEFF', start: 21, end: 29 },
     ];
     return periods.map(period => {
       const entries = diaries.filter(d => {
@@ -2034,7 +1984,7 @@ export default function InsightScreen({ navigation }) {
                   <View style={{ gap: 16, paddingVertical: 4 }}>
                     {depthItems.map(({ label, sublabel, pct, color }) => (
                       <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                        <Text style={{ width: 64, fontSize: 12, fontWeight: '600', color: theme.accent }}>{label}</Text>
+                        <Text style={{ width: 86, fontSize: 12, fontWeight: '600', color: theme.accent }} numberOfLines={1}>{label}</Text>
                         <View style={{ flex: 1, height: 40, backgroundColor: theme.border, borderRadius: 8, overflow: 'hidden' }}>
                           <View style={{ width: `${Math.max(pct, 8)}%`, height: '100%', backgroundColor: color, justifyContent: 'center', paddingLeft: 12 }}>
                             {pct >= 15 && <Text style={{ fontSize: 12, fontWeight: '600', color: '#fff' }}>{sublabel}</Text>}
@@ -2088,7 +2038,7 @@ export default function InsightScreen({ navigation }) {
               <Text style={styles.sectionSubtitle}>{t('meow.insight.allAvg')}</Text>
               <View style={styles.card}>
                 {hasData ? (
-                  <Svg width="100%" height={320} viewBox="-10 0 390 320">
+                  <Svg width="100%" height={320} viewBox="-10 0 430 320">
                     {[0.25, 0.5, 0.75, 1.0].map(v => (
                       <Polygon key={v} points={gridStr(v)} fill="none" stroke={theme.border} strokeWidth="1" />
                     ))}
@@ -2271,37 +2221,6 @@ export default function InsightScreen({ navigation }) {
           </View>
         </View>
 
-
-
-        {/* Word Patterns — Today */}
-        {(() => {
-          const todayStr = new Date().toLocaleDateString('en-US');
-          const todayText = diaries
-            .filter(d => new Date(d.timestamp).toLocaleDateString('en-US') === todayStr && d.content)
-            .map(d => d.content).join(' ');
-          if (!todayText.trim()) return null;
-          const thinkingKw = extractKeywords(todayText, THINKING_KW);
-          const lensKw = extractKeywords(todayText, LENS_KW);
-
-          const NOTHING = 'Nothing today';
-          const Chip = ({ text, bg, color, empty }) => (
-            <View style={[kwS.chip, { backgroundColor: bg }]}>
-              <Text style={[kwS.chipText, { color }, empty && kwS.chipTextEmpty]}>{text}</Text>
-            </View>
-          );
-          const Row = ({ label, words, bg, color }) => (
-            <View style={kwS.row}>
-              <Text style={[kwS.rowLabel, { color: theme.secondaryText }]}>{label}</Text>
-              <View style={kwS.chips}>
-                {words.length > 0
-                  ? words.map((w, i) => <Chip key={i} text={w} bg={bg} color={color} />)
-                  : <Chip text={NOTHING} bg={theme.background} color={theme.tertiaryText} empty />}
-              </View>
-            </View>
-          );
-
-          return null;
-        })()}
       </>
     );
   };
@@ -2419,12 +2338,10 @@ export default function InsightScreen({ navigation }) {
                   return (
                     <View style={[actS.noteItem, { borderLeftColor: tagColor, backgroundColor: theme.background }]}>
                       <View style={actS.noteHeader}>
-                        {item.tag ? (
+                        {item.tag && (
                           <View style={[actS.noteTagBadge, { backgroundColor: tagColor }]}>
                             <Text style={actS.noteTagBadgeText}>{item.tag}</Text>
                           </View>
-                        ) : (
-                          <Text style={[actS.noteNoTag, { color: theme.tertiaryText }]}>no tag</Text>
                         )}
                         <Text style={[actS.noteEmotion, { color: theme.tertiaryText }]}>{item.emoji} {t(`meow.emotion.${item.emotion}`, { defaultValue: item.emotion })}</Text>
                       </View>
@@ -2973,7 +2890,6 @@ const actS = StyleSheet.create({
   noteHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 6, gap: 6 },
   noteTagBadge: { borderRadius: 5, paddingHorizontal: 7, paddingVertical: 3 },
   noteTagBadgeText: { fontSize: 11, color: '#fff', fontWeight: '800' },
-  noteNoTag: { fontSize: 11, fontWeight: '500' },
   noteEmotion: { marginLeft: 'auto', fontSize: 12 },
   noteTitle: { fontSize: 14, fontWeight: '700', marginBottom: 4 },
   noteContent: { fontSize: 12, lineHeight: 17 },
@@ -3538,43 +3454,6 @@ const langS = StyleSheet.create({
   noSynonymText: {
     fontSize: 13,
     fontStyle: 'italic',
-  },
-});
-
-const kwS = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    paddingVertical: 10,
-    gap: 10,
-  },
-  rowLabel: {
-    width: 82,
-    fontSize: 13,
-    fontWeight: '600',
-    paddingTop: 4,
-  },
-  chips: {
-    flex: 1,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
-  },
-  chip: {
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-  },
-  chipText: {
-    fontSize: 13,
-    fontWeight: '500',
-  },
-  chipTextEmpty: {
-    fontStyle: 'italic',
-    fontWeight: '400',
-  },
-  divider: {
-    height: StyleSheet.hairlineWidth,
   },
 });
 

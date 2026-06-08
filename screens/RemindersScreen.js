@@ -69,8 +69,12 @@ export default function RemindersScreen({ navigation }) {
         }
         const savedPreview = parsed.notificationPreview;
         const catName = parsed.catName || 'Choco';
-        const oldDefaults = ['How was your day?', 'Choco is waiting 🐱 오늘 이야기 들려줄래요?'];
-        const newDefault = `${catName} is waiting 🐱 오늘 이야기 들려줄래요?`;
+        const oldDefaults = [
+          'How was your day?',
+          'Choco is waiting 🐱 오늘 이야기 들려줄래요?',
+          `${catName} is waiting 🐱 오늘 이야기 들려줄래요?`,
+        ];
+        const newDefault = t('notifications.reminderDefaultBody', { catName });
         setNotificationPreview(savedPreview && !oldDefaults.includes(savedPreview) ? savedPreview : newDefault);
         if (parsed.useAutoPrompts !== undefined) {
           setUseAutoPrompts(parsed.useAutoPrompts);

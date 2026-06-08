@@ -21,7 +21,7 @@ try {
   GoogleSignin = {
     configure: () => {},
     hasPlayServices: async () => true,
-    signIn: async () => { throw new Error('Google 로그인은 개발 빌드에서만 사용할 수 있어요.'); },
+    signIn: async () => { const e = new Error('GOOGLE_SIGNIN_UNAVAILABLE'); e.code = 'GOOGLE_SIGNIN_UNAVAILABLE'; throw e; },
   };
 }
 
@@ -98,7 +98,7 @@ export default function LoginScreen({ onLogin, onGoToSignup }) {
       if (token) await saveToken(token);
       onLogin();
     } catch (err) {
-      setError(err.message || t('login.loginFailed'));
+      setError(err.code === 'GOOGLE_SIGNIN_UNAVAILABLE' ? t('login.googleUnavailable') : (err.message || t('login.loginFailed')));
     } finally {
       setLoading(false);
     }

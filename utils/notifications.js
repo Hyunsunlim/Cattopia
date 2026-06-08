@@ -3,6 +3,7 @@ import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { APP_NAME } from '../constants/appConfig';
+import i18n from '../i18n';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -14,16 +15,16 @@ Notifications.setNotificationHandler({
 
 export async function setupNotificationCategories() {
   await Notifications.setNotificationCategoryAsync('mood-check', [
-    { identifier: 'good', buttonTitle: '😊 Good', options: { opensAppToForeground: false } },
-    { identifier: 'bad', buttonTitle: '😔 Not great', options: { opensAppToForeground: false } },
-    { identifier: 'stressed', buttonTitle: '😤 Stressed', options: { opensAppToForeground: false } },
-    { identifier: 'tired', buttonTitle: '😴 Tired', options: { opensAppToForeground: false } },
+    { identifier: 'good', buttonTitle: i18n.t('notifications.moodGood'), options: { opensAppToForeground: false } },
+    { identifier: 'bad', buttonTitle: i18n.t('notifications.moodNotGreat'), options: { opensAppToForeground: false } },
+    { identifier: 'stressed', buttonTitle: i18n.t('notifications.moodStressed'), options: { opensAppToForeground: false } },
+    { identifier: 'tired', buttonTitle: i18n.t('notifications.moodTired'), options: { opensAppToForeground: false } },
   ]);
 
   await Notifications.setNotificationCategoryAsync('note-prompt', [
-    { identifier: 'now', buttonTitle: 'Now', options: { opensAppToForeground: true } },
-    { identifier: 'five-min', buttonTitle: 'In 5 min', options: { opensAppToForeground: false } },
-    { identifier: 'one-hour', buttonTitle: 'In 1 hour', options: { opensAppToForeground: false } },
+    { identifier: 'now', buttonTitle: i18n.t('notifications.promptNow'), options: { opensAppToForeground: true } },
+    { identifier: 'five-min', buttonTitle: i18n.t('notifications.promptFiveMin'), options: { opensAppToForeground: false } },
+    { identifier: 'one-hour', buttonTitle: i18n.t('notifications.promptOneHour'), options: { opensAppToForeground: false } },
   ]);
 }
 
@@ -64,17 +65,14 @@ async function getCatName() {
 }
 
 const getWeekdayMessages = (name) => [
-  `${name} is hungry 🐱 What happened this week?`,         // Sun
-  `New week! Feed ${name} your first story 🍚`,            // Mon
-  `${name} is waiting... anything on your mind today? 🐾`, // Tue
-  `${name} hasn't eaten yet today 😿 What's going on?`,    // Wed
-  `Did something surprise you? ${name} wants to hear 🐱`,  // Thu
-  `Almost weekend — feed ${name} before the day ends 🍚`,  // Fri
-  `Weekend~ ${name} loves weekend stories 😺`,             // Sat
+  i18n.t('notifications.autoPromptSun', { catName: name }),
+  i18n.t('notifications.autoPromptMon', { catName: name }),
+  i18n.t('notifications.autoPromptTue', { catName: name }),
+  i18n.t('notifications.autoPromptWed', { catName: name }),
+  i18n.t('notifications.autoPromptThu', { catName: name }),
+  i18n.t('notifications.autoPromptFri', { catName: name }),
+  i18n.t('notifications.autoPromptSat', { catName: name }),
 ];
-
-// 하위 호환용
-export const WEEKDAY_MESSAGES = getWeekdayMessages('Choco');
 
 export async function scheduleWeeklyNotifications(times) {
   await cancelAllNotifications();
@@ -145,7 +143,7 @@ export async function scheduleNotePromptNotification(diaryId) {
   return Notifications.scheduleNotificationAsync({
     content: {
       title: APP_NAME,
-      body: `${catName} is hungry 🐱 Want to write something?`,
+      body: i18n.t('notifications.notePromptBody', { catName }),
       sound: true,
       categoryIdentifier: 'note-prompt',
       data: { diaryId, type: 'note-prompt' },
@@ -162,7 +160,7 @@ export async function scheduleWriteReminderNotification(delayMinutes, diaryId) {
   return Notifications.scheduleNotificationAsync({
     content: {
       title: APP_NAME,
-      body: `${catName} wants more 🐾 How about writing a little more?`,
+      body: i18n.t('notifications.writeReminderBody', { catName }),
       sound: true,
       data: { diaryId, type: 'write-reminder' },
     },
@@ -193,7 +191,7 @@ export async function scheduleWeeklyReportNotification() {
   const id = await Notifications.scheduleNotificationAsync({
     content: {
       title: APP_NAME,
-      body: `Your weekly report is ready 📊 See how ${catName} grew this week`,
+      body: i18n.t('notifications.weeklyReportReadyBody', { catName }),
       sound: true,
       data: { type: 'weekly-report' },
     },
