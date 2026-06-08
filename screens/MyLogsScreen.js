@@ -105,7 +105,7 @@ function DiaryItem({ item, onDelete, onEdit }) {
           </View>
         ) : item.emotion === 'neutral' ? (
           <View style={[S.badge, S.badgeNeutral]}>
-            <Text style={[S.badgeText, S.badgeTextNeutral]}>😌</Text>
+            <Text style={[S.badgeText, S.badgeTextNeutral]}>😌 calm</Text>
           </View>
         ) : (
           <View style={[S.badge, S.badgeNeutral]}>
