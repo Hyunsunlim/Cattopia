@@ -1,9 +1,11 @@
 import { useRef, useState } from 'react';
 import { Share, Animated } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import { createInvite, removeFriend as removeFriendAPI } from '../services/friends';
 
 export function useInviteFriend() {
+  const { t, i18n } = useTranslation();
   const insets = useSafeAreaInsets();
   const [toastMessage, setToastMessage] = useState('');
   const toastAnim = useRef(new Animated.Value(-80)).current;
@@ -21,12 +23,14 @@ export function useInviteFriend() {
   const sendInvite = async () => {
     let inviteId = null;
     try {
-      const { id, invite_link } = await createInvite();
+      const { id, invite_link: base_link } = await createInvite();
+      const lang = i18n.language?.split('-')[0] ?? 'en';
+      const invite_link = `${base_link}?lang=${lang}`;
       inviteId = id;
       const result = await Share.share({
-        message: `함께 고양이를 키워봐요! 🐱\nMeow 앱에서 매일 이야기를 쓰면 고양이가 자라요.\n${invite_link}`,
+        message: `${t('meow.ourHouse.inviteMessage')}\n${invite_link}`,
         url: invite_link,
-        title: 'Meow — 함께 키우기',
+        title: t('meow.ourHouse.title'),
       });
       if (result.action === Share.sharedAction) {
         showToast('초대장을 보냈어요! 🐱');

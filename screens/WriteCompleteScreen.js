@@ -48,6 +48,7 @@ export default function WriteCompleteScreen({ navigation, route }) {
   const remaining = Math.max(0, TOTAL_STORIES - count);
   const progress = Math.min(1, count / TOTAL_STORIES);
 
+
   const [catEmoji, setCatEmoji] = useState('😸');
   const [emotionLabel, setEmotionLabel] = useState(null);
   const [analyzing, setAnalyzing] = useState(true);
@@ -60,17 +61,9 @@ export default function WriteCompleteScreen({ navigation, route }) {
   const catScale = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    // AI 분석 후 감정 반영 — /analyze 끝나면 즉시 표시, /analyze-note는 백그라운드
+    // 백그라운드 분석 실행 — My Logs에서 결과 표시, 이 화면엔 감정 노출 안 함
     if (serverId && content) {
-      analyzeNote(serverId, content, (emotion) => {
-        if (EMOTION_CAT[emotion]) {
-          setCatEmoji(EMOTION_CAT[emotion]);
-          setEmotionLabel(EMOTION_LABEL[emotion] ?? null);
-        }
-        setAnalyzing(false);
-      }).catch(() => { setAnalyzing(false); });
-    } else {
-      setAnalyzing(false);
+      analyzeNote(serverId, content, () => {}).catch(() => {});
     }
   }, []);
 

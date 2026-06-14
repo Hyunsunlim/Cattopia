@@ -159,7 +159,10 @@ export default function OurHouseScreen() {
             <InvitedFriendCard key={friend.id ?? `inv-${i}`} friend={friend} onRemove={() => handleRemoveFriend(friend)} t={t} />
           ))}
 
-          <GrowColonyCard onPress={handleInvite} t={t} />
+          {activeFriends.length === 0 && invitedFriends.length === 0
+            ? <EmptyHouseState onPress={handleInvite} t={t} />
+            : <GrowColonyCard onPress={handleInvite} t={t} />
+          }
         </ScrollView>
       </SafeAreaView>
 
@@ -257,6 +260,34 @@ function InvitedFriendCard({ friend, onRemove, t }) {
         <Ionicons name="ellipsis-horizontal" size={18} color={C.outline} />
       </TouchableOpacity>
     </TouchableOpacity>
+  );
+}
+
+function EmptyHouseState({ onPress, t }) {
+  const steps = [
+    t('meow.ourHouse.emptyStep1'),
+    t('meow.ourHouse.emptyStep2'),
+    t('meow.ourHouse.emptyStep3'),
+  ];
+  return (
+    <View style={styles.emptyWrap}>
+      <Text style={styles.emptyCats}>🐱🐱</Text>
+      <Text style={styles.emptyTitle}>{t('meow.ourHouse.emptyTitle')}</Text>
+      <Text style={styles.emptyDesc}>{t('meow.ourHouse.emptyDesc')}</Text>
+      <View style={styles.stepsWrap}>
+        {steps.map((step, i) => (
+          <View key={i} style={styles.stepRow}>
+            <View style={styles.stepNum}>
+              <Text style={styles.stepNumText}>{i + 1}</Text>
+            </View>
+            <Text style={styles.stepText}>{step}</Text>
+          </View>
+        ))}
+      </View>
+      <TouchableOpacity style={styles.emptyBtn} onPress={onPress} activeOpacity={0.8}>
+        <Text style={styles.emptyBtnText}>{t('meow.ourHouse.emptyBtn')}</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
@@ -363,6 +394,40 @@ const styles = StyleSheet.create({
   invitedTime: { fontSize: 12, color: C.outline },
   pendingBadge: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   pendingText: { fontSize: 12, fontWeight: '600', color: C.primary },
+
+  // Empty state
+  emptyWrap: {
+    flex: 1, alignItems: 'center', justifyContent: 'center',
+    paddingVertical: 32, gap: 0,
+  },
+  emptyCats: { fontSize: 52, letterSpacing: -4, marginBottom: 20 },
+  emptyTitle: {
+    fontSize: 18, fontWeight: '700', color: C.onSurface,
+    fontFamily: SERIF, textAlign: 'center', lineHeight: 26, marginBottom: 10,
+  },
+  emptyDesc: {
+    fontSize: 14, color: C.outline, textAlign: 'center',
+    lineHeight: 20, marginBottom: 24,
+  },
+  stepsWrap: { width: '100%', gap: 10, marginBottom: 28 },
+  stepRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    backgroundColor: C.surface, borderRadius: 12, padding: 12,
+  },
+  stepNum: {
+    width: 24, height: 24, borderRadius: 12,
+    backgroundColor: C.primaryContainer,
+    justifyContent: 'center', alignItems: 'center',
+  },
+  stepNumText: { fontSize: 12, fontWeight: '700', color: C.primary },
+  stepText: { fontSize: 13, color: C.onSurfaceVariant, flex: 1, lineHeight: 18 },
+  emptyBtn: {
+    width: '100%', paddingVertical: 16, borderRadius: 99,
+    backgroundColor: C.primaryContainer, alignItems: 'center',
+  },
+  emptyBtnText: {
+    fontSize: 16, fontWeight: '700', color: C.primary, fontFamily: SERIF,
+  },
 
   // Grow the colony
   growCard: {
